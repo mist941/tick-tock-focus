@@ -4,6 +4,7 @@
   "version": "1.1.0",
   "minimum_chrome_version": "120",
   "description": "Multi-step focus timer: Pomodoro, 52/17 or your own routine. A notification at every step. No site access, no account required.",
+  "homepage_url": "https://ticktockfocus.com",
   "action": {
     "default_title": "TickTockFocus",
     "default_popup": "popup/popup.html",
