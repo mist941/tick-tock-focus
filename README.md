@@ -4,7 +4,7 @@
 
 A multi-step focus timer for Chrome: Pomodoro, 52/17 or your own routine. A preset is a sequence of steps, such as 25 minutes of work and 5 of rest, that run back to back, with a notification at the end of every step. No site access, no account required.
 
-[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae)
+[Website](https://ticktockfocus.com) · [Install from the Chrome Web Store](https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae)
 
 ## Features
 
@@ -26,8 +26,8 @@ There is no build step and there are no dependencies: the repository root is the
 
 ## Privacy
 
-The extension uses only the `storage`, `alarms` and `notifications` permissions. Presets and settings live in Chrome's sync storage, so they follow your Google account when Chrome Sync is on; the running timer stays in your browser. There are no servers, tracking or analytics. See the [privacy policy](https://ticktockfocus.com/privacy.html).
+The extension uses only the `storage`, `alarms` and `notifications` permissions. Presets and settings live in Chrome's sync storage, so they follow your Google account when Chrome Sync is on; the running timer stays in your browser. There are no servers, tracking or analytics. When you remove the extension, Chrome opens a short page on ticktockfocus.com that asks for feedback; the extension sends nothing with it. See the [privacy policy](https://ticktockfocus.com/privacy.html).
 
 ## License
 
-[Apache 2.0](LICENSE). Report bugs and ideas in [GitHub issues](https://github.com/mist941/TickTockFocus/issues).
+[Apache 2.0](LICENSE). Report bugs and ideas in [GitHub issues](https://github.com/mist941/tick-tock-focus/issues).

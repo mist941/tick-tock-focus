@@ -1,6 +1,7 @@
 const COUNTDOWN_ALARM = "countdown";
 const SEGMENT_ALARM_PREFIX = "clock_";
 const COMPLETION_GRACE_MS = 60_000;
+const UNINSTALL_FEEDBACK_URL = "https://ticktockfocus.com/uninstall.html";
 const RUN_STATE_RESET = {
   isRunning: false,
   endTime: null,
@@ -192,3 +193,13 @@ function queueReconcileRunState() {
 
 chrome.runtime.onInstalled.addListener(queueReconcileRunState);
 chrome.runtime.onStartup.addListener(queueReconcileRunState);
+
+async function registerUninstallFeedbackUrl() {
+  try {
+    await chrome.runtime.setUninstallURL(UNINSTALL_FEEDBACK_URL);
+  } catch (error) {
+    console.warn("Couldn't set the uninstall feedback URL:", error);
+  }
+}
+
+registerUninstallFeedbackUrl();
