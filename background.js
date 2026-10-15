@@ -1,18 +1,38 @@
-import { isLegacyPreset, migrateLegacyPreset } from "./shared/routine.js";
+import {
+  CATCH_UP_GRACE_MS,
+  expandRoutine,
+  getStagesDurationMs,
+  isLegacyPreset,
+  migrateLegacyPreset,
+  normalizeRoutine,
+  planCatchUp,
+} from "./shared/routine.js";
 import { makeStepLabel } from "./shared/stage-labels.js";
-import { STORAGE_KEYS, getItems, setItems, toComparableJson } from "./shared/storage.js";
+import {
+  STORAGE_KEYS,
+  getItems,
+  getSettings,
+  presetKey,
+  setItems,
+  toComparableJson,
+} from "./shared/storage.js";
+import {
+  createRun,
+  extendCurrentStage,
+  migrateLegacyRun,
+  pauseRun,
+  resumeRun,
+  skipCurrentStage,
+  startAwaitedStage,
+} from "./background/run-engine.js";
 
-const COUNTDOWN_ALARM = "countdown";
-const SEGMENT_ALARM_PREFIX = "clock_";
-const COMPLETION_GRACE_MS = 60_000;
+const STAGE_END_ALARM = "stage_end";
+const LEGACY_COUNTDOWN_ALARM = "countdown";
+const LEGACY_SEGMENT_ALARM_PREFIX = "clock_";
+const RUN_KEY = "run";
+const LEGACY_RUN_KEYS = ["isRunning", "endTime", "totalDuration", "presetName", "clocks"];
+const NOTIFICATION_ICON_URL = "icons/icon512.png";
 const UNINSTALL_FEEDBACK_URL = "https://ticktockfocus.com/uninstall.html";
-const RUN_STATE_RESET = {
-  isRunning: false,
-  endTime: null,
-  totalDuration: null,
-  presetName: null,
-  clocks: null,
-};
 
 let lifecycleQueue = Promise.resolve();
 function runExclusive(task) {
@@ -21,26 +41,34 @@ function runExclusive(task) {
   return result;
 }
 
-function getSegmentDurationMs(clock) {
-  return (clock.hours * 3600 + clock.minutes * 60 + clock.seconds) * 1000;
+async function readEngineSettings() {
+  const settings = await getSettings();
+  return { autoAdvance: settings.autoAdvance !== false, timeFormat: settings.timeFormat };
 }
 
-function isPastGracePeriod(time) {
-  return Date.now() - time >= COMPLETION_GRACE_MS;
+function describeNotification(notification, { previousRun, nextRun }) {
+  const descriptions = {
+    stageDone: () => ({
+      title: `${previousRun.stages[notification.stageIndex].label} done`,
+      message: `Next: ${nextRun.stages[nextRun.stageIndex].label}`,
+    }),
+    routineComplete: () => ({ title: `${previousRun.routineName} complete`, message: "" }),
+    lateFinish: () => ({
+      title: `${previousRun.routineName} finished at ${new Date(
+        notification.finishedAt
+      ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+      message: "",
+    }),
+    caughtUp: () => ({ title: `Now: ${nextRun.stages[nextRun.stageIndex].label}`, message: "" }),
+  };
+  return descriptions[notification.type]();
 }
 
-function formatHoursAndMinutes(time) {
-  return new Date(time).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-async function showNotification(title, message) {
+async function showNotification({ title, message }) {
   try {
     await chrome.notifications.create({
       type: "basic",
-      iconUrl: "icons/icon512.png",
+      iconUrl: NOTIFICATION_ICON_URL,
       title,
       message,
       priority: 2,
@@ -50,124 +78,112 @@ async function showNotification(title, message) {
   }
 }
 
-async function clearTimerAlarms() {
+const isLegacyAlarmName = (name) =>
+  name === LEGACY_COUNTDOWN_ALARM || name.startsWith(LEGACY_SEGMENT_ALARM_PREFIX);
+
+async function clearLegacyAlarms() {
   const alarms = await chrome.alarms.getAll();
-  const timerAlarms = alarms.filter(
-    (alarm) =>
-      alarm.name === COUNTDOWN_ALARM ||
-      alarm.name.startsWith(SEGMENT_ALARM_PREFIX)
+  await Promise.all(
+    alarms
+      .filter((alarm) => isLegacyAlarmName(alarm.name))
+      .map((alarm) => chrome.alarms.clear(alarm.name))
   );
-  await Promise.all(timerAlarms.map((alarm) => chrome.alarms.clear(alarm.name)));
 }
 
-async function completeTimer({ finishTime } = {}) {
-  const { presetName } = await chrome.storage.local.get("presetName");
-  await clearTimerAlarms();
-  await chrome.storage.local.set(RUN_STATE_RESET);
-  const message =
-    finishTime === undefined
-      ? `Timer "${presetName}" completed!`
-      : `Timer "${presetName}" finished at ${formatHoursAndMinutes(finishTime)}.`;
-  await showNotification("Timer Complete", message);
-}
-
-async function finishExpiredRun(run, { announceLateFinish }) {
-  if (!isPastGracePeriod(run.endTime)) {
-    await completeTimer();
-  } else if (announceLateFinish) {
-    await completeTimer({ finishTime: run.endTime });
+async function syncStageAlarm(run) {
+  if (run?.status === "running") {
+    await chrome.alarms.create(STAGE_END_ALARM, { when: run.stageEndsAt });
   } else {
-    await stopTimer();
+    await chrome.alarms.clear(STAGE_END_ALARM);
   }
 }
 
-async function scheduleRunAlarms(runStartTime, clocks, endTime) {
+async function saveRun(run) {
+  if (run) {
+    await chrome.storage.local.set({ [RUN_KEY]: run });
+  } else {
+    await chrome.storage.local.remove(RUN_KEY);
+  }
+  await syncStageAlarm(run);
+}
+
+async function loadRun(now) {
+  const storedState = await chrome.storage.local.get([RUN_KEY, ...LEGACY_RUN_KEYS]);
+  const hasLegacyRunState = LEGACY_RUN_KEYS.some((key) => storedState[key] !== undefined);
+  if (!hasLegacyRunState) return storedState[RUN_KEY] ?? null;
+
+  const run = storedState[RUN_KEY] ?? migrateLegacyRun(storedState, now, makeStepLabel);
+  if (run) await chrome.storage.local.set({ [RUN_KEY]: run });
+  await chrome.storage.local.remove(LEGACY_RUN_KEYS);
+  await clearLegacyAlarms();
+  return run;
+}
+
+async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
   const now = Date.now();
-  await chrome.alarms.create(COUNTDOWN_ALARM, { when: endTime });
-
-  let segmentEndTime = runStartTime;
-  for (const [index, clock] of clocks.slice(0, -1).entries()) {
-    segmentEndTime += getSegmentDurationMs(clock);
-    if (segmentEndTime <= now) continue;
-    await chrome.alarms.create(`${SEGMENT_ALARM_PREFIX}${index}`, {
-      when: segmentEndTime,
-    });
-  }
-}
-
-async function startTimer({ duration, presetName, clocks }) {
-  const previousRun = await chrome.storage.local.get(["isRunning", "endTime"]);
-  if (previousRun.isRunning && previousRun.endTime <= Date.now()) {
-    await finishExpiredRun(previousRun, { announceLateFinish: false });
-  }
-
-  await clearTimerAlarms();
-
-  const startTime = Date.now();
-  const endTime = startTime + duration;
-  await scheduleRunAlarms(startTime, clocks, endTime);
-
-  await chrome.storage.local.set({
-    isRunning: true,
-    endTime,
-    totalDuration: duration,
-    presetName,
-    clocks,
+  const run = await loadRun(now);
+  const settings = await readEngineSettings();
+  const catchUpTime =
+    run?.status === "running" && run.stageEndsAt === dueAt ? Math.max(now, dueAt) : now;
+  const plan = planCatchUp(run, catchUpTime, {
+    autoAdvance: settings.autoAdvance,
+    graceMs: CATCH_UP_GRACE_MS,
   });
-}
 
-async function stopTimer() {
-  await clearTimerAlarms();
-  await chrome.storage.local.set(RUN_STATE_RESET);
-}
-
-async function reconcileRunState() {
-  const run = await chrome.storage.local.get([
-    "isRunning",
-    "endTime",
-    "totalDuration",
-    "clocks",
-  ]);
-
-  if (!run.isRunning) {
-    await clearTimerAlarms();
-  } else if (run.endTime <= Date.now()) {
-    await finishExpiredRun(run, { announceLateFinish: true });
-  } else {
-    const runStartTime = run.endTime - run.totalDuration;
-    await clearTimerAlarms();
-    await scheduleRunAlarms(runStartTime, run.clocks, run.endTime);
+  if (plan.run === run) {
+    await syncStageAlarm(run);
+    return run;
   }
-}
 
-async function handleAlarm(alarm) {
-  const run = await chrome.storage.local.get([
-    "isRunning",
-    "endTime",
-    "totalDuration",
-    "presetName",
-  ]);
-
-  const runStartTime = run.endTime - run.totalDuration;
-  if (!run.isRunning || alarm.scheduledTime < runStartTime) return;
-
-  if (alarm.name === COUNTDOWN_ALARM) {
-    await finishExpiredRun(run, { announceLateFinish: true });
-  } else if (
-    alarm.name.startsWith(SEGMENT_ALARM_PREFIX) &&
-    !isPastGracePeriod(alarm.scheduledTime)
-  ) {
-    const clockIndex = Number(alarm.name.slice(SEGMENT_ALARM_PREFIX.length));
+  await saveRun(plan.run);
+  if (plan.notification && (announceLateFinish || plan.notification.type !== "lateFinish")) {
     await showNotification(
-      "Clock Milestone Reached",
-      `Point #${clockIndex + 1} in "${run.presetName}" completed!`
+      describeNotification(plan.notification, { previousRun: run, nextRun: plan.run })
     );
   }
+  return plan.run;
+}
+
+async function applyRunCommand(transition) {
+  const run = await catchUpRun();
+  const nextRun = transition(run, Date.now());
+  if (nextRun === run) return run;
+  await saveRun(nextRun);
+  return nextRun;
+}
+
+async function readRoutine(routineId) {
+  if (typeof routineId !== "string" || routineId === "") return null;
+  const key = presetKey(routineId);
+  const items = await getItems(key);
+  return normalizeRoutine(items[key], makeStepLabel);
+}
+
+async function startRoutine({ routineId }) {
+  const currentRun = await catchUpRun({ announceLateFinish: false });
+  if (currentRun) return currentRun;
+
+  const routine = await readRoutine(routineId);
+  if (!routine) throw new Error(`Routine ${routineId} was not found`);
+  const stages = expandRoutine(routine);
+  if (getStagesDurationMs(stages) <= 0) throw new Error(`Routine ${routineId} has no duration`);
+
+  const run = createRun(routine, stages, Date.now());
+  await saveRun(run);
+  return run;
 }
 
 const MESSAGE_HANDLERS = new Map([
-  ["startTimer", startTimer],
-  ["stopTimer", stopTimer],
+  ["startRoutine", startRoutine],
+  ["stopRoutine", () => applyRunCommand(() => null)],
+  ["pauseRoutine", () => applyRunCommand(pauseRun)],
+  ["resumeRoutine", () => applyRunCommand(resumeRun)],
+  ["skipStage", () => applyRunCommand(skipCurrentStage)],
+  [
+    "extendStage",
+    ({ minutes }) => applyRunCommand((run) => extendCurrentStage(run, minutes)),
+  ],
+  ["startNextStage", () => applyRunCommand(startAwaitedStage)],
 ]);
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -175,7 +191,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (!handler) return false;
 
   runExclusive(() => handler(request))
-    .then(() => sendResponse({ success: true }))
+    .then((run) => sendResponse({ success: true, run }))
     .catch((error) => {
       console.error(`${request.action} failed:`, error);
       sendResponse({ success: false, error: error.message });
@@ -183,11 +199,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 
+async function handleAlarm(alarm) {
+  if (alarm.name === STAGE_END_ALARM) {
+    await catchUpRun({ dueAt: alarm.scheduledTime });
+  } else if (isLegacyAlarmName(alarm.name)) {
+    await chrome.alarms.clear(alarm.name);
+    await catchUpRun();
+  }
+}
+
 chrome.alarms.onAlarm.addListener((alarm) => {
   runExclusive(() => handleAlarm(alarm)).catch((error) =>
     console.error(`Handling alarm ${alarm.name} failed:`, error)
   );
 });
+
+async function reconcileRunState() {
+  await catchUpRun();
+  await clearLegacyAlarms();
+}
 
 function queueReconcileRunState() {
   runExclusive(() => reconcileRunState()).catch((error) =>
