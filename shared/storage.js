@@ -62,6 +62,18 @@ export async function retryLocalOnlyItems({ maxItems }) {
   }
 }
 
+export function toComparableJson(value) {
+  return JSON.stringify(value, (key, nestedValue) =>
+    nestedValue && typeof nestedValue === "object" && !Array.isArray(nestedValue)
+      ? Object.fromEntries(
+          Object.entries(nestedValue).sort(([first], [second]) =>
+            first < second ? -1 : first > second ? 1 : 0
+          )
+        )
+      : nestedValue
+  );
+}
+
 export async function getSettings() {
   const items = await getItems(STORAGE_KEYS.SETTINGS);
   return items[STORAGE_KEYS.SETTINGS] || {};

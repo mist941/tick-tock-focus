@@ -1,4 +1,10 @@
-import { ROUTINE_LIMITS } from "../shared/routine.js";
+import {
+  ROUTINE_LIMITS,
+  expandRoutine,
+  normalizeRoutine,
+  toLegacyClocks,
+} from "../shared/routine.js";
+import { makeStepLabel } from "../shared/stage-labels.js";
 import * as SharedStorage from "../shared/storage.js";
 
 const CONFIG = {
@@ -145,12 +151,15 @@ const Storage = {
     const items = await this.getItems(null);
     return Object.entries(items)
       .filter(([key]) => key.startsWith(CONFIG.STORAGE_KEYS.PRESET_PREFIX))
-      .map(([, preset]) => preset)
+      .map(([, storedPreset]) => normalizeRoutine(storedPreset, makeStepLabel))
+      .filter((routine) => routine !== null)
       .sort((first, second) => (first.createdAt || 0) - (second.createdAt || 0));
   },
 
-  async savePreset(preset) {
-    await this.setItems({ [this.presetKey(preset.id)]: preset });
+  async saveRoutine(routineOrPreset) {
+    const routine = normalizeRoutine(routineOrPreset, makeStepLabel);
+    const storedRoutine = { ...routine, clocks: toLegacyClocks(expandRoutine(routine)) };
+    await this.setItems({ [this.presetKey(routine.id)]: storedRoutine });
   },
 
   async deletePreset(presetId) {
@@ -178,18 +187,6 @@ const LegacyMigration = {
       preset !== null &&
       typeof preset === "object" &&
       Array.isArray(preset.clocks)
-    );
-  },
-
-  toComparableJson(value) {
-    return JSON.stringify(value, (key, nestedValue) =>
-      nestedValue && typeof nestedValue === "object" && !Array.isArray(nestedValue)
-        ? Object.fromEntries(
-            Object.entries(nestedValue).sort(([first], [second]) =>
-              first < second ? -1 : first > second ? 1 : 0
-            )
-          )
-        : nestedValue
     );
   },
 
@@ -257,8 +254,8 @@ const LegacyMigration = {
       const storedItems = await Storage.getItems(keysToVerify);
       const isIntact = keysToVerify.every(
         (key) =>
-          this.toComparableJson(storedItems[key]) ===
-          this.toComparableJson(itemsToWrite[key])
+          SharedStorage.toComparableJson(storedItems[key]) ===
+          SharedStorage.toComparableJson(itemsToWrite[key])
       );
       if (!isIntact) throw new Error("Migrated data did not read back intact");
     }
@@ -800,7 +797,7 @@ const PresetFormManager = {
         createdAt: Date.now(),
       };
 
-      await Storage.savePreset(preset);
+      await Storage.saveRoutine(preset);
       this.showMessage("");
       this.hideForm();
       await this.loadSavedPresets();

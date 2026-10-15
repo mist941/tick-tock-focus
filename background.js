@@ -1,3 +1,7 @@
+import { isLegacyPreset, migrateLegacyPreset } from "./shared/routine.js";
+import { makeStepLabel } from "./shared/stage-labels.js";
+import { STORAGE_KEYS, getItems, setItems, toComparableJson } from "./shared/storage.js";
+
 const COUNTDOWN_ALARM = "countdown";
 const SEGMENT_ALARM_PREFIX = "clock_";
 const COMPLETION_GRACE_MS = 60_000;
@@ -191,7 +195,37 @@ function queueReconcileRunState() {
   );
 }
 
-chrome.runtime.onInstalled.addListener(queueReconcileRunState);
+async function migrateStoredPresets() {
+  const storedItems = await getItems(null);
+  const migratedItems = Object.fromEntries(
+    Object.entries(storedItems)
+      .filter(
+        ([key, storedPreset]) =>
+          key.startsWith(STORAGE_KEYS.PRESET_PREFIX) && isLegacyPreset(storedPreset)
+      )
+      .map(([key, storedPreset]) => [key, migrateLegacyPreset(storedPreset, makeStepLabel)])
+  );
+  const migratedKeys = Object.keys(migratedItems);
+  if (migratedKeys.length === 0) return;
+
+  await setItems(migratedItems);
+  const itemsAfterWrite = await getItems(migratedKeys);
+  const unmatchedKeys = migratedKeys.filter(
+    (key) => toComparableJson(itemsAfterWrite[key]) !== toComparableJson(migratedItems[key])
+  );
+  if (unmatchedKeys.length > 0) {
+    console.warn("Some presets did not read back as migrated routines:", unmatchedKeys);
+  }
+}
+
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  queueReconcileRunState();
+  if (reason === "update") {
+    migrateStoredPresets().catch((error) =>
+      console.error("Migrating presets to routines failed:", error)
+    );
+  }
+});
 chrome.runtime.onStartup.addListener(queueReconcileRunState);
 
 async function registerUninstallFeedbackUrl() {
