@@ -1,4 +1,5 @@
 import { ROUTINE_LIMITS } from "../shared/routine.js";
+import * as SharedStorage from "../shared/storage.js";
 
 const CONFIG = {
   UPDATE_INTERVAL: 1000,
@@ -20,8 +21,7 @@ const CONFIG = {
   MAX_SYNC_RETRIES_PER_OPEN: 10,
   PRESETS_RELOAD_DELAY_MS: 150,
   STORAGE_KEYS: {
-    SETTINGS: "settings",
-    PRESET_PREFIX: "preset_",
+    ...SharedStorage.STORAGE_KEYS,
     LEGACY_PRESETS: "presets",
     LEGACY_SETTINGS: "settings",
     END_TIME: "endTime",
@@ -124,70 +124,15 @@ const Utils = {
 };
 
 const Storage = {
-  isQuotaError(error) {
-    return /quota/i.test(error?.message || "");
-  },
+  presetKey: SharedStorage.presetKey,
+  getItems: SharedStorage.getItems,
+  setItems: SharedStorage.setItems,
+  getSettings: SharedStorage.getSettings,
 
-  isWriteRateError(error) {
-    return /MAX_WRITE_OPERATIONS_PER_(MINUTE|HOUR)/.test(error?.message || "");
-  },
-
-  presetKey(presetId) {
-    return `${CONFIG.STORAGE_KEYS.PRESET_PREFIX}${presetId}`;
-  },
-
-  async getItems(keys) {
-    const [syncItems, localItems] = await Promise.all([
-      chrome.storage.sync.get(keys),
-      chrome.storage.local.get(keys),
-    ]);
-    return { ...syncItems, ...localItems };
-  },
-
-  async setItems(items) {
-    try {
-      await chrome.storage.sync.set(items);
-    } catch (error) {
-      if (!this.isQuotaError(error)) throw error;
-
-      const entries = Object.entries(items);
-      if (entries.length === 1) {
-        await chrome.storage.local.set(items);
-        return;
-      }
-      for (const [key, value] of entries) {
-        await this.setItems({ [key]: value });
-      }
-      return;
-    }
-    await chrome.storage.local.remove(Object.keys(items));
-  },
-
-  async retryLocalOnlyItems() {
-    const localItems = await chrome.storage.local.get(null);
-    const keysToRetry = Object.keys(localItems)
-      .filter(
-        (key) =>
-          key.startsWith(CONFIG.STORAGE_KEYS.PRESET_PREFIX) ||
-          key === CONFIG.STORAGE_KEYS.SETTINGS
-      )
-      .slice(0, CONFIG.MAX_SYNC_RETRIES_PER_OPEN);
-
-    for (const key of keysToRetry) {
-      try {
-        await chrome.storage.sync.set({ [key]: localItems[key] });
-      } catch (error) {
-        if (this.isWriteRateError(error)) return;
-        if (this.isQuotaError(error)) continue;
-        throw error;
-      }
-      await chrome.storage.local.remove(key);
-    }
-  },
-
-  async getSettings() {
-    const items = await this.getItems(CONFIG.STORAGE_KEYS.SETTINGS);
-    return items[CONFIG.STORAGE_KEYS.SETTINGS] || {};
+  retryLocalOnlyItems() {
+    return SharedStorage.retryLocalOnlyItems({
+      maxItems: CONFIG.MAX_SYNC_RETRIES_PER_OPEN,
+    });
   },
 
   async setSettings(key, value) {
