@@ -1,7 +1,9 @@
+import { ROUTINE_LIMITS } from "../shared/routine.js";
+
 const CONFIG = {
   UPDATE_INTERVAL: 1000,
   DEFAULT_TIME_FORMAT: "24h",
-  MIN_SEGMENT_SECONDS: 30,
+  MIN_SEGMENT_SECONDS: ROUTINE_LIMITS.stageMinSec,
   SEGMENT_FIELD_LIMITS: {
     hours: { min: 0, max: 23, label: "Hours" },
     minutes: { min: 0, max: 59, label: "Minutes" },
@@ -13,7 +15,7 @@ const CONFIG = {
     HEIGHT: 13,
     GAP: 2,
   },
-  MAX_PRESET_NAME_LENGTH: 50,
+  MAX_PRESET_NAME_LENGTH: ROUTINE_LIMITS.nameMaxLength,
   MAX_SEGMENTS_PER_PRESET: 50,
   MAX_SYNC_RETRIES_PER_OPEN: 10,
   PRESETS_RELOAD_DELAY_MS: 150,
