@@ -30,7 +30,6 @@ import { NOTIFICATION_ID, buildNotification } from "./background/notifications.j
 const STAGE_END_ALARM = "stage_end";
 const LEGACY_COUNTDOWN_ALARM = "countdown";
 const LEGACY_SEGMENT_ALARM_PREFIX = "clock_";
-const RUN_KEY = "run";
 const LEGACY_RUN_KEYS = ["isRunning", "endTime", "totalDuration", "presetName", "clocks"];
 const NOTIFICATION_ICON_URL = "icons/icon512.png";
 const UNINSTALL_FEEDBACK_URL = "https://ticktockfocus.com/uninstall.html";
@@ -92,20 +91,21 @@ async function syncStageAlarm(run) {
 
 async function saveRun(run) {
   if (run) {
-    await chrome.storage.local.set({ [RUN_KEY]: run });
+    await chrome.storage.local.set({ [STORAGE_KEYS.RUN]: run });
   } else {
-    await chrome.storage.local.remove(RUN_KEY);
+    await chrome.storage.local.remove(STORAGE_KEYS.RUN);
   }
   await syncStageAlarm(run);
 }
 
 async function loadRun(now) {
-  const storedState = await chrome.storage.local.get([RUN_KEY, ...LEGACY_RUN_KEYS]);
+  const storedState = await chrome.storage.local.get([STORAGE_KEYS.RUN, ...LEGACY_RUN_KEYS]);
+  const storedRun = storedState[STORAGE_KEYS.RUN] ?? null;
   const hasLegacyRunState = LEGACY_RUN_KEYS.some((key) => storedState[key] !== undefined);
-  if (!hasLegacyRunState) return storedState[RUN_KEY] ?? null;
+  if (!hasLegacyRunState) return storedRun;
 
-  const run = storedState[RUN_KEY] ?? migrateLegacyRun(storedState, now, makeStepLabel);
-  if (run) await chrome.storage.local.set({ [RUN_KEY]: run });
+  const run = storedRun ?? migrateLegacyRun(storedState, now, makeStepLabel);
+  if (run) await chrome.storage.local.set({ [STORAGE_KEYS.RUN]: run });
   await chrome.storage.local.remove(LEGACY_RUN_KEYS);
   await clearLegacyAlarms();
   return run;

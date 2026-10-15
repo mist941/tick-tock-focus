@@ -393,6 +393,19 @@ input[type="number"]::-webkit-inner-spin-button {
   font-variant-numeric: tabular-nums;
 }
 
+.stage-summary {
+  max-width: 168px;
+  margin: 0 auto;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+
+  & p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .timer-controls {
   display: flex;
   gap: var(--spacing-md);

@@ -5,6 +5,7 @@ import {
   ROUTINE_LIMITS,
   STAGE_KINDS,
   expandRoutine,
+  getRunProgress,
   migrateLegacyPreset,
   normalizeRoutine,
   planCatchUp,
@@ -499,5 +500,48 @@ describe("planCatchUp", () => {
     planCatchUp(run, startedAt + 2.5 * minute, auto);
     planCatchUp(run, startedAt + minute, wait);
     assert.deepEqual(run, snapshot);
+  });
+});
+
+describe("getRunProgress", () => {
+  const stages = [
+    { label: "A", kind: "focus", durationSec: 60 },
+    { label: "B", kind: "break", durationSec: 120 },
+    { label: "C", kind: "focus", durationSec: 180 },
+  ];
+  const now = 2_000_000;
+
+  test("running: time left in the stage and in the routine", () => {
+    const run = { status: "running", stages, stageIndex: 1, stageEndsAt: now + 45_000 };
+    assert.deepEqual(getRunProgress(run, now), {
+      stageRemainingMs: 45_000,
+      routineRemainingMs: 225_000,
+      routineDurationMs: 360_000,
+    });
+  });
+
+  test("running: never below zero or above the stage length", () => {
+    const ended = { status: "running", stages, stageIndex: 2, stageEndsAt: now - 5_000 };
+    assert.equal(getRunProgress(ended, now).stageRemainingMs, 0);
+    const skewed = { status: "running", stages, stageIndex: 0, stageEndsAt: now + 600_000 };
+    assert.equal(getRunProgress(skewed, now).stageRemainingMs, 60_000);
+  });
+
+  test("paused: the stored time left", () => {
+    const run = { status: "paused", stages, stageIndex: 0, remainingMs: 10_000 };
+    assert.deepEqual(getRunProgress(run, now), {
+      stageRemainingMs: 10_000,
+      routineRemainingMs: 310_000,
+      routineDurationMs: 360_000,
+    });
+  });
+
+  test("waiting: the full length of the stage about to start", () => {
+    const run = { status: "awaitingNext", stages, stageIndex: 1 };
+    assert.deepEqual(getRunProgress(run, now), {
+      stageRemainingMs: 120_000,
+      routineRemainingMs: 300_000,
+      routineDurationMs: 360_000,
+    });
   });
 });

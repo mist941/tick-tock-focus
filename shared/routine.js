@@ -271,3 +271,19 @@ export function planCatchUp(run, now, { autoAdvance, graceMs }) {
   return { run: nextRun, notification };
 }
 
+
+export function getRunProgress(run, now) {
+  const currentStageMs = getStageDurationMs(run.stages[run.stageIndex]);
+  const stageRemainingByStatus = {
+    running: () => Math.min(currentStageMs, Math.max(0, run.stageEndsAt - now)),
+    paused: () => run.remainingMs,
+    awaitingNext: () => currentStageMs,
+  };
+  const stageRemainingMs = stageRemainingByStatus[run.status]();
+  return {
+    stageRemainingMs,
+    routineRemainingMs:
+      stageRemainingMs + getStagesDurationMs(run.stages.slice(run.stageIndex + 1)),
+    routineDurationMs: getStagesDurationMs(run.stages),
+  };
+}
