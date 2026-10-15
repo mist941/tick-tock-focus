@@ -25,6 +25,7 @@ import {
   skipCurrentStage,
   startAwaitedStage,
 } from "./background/run-engine.js";
+import { NOTIFICATION_ID, buildNotification } from "./background/notifications.js";
 
 const STAGE_END_ALARM = "stage_end";
 const LEGACY_COUNTDOWN_ALARM = "countdown";
@@ -46,35 +47,26 @@ async function readEngineSettings() {
   return { autoAdvance: settings.autoAdvance !== false, timeFormat: settings.timeFormat };
 }
 
-function describeNotification(notification, { previousRun, nextRun }) {
-  const descriptions = {
-    stageDone: () => ({
-      title: `${previousRun.stages[notification.stageIndex].label} done`,
-      message: `Next: ${nextRun.stages[nextRun.stageIndex].label}`,
-    }),
-    routineComplete: () => ({ title: `${previousRun.routineName} complete`, message: "" }),
-    lateFinish: () => ({
-      title: `${previousRun.routineName} finished at ${new Date(
-        notification.finishedAt
-      ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
-      message: "",
-    }),
-    caughtUp: () => ({ title: `Now: ${nextRun.stages[nextRun.stageIndex].label}`, message: "" }),
-  };
-  return descriptions[notification.type]();
-}
-
-async function showNotification({ title, message }) {
+async function showNotification({ title, message, requireInteraction }) {
   try {
-    await chrome.notifications.create({
+    await chrome.notifications.create(NOTIFICATION_ID, {
       type: "basic",
       iconUrl: NOTIFICATION_ICON_URL,
       title,
       message,
       priority: 2,
+      requireInteraction,
     });
   } catch (error) {
     console.error("Couldn't show notification:", error);
+  }
+}
+
+async function clearStageNotification() {
+  try {
+    await chrome.notifications.clear(NOTIFICATION_ID);
+  } catch (error) {
+    console.error("Couldn't clear the notification:", error);
   }
 }
 
@@ -138,7 +130,12 @@ async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
   await saveRun(plan.run);
   if (plan.notification && (announceLateFinish || plan.notification.type !== "lateFinish")) {
     await showNotification(
-      describeNotification(plan.notification, { previousRun: run, nextRun: plan.run })
+      buildNotification(plan.notification, {
+        previousRun: run,
+        nextRun: plan.run,
+        now: catchUpTime,
+        timeFormat: settings.timeFormat,
+      })
     );
   }
   return plan.run;
@@ -149,6 +146,7 @@ async function applyRunCommand(transition) {
   const nextRun = transition(run, Date.now());
   if (nextRun === run) return run;
   await saveRun(nextRun);
+  if (run.status === "awaitingNext") await clearStageNotification();
   return nextRun;
 }
 
