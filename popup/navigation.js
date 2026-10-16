@@ -69,7 +69,7 @@ export function openScreen(screenName, { returnFocusTo, options } = {}) {
 function resolveReturnFocus() {
   const target =
     typeof returnFocusTarget === "function" ? returnFocusTarget() : returnFocusTarget;
-  return target?.isConnected ? target : null;
+  return target?.isConnected && target.checkVisibility() ? target : null;
 }
 
 export function closeScreen() {

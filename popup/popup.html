@@ -50,45 +50,44 @@
           <ul class="routine-list" id="routine_list"></ul>
           <p class="empty-state-title routines-empty" id="routines_empty" data-ui-text="routines.empty" hidden></p>
           <button type="button" class="text-button" id="routines_new_routine"></button>
-          <form id="preset_form" class="preset-form">
-            <div class="preset-container">
-              <div class="form-field">
-                <label for="preset_name" class="input-label">Preset name</label>
-                <input type="text" class="input" id="preset_name" placeholder="e.g. Pomodoro" required autocomplete="off" aria-describedby="preset_name_error">
-                <p id="preset_name_error" class="form-message error" aria-live="polite"></p>
-              </div>
-              <div class="form-field">
-                <div class="clock-settings">
-                  <div class="clock-input-container" role="group" aria-label="Segment duration">
-                    <div class="clock-input-wrapper">
-                      <input type="number" class="input clock-input" id="preset_hours" placeholder="00" aria-describedby="segment_error">
-                      <label for="preset_hours" class="clock-input-label"><span aria-hidden="true">H</span><span class="visually-hidden">Hours</span></label>
-                    </div>
-                    <span aria-hidden="true">:</span>
-                    <div class="clock-input-wrapper">
-                      <input type="number" class="input clock-input" id="preset_minutes" placeholder="00" aria-describedby="segment_error">
-                      <label for="preset_minutes" class="clock-input-label"><span aria-hidden="true">M</span><span class="visually-hidden">Minutes</span></label>
-                    </div>
-                    <span aria-hidden="true">:</span>
-                    <div class="clock-input-wrapper">
-                      <input type="number" class="input clock-input" id="preset_seconds" placeholder="00" aria-describedby="segment_error">
-                      <label for="preset_seconds" class="clock-input-label"><span aria-hidden="true">S</span><span class="visually-hidden">Seconds</span></label>
-                    </div>
-                  </div>
-                  <button class="button" type="button" id="add_preset_clock">Add</button>
-                </div>
-                <p id="segment_error" class="form-message error" aria-live="polite"></p>
-              </div>
-            </div>
-            <ol class="clock-presets-list" aria-label="Segments"></ol>
-            <p id="segments_status" class="visually-hidden" aria-live="polite"></p>
-            <p id="segments_error" class="form-message error" aria-live="polite"></p>
-            <div class="buttons-group">
-              <button class="button button-secondary" id="cancel_preset" type="button">Cancel</button>
-              <button class="button" id="add_preset" type="button">Create</button>
-            </div>
-          </form>
         </div>
+      </section>
+
+      <section class="screen" data-screen="editor" aria-labelledby="editor_heading" hidden>
+        <header class="screen-header">
+          <button type="button" class="icon-button" data-back data-ui-label="navigation.back"><span class="back-arrow" aria-hidden="true">←</span></button>
+          <h1 class="screen-heading" id="editor_heading" tabindex="-1" data-screen-heading></h1>
+        </header>
+        <form class="screen-body editor-form" id="editor_form" novalidate>
+          <p class="editor-note" id="editor_running_note" data-ui-text="editor.runningNote" hidden></p>
+          <p class="editor-note is-warning" id="editor_limit_note" hidden></p>
+          <div class="form-field">
+            <label class="input-label" for="editor_name" data-ui-text="editor.name"></label>
+            <input type="text" class="input" id="editor_name" autocomplete="off" aria-describedby="editor_name_error">
+            <p class="field-error" id="editor_name_error"></p>
+          </div>
+          <ol class="editor-blocks" id="editor_blocks" data-ui-label="editor.stepsLabel"></ol>
+          <div class="editor-add-buttons">
+            <button type="button" class="text-button" id="editor_add_stage"></button>
+            <button type="button" class="text-button" id="editor_add_group"></button>
+          </div>
+          <p class="field-error" id="editor_routine_error" tabindex="-1"></p>
+          <p class="visually-hidden" id="editor_status" aria-live="polite"></p>
+        </form>
+        <footer class="editor-footer">
+          <p class="editor-total" id="editor_total"></p>
+          <div class="editor-discard" id="editor_discard" role="group" aria-labelledby="editor_discard_text" hidden>
+            <p id="editor_discard_text" data-ui-text="editor.discardQuestion"></p>
+            <div class="editor-actions">
+              <button type="button" class="button button-secondary" id="editor_discard_confirm" data-ui-text="editor.discard"></button>
+              <button type="button" class="button button-primary" id="editor_keep_editing" data-ui-text="editor.keepEditing"></button>
+            </div>
+          </div>
+          <div class="editor-actions">
+            <button type="button" class="button button-secondary" id="editor_cancel" data-ui-text="editor.cancel"></button>
+            <button type="button" class="button button-primary" id="editor_save" data-ui-text="editor.save"></button>
+          </div>
+        </footer>
       </section>
 
       <section class="screen" data-screen="settings" aria-labelledby="settings_heading" hidden>

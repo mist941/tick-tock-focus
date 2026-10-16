@@ -19,6 +19,7 @@ const elements = {
 
 let pendingReplacementRoutineId = null;
 let renderedActiveRoutineId;
+let openRoutineEditor = () => {};
 
 export function showRoutinesMessage(text) {
   elements.message.textContent = text;
@@ -152,6 +153,16 @@ function createRoutineRow(routine, activeRun, routineIndex) {
     menuId: `routine_menu_${routineIndex}`,
     label: formatUiString(UI_STRINGS.routines.moreActions, { name: routine.name }),
     items: [
+      {
+        text: UI_STRINGS.routines.edit,
+        onSelect: () =>
+          openRoutineEditor({
+            routine,
+            returnFocusTo: () =>
+              findRow(routine.id)?.querySelector('[data-row-control="menu"]') ??
+              elements.newRoutineButton,
+          }),
+      },
       { text: UI_STRINGS.routines.duplicate, onSelect: () => duplicateRoutine(routine) },
       {
         text: UI_STRINGS.routines.delete,
@@ -246,7 +257,8 @@ async function deleteRoutine(routine, routineIndex) {
   });
 }
 
-export function initializeRoutinesView({ openRoutineEditor }) {
+export function initializeRoutinesView({ openRoutineEditor: openEditor }) {
+  openRoutineEditor = openEditor;
   elements.newRoutineButton.replaceChildren(
     createIcon("plus"),
     createElement("span", { text: UI_STRINGS.routines.newRoutine })

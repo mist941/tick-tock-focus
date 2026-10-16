@@ -284,8 +284,12 @@ export function initializeTimerView({ openRoutineEditor }) {
   elements.stopButton.addEventListener("click", () =>
     runCommand("stopRoutine", {}, elements.runMessage)
   );
+  const getVisibleNewRoutineButton = () =>
+    elements.newRoutineButton.hidden ? elements.createRoutineButton : elements.newRoutineButton;
   [elements.newRoutineButton, elements.createRoutineButton].forEach((button) =>
-    button.addEventListener("click", () => openRoutineEditor({ returnFocusTo: button }))
+    button.addEventListener("click", () =>
+      openRoutineEditor({ returnFocusTo: getVisibleNewRoutineButton })
+    )
   );
 
   subscribeToPopupState((change) => {
