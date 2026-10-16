@@ -10,6 +10,13 @@ export const UI_STRINGS = Object.freeze({
   },
   settings: {
     heading: "Settings",
+    nextStep: "Next step",
+    startAutomatically: "Start automatically",
+    waitForMe: "Wait for me",
+    timeFormat: "Time format",
+    hours24: "24-hour",
+    hours12: "12-hour",
+    saveFailed: "Couldn't save the setting. Try again.",
     linksLabel: "TickTockFocus links",
     website: "Website",
     sendFeedback: "Send feedback",

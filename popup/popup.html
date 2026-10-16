@@ -95,7 +95,18 @@
           <button type="button" class="icon-button" data-back data-ui-label="navigation.back"><span class="back-arrow" aria-hidden="true">←</span></button>
           <h1 class="screen-heading" id="settings_heading" tabindex="-1" data-screen-heading data-ui-text="settings.heading"></h1>
         </header>
-        <div class="screen-body">
+        <div class="screen-body settings-body">
+          <fieldset class="settings-group">
+            <legend data-ui-text="settings.nextStep"></legend>
+            <label class="radio-option"><input type="radio" name="next_step" value="auto"><span data-ui-text="settings.startAutomatically"></span></label>
+            <label class="radio-option"><input type="radio" name="next_step" value="wait"><span data-ui-text="settings.waitForMe"></span></label>
+          </fieldset>
+          <fieldset class="settings-group">
+            <legend data-ui-text="settings.timeFormat"></legend>
+            <label class="radio-option"><input type="radio" name="time_format" value="24h"><span data-ui-text="settings.hours24"></span></label>
+            <label class="radio-option"><input type="radio" name="time_format" value="12h"><span data-ui-text="settings.hours12"></span></label>
+          </fieldset>
+          <p class="panel-message" id="settings_message" aria-live="polite"></p>
           <nav class="settings-links" data-ui-label="settings.linksLabel">
             <a href="https://ticktockfocus.com" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.website"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
             <a href="mailto:support@ticktockfocus.com?subject=TickTockFocus%20feedback" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.sendFeedback"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>

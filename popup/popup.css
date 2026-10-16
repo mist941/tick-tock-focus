@@ -216,10 +216,48 @@ input[type="number"]::-webkit-inner-spin-button {
   text-align: left;
 }
 
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding: 0;
+  border: none;
+
+  & legend {
+    margin-bottom: var(--spacing-xs);
+    padding: 0;
+    font-weight: 600;
+  }
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: fit-content;
+  cursor: pointer;
+
+  & input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--color-brand);
+  }
+}
+
 .settings-links {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
 
   & a {
     color: var(--color-brand-text);
