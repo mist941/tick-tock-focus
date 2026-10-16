@@ -8,7 +8,7 @@ A multi-step focus timer for Chrome: Pomodoro, 52/17 or your own routine. A pres
 
 ## Features
 
-- Presets of up to 50 steps of 30 seconds or more; reorder steps by dragging or with the ↑/↓ buttons
+- Presets of up to 20 steps of 30 seconds or more; reorder steps by dragging or with the ↑/↓ buttons
 - A progress ring with labelled markers where steps end
 - Keeps running with the popup closed. If the timer ended while Chrome was closed or the computer was asleep, one notification tells you when it finished
 - Presets and settings sync across your computers when Chrome Sync is on
@@ -23,6 +23,8 @@ A multi-step focus timer for Chrome: Pomodoro, 52/17 or your own routine. A pres
 ## Development
 
 There is no build step and there are no dependencies: the repository root is the unpacked extension. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and select the repository folder. Chrome 120 or later is required.
+
+The unit tests for the shared logic run on Node's built-in test runner, with nothing to install: `npm test` (or `node --test`).
 
 ## Privacy
 

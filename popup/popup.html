@@ -26,6 +26,10 @@
             </svg>
             <div class="timer-display">
               <p class="countdown" id="countdown">00:00:00</p>
+              <div class="stage-summary" aria-live="polite">
+                <p id="stage_position"></p>
+                <p id="stage_status"></p>
+              </div>
             </div>
           </div>
           <div class="timer-controls">
@@ -102,7 +106,7 @@
                 <li>Go to the <strong>Timer</strong> tab</li>
                 <li>Select a preset from the dropdown</li>
                 <li>Click <strong>Start</strong> to begin the timer</li>
-                <li>The timer will run through all segments</li>
+                <li>The timer will run through all segments; under the countdown you see the current one, such as "Step 2 · 2 of 4"</li>
                 <li>You'll receive notifications at each milestone</li>
               </ol>
             </section>
@@ -125,6 +129,6 @@
         </div>
       </div>
     </main>
-    <script src="popup.js"></script>
+    <script type="module" src="popup.js"></script>
 </body>
 </html>

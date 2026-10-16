@@ -1,7 +1,23 @@
+import {
+  CATCH_UP_GRACE_MS,
+  ROUTINE_LIMITS,
+  ROUTINE_SCHEMA_VERSION,
+  expandRoutine,
+  getRunProgress,
+  getStageDurationMs,
+  getStagesDurationMs,
+  normalizeRoutine,
+  planCatchUp,
+  toLegacyClocks,
+  validateRoutine,
+} from "../shared/routine.js";
+import { makeStepLabel } from "../shared/stage-labels.js";
+import * as SharedStorage from "../shared/storage.js";
+
 const CONFIG = {
   UPDATE_INTERVAL: 1000,
   DEFAULT_TIME_FORMAT: "24h",
-  MIN_SEGMENT_SECONDS: 30,
+  MIN_SEGMENT_SECONDS: ROUTINE_LIMITS.stageMinSec,
   SEGMENT_FIELD_LIMITS: {
     hours: { min: 0, max: 23, label: "Hours" },
     minutes: { min: 0, max: 59, label: "Minutes" },
@@ -13,16 +29,14 @@ const CONFIG = {
     HEIGHT: 13,
     GAP: 2,
   },
-  MAX_PRESET_NAME_LENGTH: 50,
-  MAX_SEGMENTS_PER_PRESET: 50,
+  MAX_PRESET_NAME_LENGTH: ROUTINE_LIMITS.nameMaxLength,
+  MAX_SEGMENTS_PER_PRESET: ROUTINE_LIMITS.maxEditorRows,
   MAX_SYNC_RETRIES_PER_OPEN: 10,
   PRESETS_RELOAD_DELAY_MS: 150,
   STORAGE_KEYS: {
-    SETTINGS: "settings",
-    PRESET_PREFIX: "preset_",
+    ...SharedStorage.STORAGE_KEYS,
     LEGACY_PRESETS: "presets",
     LEGACY_SETTINGS: "settings",
-    END_TIME: "endTime",
   },
 };
 
@@ -31,6 +45,8 @@ const ELEMENTS = new Proxy(
     timer: {
       toggleButton: document.getElementById("timer_toggle"),
       countdownDisplay: document.getElementById("countdown"),
+      stagePosition: document.getElementById("stage_position"),
+      stageStatus: document.getElementById("stage_status"),
       clock: document.getElementById("clock"),
       presetSelect: document.getElementById("preset_select"),
       progressBar: document.querySelector(".timer-progress-bar"),
@@ -77,17 +93,8 @@ const ELEMENTS = new Proxy(
 const Utils = {
   padNumber: (num, size = 2) => String(num).padStart(size, "0"),
 
-  getSegmentDurationMs: (clock) =>
-    ((clock.hours || 0) * 3600 + (clock.minutes || 0) * 60 + (clock.seconds || 0)) *
-    1000,
-
-  getClocksDurationMs: (clocks) =>
-    clocks.reduce((total, clock) => total + Utils.getSegmentDurationMs(clock), 0),
-
-  hasShortSegments: (clocks) =>
-    clocks.some(
-      (clock) => Utils.getSegmentDurationMs(clock) < CONFIG.MIN_SEGMENT_SECONDS * 1000
-    ),
+  hasShortStages: (stages) =>
+    stages.some((stage) => stage.durationSec < CONFIG.MIN_SEGMENT_SECONDS),
 
   formatDuration(milliseconds) {
     const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
@@ -122,70 +129,15 @@ const Utils = {
 };
 
 const Storage = {
-  isQuotaError(error) {
-    return /quota/i.test(error?.message || "");
-  },
+  presetKey: SharedStorage.presetKey,
+  getItems: SharedStorage.getItems,
+  setItems: SharedStorage.setItems,
+  getSettings: SharedStorage.getSettings,
 
-  isWriteRateError(error) {
-    return /MAX_WRITE_OPERATIONS_PER_(MINUTE|HOUR)/.test(error?.message || "");
-  },
-
-  presetKey(presetId) {
-    return `${CONFIG.STORAGE_KEYS.PRESET_PREFIX}${presetId}`;
-  },
-
-  async getItems(keys) {
-    const [syncItems, localItems] = await Promise.all([
-      chrome.storage.sync.get(keys),
-      chrome.storage.local.get(keys),
-    ]);
-    return { ...syncItems, ...localItems };
-  },
-
-  async setItems(items) {
-    try {
-      await chrome.storage.sync.set(items);
-    } catch (error) {
-      if (!this.isQuotaError(error)) throw error;
-
-      const entries = Object.entries(items);
-      if (entries.length === 1) {
-        await chrome.storage.local.set(items);
-        return;
-      }
-      for (const [key, value] of entries) {
-        await this.setItems({ [key]: value });
-      }
-      return;
-    }
-    await chrome.storage.local.remove(Object.keys(items));
-  },
-
-  async retryLocalOnlyItems() {
-    const localItems = await chrome.storage.local.get(null);
-    const keysToRetry = Object.keys(localItems)
-      .filter(
-        (key) =>
-          key.startsWith(CONFIG.STORAGE_KEYS.PRESET_PREFIX) ||
-          key === CONFIG.STORAGE_KEYS.SETTINGS
-      )
-      .slice(0, CONFIG.MAX_SYNC_RETRIES_PER_OPEN);
-
-    for (const key of keysToRetry) {
-      try {
-        await chrome.storage.sync.set({ [key]: localItems[key] });
-      } catch (error) {
-        if (this.isWriteRateError(error)) return;
-        if (this.isQuotaError(error)) continue;
-        throw error;
-      }
-      await chrome.storage.local.remove(key);
-    }
-  },
-
-  async getSettings() {
-    const items = await this.getItems(CONFIG.STORAGE_KEYS.SETTINGS);
-    return items[CONFIG.STORAGE_KEYS.SETTINGS] || {};
+  retryLocalOnlyItems() {
+    return SharedStorage.retryLocalOnlyItems({
+      maxItems: CONFIG.MAX_SYNC_RETRIES_PER_OPEN,
+    });
   },
 
   async setSettings(key, value) {
@@ -198,12 +150,14 @@ const Storage = {
     const items = await this.getItems(null);
     return Object.entries(items)
       .filter(([key]) => key.startsWith(CONFIG.STORAGE_KEYS.PRESET_PREFIX))
-      .map(([, preset]) => preset)
+      .map(([, storedPreset]) => normalizeRoutine(storedPreset, makeStepLabel))
+      .filter((routine) => routine !== null)
       .sort((first, second) => (first.createdAt || 0) - (second.createdAt || 0));
   },
 
-  async savePreset(preset) {
-    await this.setItems({ [this.presetKey(preset.id)]: preset });
+  async saveRoutine(routine) {
+    const storedRoutine = { ...routine, clocks: toLegacyClocks(expandRoutine(routine)) };
+    await this.setItems({ [this.presetKey(routine.id)]: storedRoutine });
   },
 
   async deletePreset(presetId) {
@@ -231,18 +185,6 @@ const LegacyMigration = {
       preset !== null &&
       typeof preset === "object" &&
       Array.isArray(preset.clocks)
-    );
-  },
-
-  toComparableJson(value) {
-    return JSON.stringify(value, (key, nestedValue) =>
-      nestedValue && typeof nestedValue === "object" && !Array.isArray(nestedValue)
-        ? Object.fromEntries(
-            Object.entries(nestedValue).sort(([first], [second]) =>
-              first < second ? -1 : first > second ? 1 : 0
-            )
-          )
-        : nestedValue
     );
   },
 
@@ -310,8 +252,8 @@ const LegacyMigration = {
       const storedItems = await Storage.getItems(keysToVerify);
       const isIntact = keysToVerify.every(
         (key) =>
-          this.toComparableJson(storedItems[key]) ===
-          this.toComparableJson(itemsToWrite[key])
+          SharedStorage.toComparableJson(storedItems[key]) ===
+          SharedStorage.toComparableJson(itemsToWrite[key])
       );
       if (!isIntact) throw new Error("Migrated data did not read back intact");
     }
@@ -416,8 +358,9 @@ const ClockManager = {
 
 const TimerManager = {
   countdownIntervalId: null,
-  endTime: null,
-  totalDuration: null,
+  storedRun: null,
+  autoAdvance: true,
+  drawnStages: null,
   presets: [],
   isRunning: false,
 
@@ -427,7 +370,7 @@ const TimerManager = {
 
       if (!preset) return null;
 
-      return Utils.getClocksDurationMs(preset.clocks);
+      return getStagesDurationMs(expandRoutine(preset));
     } catch (error) {
       console.error("Error calculating preset duration:", error);
       return null;
@@ -463,24 +406,67 @@ const TimerManager = {
     this.updateStartButtonState();
   },
 
-  restoreTimerState() {
-    chrome.storage.local.get(
-      ["isRunning", "endTime", "totalDuration", "clocks"],
-      (result) => {
-        if (result.isRunning && result.endTime) {
-          this.endTime = result.endTime;
-          this.totalDuration = result.totalDuration;
-          this.startCountdownUpdate();
-          this.updateToggleButton(true);
+  async restoreTimerState() {
+    try {
+      const runKey = CONFIG.STORAGE_KEYS.RUN;
+      const [{ [runKey]: storedRun }, settings] = await Promise.all([
+        chrome.storage.local.get(runKey),
+        Storage.getSettings(),
+      ]);
+      this.storedRun = storedRun ?? null;
+      this.autoAdvance = settings.autoAdvance !== false;
+    } catch (error) {
+      console.error("Error restoring the timer state:", error);
+    }
+    this.render();
+  },
 
-          if (result.clocks) {
-            this.drawPresetPoints(result.clocks);
-          }
-        } else {
-          this.showIdleState();
-        }
-      }
+  getDisplayedRun(now) {
+    return planCatchUp(this.storedRun, now, {
+      autoAdvance: this.autoAdvance,
+      graceMs: CATCH_UP_GRACE_MS,
+    }).run;
+  },
+
+  render() {
+    const now = Date.now();
+    const run = this.getDisplayedRun(now);
+    if (!run) {
+      this.showIdleState();
+      return;
+    }
+
+    if (!this.isRunning) this.updateToggleButton(true);
+    if (this.drawnStages !== run.stages) {
+      this.drawPresetPoints(run.stages);
+      this.drawnStages = run.stages;
+    }
+
+    const { stageRemainingMs, routineRemainingMs, routineDurationMs } = getRunProgress(
+      run,
+      now
     );
+    ELEMENTS.timer.countdownDisplay.textContent = Utils.formatDuration(stageRemainingMs);
+    this.updateCircleProgress(routineDurationMs > 0 ? routineRemainingMs / routineDurationMs : 0);
+    this.showStageSummary(run);
+    this.startCountdownUpdate();
+  },
+
+  showStageSummary(run) {
+    const stage = run.stages[run.stageIndex];
+    const position = `${stage.label} · ${run.stageIndex + 1} of ${run.stages.length}`;
+    const summaryByStatus = {
+      running: { position, status: "" },
+      paused: { position, status: "Paused" },
+      awaitingNext: { position: "", status: `Waiting — next: ${stage.label}` },
+    };
+    const summary = summaryByStatus[run.status] ?? { position: "", status: "" };
+    this.setTextIfChanged(ELEMENTS.timer.stagePosition, summary.position);
+    this.setTextIfChanged(ELEMENTS.timer.stageStatus, summary.status);
+  },
+
+  setTextIfChanged(element, text) {
+    if (element.textContent !== text) element.textContent = text;
   },
 
   sendTimerCommand(message) {
@@ -505,27 +491,17 @@ const TimerManager = {
     );
   },
 
-  async startTimer(duration) {
-    const selectedPresetId = ELEMENTS.timer.presetSelect.value;
-    const preset = this.presets.find((p) => p.id === selectedPresetId);
-
-    if (!preset) return;
-
+  async startTimer(routineId) {
+    let response;
     try {
-      await this.sendTimerCommand({
-        action: "startTimer",
-        duration: duration,
-        presetName: preset.name,
-        clocks: preset.clocks,
-      });
+      response = await this.sendTimerCommand({ action: "startRoutine", routineId });
     } catch (error) {
-      this.showCommandError("startTimer", error);
+      this.showCommandError("startRoutine", error);
       return;
     }
 
-    this.drawPresetPoints(preset.clocks);
-    this.updateToggleButton(true);
-    this.startCountdownUpdate();
+    this.storedRun = response.run;
+    this.render();
   },
 
   createSvgElement(tag, attributes) {
@@ -568,19 +544,19 @@ const TimerManager = {
     return { element, box };
   },
 
-  drawPresetPoints(clocks) {
+  drawPresetPoints(stages) {
     this.clearPresetPoints();
     const circle = ELEMENTS.timer.progressBar;
     const center = { x: circle.cx.baseVal.value, y: circle.cy.baseVal.value };
     const radius = circle.r.baseVal.value;
-    const totalDuration = Utils.getClocksDurationMs(clocks);
+    const totalDuration = getStagesDurationMs(stages);
     if (totalDuration <= 0) return;
 
     const placedLabelBoxes = [];
     let accumulatedTime = 0;
 
-    clocks.forEach((clock) => {
-      accumulatedTime += Utils.getSegmentDurationMs(clock);
+    stages.forEach((stage) => {
+      accumulatedTime += getStageDurationMs(stage);
       if (accumulatedTime >= totalDuration) return;
 
       const angle = (accumulatedTime / totalDuration) * 2 * Math.PI;
@@ -608,14 +584,16 @@ const TimerManager = {
   },
 
   async stopTimer() {
+    let response;
     try {
-      await this.sendTimerCommand({ action: "stopTimer" });
+      response = await this.sendTimerCommand({ action: "stopRoutine" });
     } catch (error) {
-      this.showCommandError("stopTimer", error);
+      this.showCommandError("stopRoutine", error);
       return;
     }
 
-    this.showIdleState();
+    this.storedRun = response.run;
+    this.render();
   },
 
   showIdleState() {
@@ -624,37 +602,19 @@ const TimerManager = {
     this.updateCircleProgress(0);
     this.updateToggleButton(false);
     this.clearPresetPoints();
+    this.drawnStages = null;
+    this.setTextIfChanged(ELEMENTS.timer.stagePosition, "");
+    this.setTextIfChanged(ELEMENTS.timer.stageStatus, "");
   },
 
   startCountdownUpdate() {
-    this.stopCountdownUpdate();
-    this.updateCountdown();
-    this.countdownIntervalId = setInterval(
-      () => this.updateCountdown(),
-      CONFIG.UPDATE_INTERVAL
-    );
+    if (this.countdownIntervalId !== null) return;
+    this.countdownIntervalId = setInterval(() => this.render(), CONFIG.UPDATE_INTERVAL);
   },
 
   stopCountdownUpdate() {
     clearInterval(this.countdownIntervalId);
     this.countdownIntervalId = null;
-  },
-
-  updateCountdown() {
-    chrome.storage.local.get(
-      ["endTime", "totalDuration", "clocks"],
-      (result) => {
-        const timeLeft = result.endTime ? result.endTime - Date.now() : 0;
-
-        if (timeLeft <= 0) {
-          this.showIdleState();
-          return;
-        }
-
-        ELEMENTS.timer.countdownDisplay.textContent = Utils.formatDuration(timeLeft);
-        this.updateCircleProgress(timeLeft / result.totalDuration);
-      }
-    );
   },
 
   updateCircleProgress(remainingFraction) {
@@ -671,21 +631,17 @@ const TimerManager = {
   },
 
   toggleTimer() {
-    chrome.storage.local.get(["isRunning", "endTime"], (result) => {
-      if (result.isRunning && result.endTime > Date.now()) {
-        this.stopTimer();
-      } else {
-        const selectedPresetId = ELEMENTS.timer.presetSelect.value;
-        const duration =
-          selectedPresetId && this.getPresetDuration(selectedPresetId);
-        if (!duration) {
-          this.updateStartButtonState();
-          return;
-        }
+    if (this.getDisplayedRun(Date.now())) {
+      this.stopTimer();
+      return;
+    }
 
-        this.startTimer(duration);
-      }
-    });
+    const selectedPresetId = ELEMENTS.timer.presetSelect.value;
+    if (!selectedPresetId || !this.getPresetDuration(selectedPresetId)) {
+      this.updateStartButtonState();
+      return;
+    }
+    this.startTimer(selectedPresetId);
   },
 
   updateToggleButton(isRunning) {
@@ -736,7 +692,7 @@ const TimerManager = {
       this.showTimerMessage("This preset has no duration. Select another one.", {
         isError: true,
       });
-    } else if (Utils.hasShortSegments(selectedPreset.clocks)) {
+    } else if (Utils.hasShortStages(expandRoutine(selectedPreset))) {
       button.disabled = false;
       this.showTimerMessage(
         `Some segments are shorter than ${CONFIG.MIN_SEGMENT_SECONDS} seconds, so their notifications may arrive late.`
@@ -839,21 +795,33 @@ const PresetFormManager = {
         return;
       }
 
-      const clocks = clockItems.map((item, index) => ({
-        position: index,
-        hours: Number(item.dataset.hours),
-        minutes: Number(item.dataset.minutes),
-        seconds: Number(item.dataset.seconds),
-      }));
-
-      const preset = {
+      const now = Date.now();
+      const routine = {
         id: Utils.generateUUID(),
         name: presetName,
-        clocks: clocks,
-        createdAt: Date.now(),
+        createdAt: now,
+        updatedAt: now,
+        schemaVersion: ROUTINE_SCHEMA_VERSION,
+        blocks: clockItems.map((item, index) => ({
+          type: "stage",
+          label: makeStepLabel(index + 1),
+          kind: "custom",
+          durationSec:
+            Number(item.dataset.hours) * 3600 +
+            Number(item.dataset.minutes) * 60 +
+            Number(item.dataset.seconds),
+        })),
       };
+      const validationErrors = validateRoutine(routine);
+      if (validationErrors.length > 0) {
+        throw new Error(
+          `Invalid routine: ${validationErrors
+            .map((validationError) => `${validationError.code} at ${validationError.path}`)
+            .join(", ")}`
+        );
+      }
 
-      await Storage.savePreset(preset);
+      await Storage.saveRoutine(routine);
       this.showMessage("");
       this.hideForm();
       await this.loadSavedPresets();
@@ -1189,10 +1157,11 @@ const StorageWatcher = {
     if (changedKeys.some((key) => key.startsWith(CONFIG.STORAGE_KEYS.PRESET_PREFIX))) {
       this.schedulePresetsReload();
     }
-    if (changedKeys.includes(CONFIG.STORAGE_KEYS.SETTINGS)) {
+    const settingsChanged = changedKeys.includes(CONFIG.STORAGE_KEYS.SETTINGS);
+    if (settingsChanged) {
       ClockManager.loadTimeFormat();
     }
-    if (areaName === "local" && ("isRunning" in changes || "endTime" in changes)) {
+    if (settingsChanged || (areaName === "local" && CONFIG.STORAGE_KEYS.RUN in changes)) {
       TimerManager.restoreTimerState();
     }
   },
