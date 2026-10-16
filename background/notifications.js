@@ -1,3 +1,7 @@
+import * as Format from "../shared/format.js";
+
+const { fillTemplate } = Format;
+
 export const NOTIFICATION_ID = "stage";
 
 export const NOTIFICATION_TEXTS = Object.freeze({
@@ -17,35 +21,11 @@ export const NOTIFICATION_TEXTS = Object.freeze({
   afterNoon: "PM",
 });
 
-export function fillTemplate(template, values) {
-  return template.replace(/\{(\w+)\}/g, (placeholder, name) =>
-    Object.hasOwn(values, name) ? String(values[name]) : placeholder
-  );
-}
+export const formatSpokenDuration = (totalSeconds) =>
+  Format.formatSpokenDuration(totalSeconds, NOTIFICATION_TEXTS);
 
-export function formatSpokenDuration(totalSeconds) {
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  const parts = [
-    [hours, NOTIFICATION_TEXTS.hours],
-    [minutes, NOTIFICATION_TEXTS.minutes],
-    [seconds, NOTIFICATION_TEXTS.seconds],
-  ]
-    .filter(([count]) => count > 0)
-    .map(([count, template]) => fillTemplate(template, { count }));
-  return parts.length > 0 ? parts.join(" ") : fillTemplate(NOTIFICATION_TEXTS.seconds, { count: 0 });
-}
-
-export function formatClockTime(timestamp, timeFormat) {
-  const date = new Date(timestamp);
-  const hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  if (timeFormat !== "12h") return `${String(hours).padStart(2, "0")}:${minutes}`;
-
-  const suffix = hours >= 12 ? NOTIFICATION_TEXTS.afterNoon : NOTIFICATION_TEXTS.beforeNoon;
-  return `${String(hours % 12 || 12).padStart(2, "0")}:${minutes} ${suffix}`;
-}
+export const formatClockTime = (timestamp, timeFormat) =>
+  Format.formatClockTime(timestamp, timeFormat, NOTIFICATION_TEXTS);
 
 const sumDurationSec = (stages) => stages.reduce((totalSec, stage) => totalSec + stage.durationSec, 0);
 
