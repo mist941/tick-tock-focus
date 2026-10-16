@@ -7,17 +7,18 @@
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-    <main class="container">
-      <header class="header panel">
-        <div class="tab-container" role="tablist" aria-label="Sections">
-          <button type="button" class="tab" role="tab" id="tab_timer" data-tab="timer" aria-controls="panel_timer" aria-selected="true">Timer</button>
-          <button type="button" class="tab" role="tab" id="tab_presets" data-tab="presets" aria-controls="panel_presets" aria-selected="false" tabindex="-1">Presets</button>
-          <button type="button" class="tab" role="tab" id="tab_usage" data-tab="usage" aria-controls="panel_usage" aria-selected="false" tabindex="-1">Usage</button>
-        </div>
-        <button type="button" class="clock" id="clock" title="Switch between 12-hour and 24-hour time">00:00</button>
-      </header>
-      <div class="content panel">
-        <div class="tab-content" id="panel_timer" data-tab="timer" role="tabpanel" aria-labelledby="tab_timer">
+    <div class="app">
+      <section class="screen" data-screen="main">
+        <header class="app-header">
+          <div class="tab-list" role="tablist" data-ui-label="navigation.sections">
+            <button type="button" class="tab" role="tab" id="tab_timer" data-tab="timer" aria-controls="panel_timer" aria-selected="true" data-ui-text="navigation.timerTab"></button>
+            <button type="button" class="tab" role="tab" id="tab_routines" data-tab="routines" aria-controls="panel_routines" aria-selected="false" tabindex="-1" data-ui-text="navigation.routinesTab"></button>
+          </div>
+          <button type="button" class="icon-button" id="open_settings" data-ui-label="navigation.settings">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.14 12.94a7.07 7.07 0 0 0 .05-.94 7.07 7.07 0 0 0-.05-.94l2.03-1.58a.49.49 0 0 0 .12-.62l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.03 7.03 0 0 0-1.62-.94l-.36-2.54A.48.48 0 0 0 13.92 2h-3.84a.48.48 0 0 0-.48.41l-.36 2.54a7.37 7.37 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.72 8.47a.48.48 0 0 0 .12.62l2.03 1.58a7.07 7.07 0 0 0-.05.94c0 .32.02.63.05.94l-2.03 1.58a.49.49 0 0 0-.12.62l1.92 3.32c.12.22.38.3.59.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.25.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54a7.37 7.37 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.48.48 0 0 0-.12-.62l-2.03-1.58ZM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2Z"/></svg>
+          </button>
+        </header>
+        <div class="tab-panel" id="panel_timer" data-tab="timer" role="tabpanel" aria-labelledby="tab_timer">
           <div class="timer-circle">
             <svg class="timer-progress" viewBox="0 0 320 250" width="320" height="250" aria-hidden="true">
               <circle class="timer-progress-bg" cx="160" cy="125" r="90" fill="none"/>
@@ -41,7 +42,7 @@
             <p id="timer_message" class="form-message" aria-live="polite"></p>
           </div>
         </div>
-        <div class="tab-content" id="panel_presets" data-tab="presets" role="tabpanel" aria-labelledby="tab_presets" hidden>
+        <div class="tab-panel" id="panel_routines" data-tab="routines" role="tabpanel" aria-labelledby="tab_routines" hidden>
           <header class="preset-header">
             <button class="button" id="create_preset">Create preset</button>
           </header>
@@ -86,49 +87,24 @@
           <p id="presets_message" class="form-message error" aria-live="polite"></p>
           <ul class="saved-presets-list"></ul>
         </div>
-        <div class="tab-content usage-container" id="panel_usage" data-tab="usage" role="tabpanel" aria-labelledby="tab_usage" tabindex="0" hidden>
-            <h3>How to Use TickTockFocus</h3>
-            <section class="usage-section">
-              <h4>Creating Timer Presets</h4>
-              <ol>
-                <li>Go to the <strong>Presets</strong> tab</li>
-                <li>Click <strong>Create preset</strong></li>
-                <li>Enter a name for your preset</li>
-                <li>Add clock segments by setting hours, minutes, seconds (at least 30 seconds each)</li>
-                <li>Click <strong>Add</strong> after each segment</li>
-                <li>Rearrange segments by dragging or with the ↑ and ↓ buttons</li>
-                <li>Click <strong>Create</strong> to save your preset</li>
-              </ol>
-            </section>
-            <section class="usage-section">
-              <h4>Running a Timer</h4>
-              <ol>
-                <li>Go to the <strong>Timer</strong> tab</li>
-                <li>Select a preset from the dropdown</li>
-                <li>Click <strong>Start</strong> to begin the timer</li>
-                <li>The timer will run through all segments; under the countdown you see the current one, such as "Step 2 · 2 of 4"</li>
-                <li>You'll receive notifications at each milestone</li>
-              </ol>
-            </section>
-            <section class="usage-section">
-              <h4>Tips</h4>
-              <ul>
-                <li>Timers continue running even if you close the popup</li>
-                <li>Click on the extension icon to check progress</li>
-                <li>Create different presets for different activities</li>
-                <li>Click a saved preset to select it on the Timer tab</li>
-                <li>Use the clock in the header to see the current time</li>
-              </ul>
-            </section>
-            <nav class="usage-links" aria-label="TickTockFocus links">
-              <a href="https://ticktockfocus.com" target="_blank" rel="noopener noreferrer">Website</a>
-              <a href="mailto:support@ticktockfocus.com?subject=TickTockFocus%20feedback" target="_blank" rel="noopener noreferrer">Send feedback</a>
-              <a href="https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae/reviews" target="_blank" rel="noopener noreferrer">Rate on Chrome Web Store</a>
-              <a href="https://github.com/mist941/tick-tock-focus/issues" target="_blank" rel="noopener noreferrer">Report a bug</a>
-            </nav>
+      </section>
+
+      <section class="screen" data-screen="settings" aria-labelledby="settings_heading" hidden>
+        <header class="screen-header">
+          <button type="button" class="icon-button" data-back data-ui-label="navigation.back"><span class="back-arrow" aria-hidden="true">←</span></button>
+          <h1 class="screen-heading" id="settings_heading" tabindex="-1" data-screen-heading data-ui-text="settings.heading"></h1>
+        </header>
+        <div class="screen-body">
+          <nav class="settings-links" data-ui-label="settings.linksLabel">
+            <a href="https://ticktockfocus.com" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.website"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
+            <a href="mailto:support@ticktockfocus.com?subject=TickTockFocus%20feedback" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.sendFeedback"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
+            <a href="https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae/reviews" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.rate"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
+            <a href="https://github.com/mist941/tick-tock-focus/issues" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.reportBug"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
+          </nav>
+          <p class="settings-version" id="settings_version"></p>
         </div>
-      </div>
-    </main>
+      </section>
+    </div>
     <script type="module" src="popup.js"></script>
 </body>
 </html>

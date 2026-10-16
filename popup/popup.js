@@ -1,12 +1,12 @@
-import { loadTimeFormat, startHeaderClock } from "./header-clock.js";
 import { migrateLegacyLocalStorage } from "./legacy-migration.js";
-import { initializeTabs } from "./navigation.js";
+import { initializeNavigation } from "./navigation.js";
 import * as PopupStorage from "./popup-storage.js";
 import { initializeRoutineEditor } from "./routine-editor.js";
 import { loadSavedPresets, showPresetsMessage } from "./routines-view.js";
+import { initializeSettingsView } from "./settings-view.js";
 import { watchStorage } from "./storage-watcher.js";
 import { TimerView } from "./timer-view.js";
-import { UI_STRINGS } from "./ui-strings.js";
+import { UI_STRINGS, applyUiStrings } from "./ui-strings.js";
 
 async function reloadRoutines() {
   await loadSavedPresets();
@@ -15,7 +15,9 @@ async function reloadRoutines() {
 
 async function initializePopup() {
   try {
-    initializeTabs();
+    applyUiStrings();
+    initializeNavigation();
+    initializeSettingsView();
     TimerView.initialize();
     initializeRoutineEditor();
 
@@ -34,11 +36,10 @@ async function initializePopup() {
 
     watchStorage({
       onRoutinesChanged: reloadRoutines,
-      onSettingsChanged: loadTimeFormat,
+      onSettingsChanged: () => {},
       onRunChanged: () => TimerView.restoreTimerState(),
     });
 
-    await startHeaderClock();
     await reloadRoutines();
     TimerView.restoreTimerState();
   } catch (error) {

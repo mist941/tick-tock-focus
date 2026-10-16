@@ -1,15 +1,28 @@
 import { fillTemplate } from "../shared/format.js";
 
 export const UI_STRINGS = Object.freeze({
-  clock: {
-    beforeNoon: "AM",
-    afterNoon: "PM",
+  navigation: {
+    sections: "Sections",
+    timerTab: "Timer",
+    routinesTab: "Routines",
+    settings: "Settings",
+    back: "Back",
+  },
+  settings: {
+    heading: "Settings",
+    linksLabel: "TickTockFocus links",
+    website: "Website",
+    sendFeedback: "Send feedback",
+    rate: "Rate on Chrome Web Store",
+    reportBug: "Report a bug",
+    opensInNewTab: "(opens in a new tab)",
+    version: "Version {version}",
   },
   timer: {
     selectPresetOption: "Select preset",
     start: "Start",
     stop: "Stop",
-    noPresets: "Create a preset on the Presets tab to start.",
+    noPresets: "Create a preset on the Routines tab to start.",
     selectPreset: "Select a preset to start.",
     noDuration: "This preset has no duration. Select another one.",
     shortStages:
@@ -47,3 +60,20 @@ export const UI_STRINGS = Object.freeze({
 });
 
 export const formatUiString = (template, values = {}) => fillTemplate(template, values);
+
+export function lookupUiString(path) {
+  const text = path.split(".").reduce((group, key) => group?.[key], UI_STRINGS);
+  if (typeof text !== "string") throw new Error(`Unknown UI string: ${path}`);
+  return text;
+}
+
+export function applyUiStrings(root = document) {
+  root.querySelectorAll("[data-ui-text]").forEach((element) => {
+    element.textContent = lookupUiString(element.dataset.uiText);
+  });
+  root.querySelectorAll("[data-ui-label]").forEach((element) => {
+    const label = lookupUiString(element.dataset.uiLabel);
+    element.setAttribute("aria-label", label);
+    if (element.tagName === "BUTTON") element.title = label;
+  });
+}
