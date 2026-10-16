@@ -15,6 +15,8 @@ export const ROUTINE_LIMITS = Object.freeze({
 
 export const CATCH_UP_GRACE_MS = 60_000;
 
+export const EXTENDED_STAGE_MAX_SEC = 24 * 3600;
+
 const isPlainObject = (value) =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
