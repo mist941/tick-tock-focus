@@ -1,6 +1,7 @@
 import { switchTab } from "./navigation.js";
+import { reloadRoutines } from "./popup-state.js";
 import * as PopupStorage from "./popup-storage.js";
-import { TimerView } from "./timer-view.js";
+import { focusRoutineCard } from "./timer-view.js";
 import { UI_STRINGS, formatUiString } from "./ui-strings.js";
 
 const elements = {
@@ -16,9 +17,8 @@ export function showPresetsMessage(text) {
 }
 
 function openOnTimerTab(presetId) {
-  if (!TimerView.isRunning) TimerView.selectPreset(presetId);
   switchTab("timer");
-  TimerView.focusPresetControls();
+  focusRoutineCard(presetId);
 }
 
 function createSavedPresetItem(preset, index) {
@@ -91,7 +91,7 @@ async function deletePreset(presetId, listIndex) {
       elements.createButton.focus();
     }
 
-    await TimerView.loadPresets();
+    await reloadRoutines();
   } catch (error) {
     console.error("Error deleting preset:", error);
     showPresetsMessage(UI_STRINGS.savedPresets.deleteFailed);

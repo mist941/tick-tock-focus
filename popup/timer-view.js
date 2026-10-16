@@ -1,383 +1,297 @@
 import {
   CATCH_UP_GRACE_MS,
+  EXTENDED_STAGE_MAX_SEC,
   ROUTINE_LIMITS,
   expandRoutine,
   getRunProgress,
-  getStageDurationMs,
-  getStagesDurationMs,
   planCatchUp,
 } from "../shared/routine.js";
-import { formatCountdown } from "../shared/format.js";
-import { createSvgElement, setTextIfChanged } from "./dom-helpers.js";
-import * as PopupStorage from "./popup-storage.js";
-import { UI_STRINGS, formatUiString } from "./ui-strings.js";
+import { formatClockTime, formatTimerCountdown } from "../shared/format.js";
+import { createElement, setTextIfChanged } from "./dom-helpers.js";
+import { createIcon } from "./icons.js";
+import { getPopupState, subscribeToPopupState } from "./popup-state.js";
+import { sendRunCommand } from "./run-commands.js";
+import { createProgressRing, createStageStrip } from "./stage-graphics.js";
+import { UI_STRINGS, formatDurationText, formatUiString } from "./ui-strings.js";
 
-const COUNTDOWN_UPDATE_INTERVAL_MS = 1000;
-const POINT_LABEL = { OFFSET: 16, CHARACTER_WIDTH: 6.2, HEIGHT: 13, GAP: 2 };
+const EXTEND_MINUTES = 5;
+const RENDER_INTERVAL_MS = 1000;
 
 const elements = {
-  toggleButton: document.getElementById("timer_toggle"),
-  countdownDisplay: document.getElementById("countdown"),
-  stagePosition: document.getElementById("stage_position"),
-  stageStatus: document.getElementById("stage_status"),
-  presetSelect: document.getElementById("preset_select"),
-  progressBar: document.querySelector(".timer-progress-bar"),
-  presetPoints: document.querySelector(".preset-points"),
-  message: document.getElementById("timer_message"),
+  idleView: document.getElementById("timer_idle"),
+  idleMessage: document.getElementById("timer_idle_message"),
+  cards: document.getElementById("routine_cards"),
+  newRoutineButton: document.getElementById("timer_new_routine"),
+  emptyState: document.getElementById("timer_empty_state"),
+  createRoutineButton: document.getElementById("timer_create_routine"),
+  runView: document.getElementById("timer_run"),
+  routineName: document.getElementById("run_routine_name"),
+  stageLine: document.getElementById("run_stage_line"),
+  ring: document.getElementById("run_ring"),
+  countdown: document.getElementById("run_countdown"),
+  next: document.getElementById("run_next"),
+  endsAt: document.getElementById("run_ends"),
+  primaryButton: document.getElementById("run_primary"),
+  skipButton: document.getElementById("run_skip"),
+  extendButton: document.getElementById("run_extend"),
+  stopButton: document.getElementById("run_stop"),
+  runMessage: document.getElementById("run_message"),
 };
 
-const boxesOverlap = (first, second) =>
-  first.left < second.right &&
-  second.left < first.right &&
-  first.top < second.bottom &&
-  second.top < first.bottom;
+const PRIMARY_ACTIONS = {
+  running: { action: "pauseRoutine", icon: "pause", text: () => UI_STRINGS.timer.pause },
+  paused: { action: "resumeRoutine", icon: "play", text: () => UI_STRINGS.timer.resume },
+  awaitingNext: {
+    action: "startNextStage",
+    icon: "play",
+    text: (stage) => formatUiString(UI_STRINGS.timer.startStage, { label: stage.label }),
+  },
+};
+
+let renderProgressRing = null;
+let renderIntervalId = null;
+let shownView = null;
+let lastRunRoutineId = null;
+let isCommandInFlight = false;
 
 const hasShortStages = (stages) =>
   stages.some((stage) => stage.durationSec < ROUTINE_LIMITS.stageMinSec);
 
-export const TimerView = {
-  countdownIntervalId: null,
-  storedRun: null,
-  autoAdvance: true,
-  drawnStages: null,
-  presets: [],
-  isRunning: false,
+const sumDurationSec = (stages) => stages.reduce((totalSec, stage) => totalSec + stage.durationSec, 0);
 
-  getPresetDuration(presetId) {
-    try {
-      const preset = this.presets.find((candidate) => candidate.id === presetId);
+function setButtonContent(button, iconName, text) {
+  if (button.dataset.icon === iconName && button.textContent === text) return;
+  button.dataset.icon = iconName;
+  const label = createElement("span", { text });
+  button.replaceChildren(...(iconName ? [createIcon(iconName), label] : [label]));
+}
 
-      if (!preset) return null;
+function getDisplayedRun(now) {
+  const { storedRun, settings } = getPopupState();
+  return planCatchUp(storedRun, now, {
+    autoAdvance: settings.autoAdvance !== false,
+    graceMs: CATCH_UP_GRACE_MS,
+  }).run;
+}
 
-      return getStagesDurationMs(expandRoutine(preset));
-    } catch (error) {
-      console.error("Error calculating preset duration:", error);
-      return null;
-    }
-  },
+export function hasActiveRun() {
+  return getDisplayedRun(Date.now()) !== null;
+}
 
-  async loadPresets() {
-    try {
-      const [presets, { selectedPresetId }] = await Promise.all([
-        PopupStorage.getRoutines(),
-        chrome.storage.local.get("selectedPresetId"),
-      ]);
-      this.presets = presets;
-      const { presetSelect } = elements;
-
-      const placeholderOption = document.createElement("option");
-      placeholderOption.value = "";
-      placeholderOption.textContent = UI_STRINGS.timer.selectPresetOption;
-      presetSelect.replaceChildren(placeholderOption);
-
-      this.presets.forEach((preset) => {
-        const option = document.createElement("option");
-        option.value = preset.id;
-        option.textContent = preset.name;
-        presetSelect.appendChild(option);
-      });
-
-      if (this.presets.some((preset) => preset.id === selectedPresetId)) {
-        presetSelect.value = selectedPresetId;
-      } else if (selectedPresetId) {
-        await chrome.storage.local.remove("selectedPresetId");
-      }
-    } catch (error) {
-      console.error("Error loading presets:", error);
-    }
-    this.updateStartButtonState();
-  },
-
-  async restoreTimerState() {
-    try {
-      const runKey = PopupStorage.STORAGE_KEYS.RUN;
-      const [{ [runKey]: storedRun }, settings] = await Promise.all([
-        chrome.storage.local.get(runKey),
-        PopupStorage.getSettings(),
-      ]);
-      this.storedRun = storedRun ?? null;
-      this.autoAdvance = settings.autoAdvance !== false;
-    } catch (error) {
-      console.error("Error restoring the timer state:", error);
-    }
-    this.render();
-  },
-
-  getDisplayedRun(now) {
-    return planCatchUp(this.storedRun, now, {
-      autoAdvance: this.autoAdvance,
-      graceMs: CATCH_UP_GRACE_MS,
-    }).run;
-  },
-
-  render() {
-    const now = Date.now();
-    const run = this.getDisplayedRun(now);
-    if (!run) {
-      this.showIdleState();
-      return;
-    }
-
-    if (!this.isRunning) this.updateToggleButton(true);
-    if (this.drawnStages !== run.stages) {
-      this.drawPresetPoints(run.stages);
-      this.drawnStages = run.stages;
-    }
-
-    const { stageRemainingMs, routineRemainingMs, routineDurationMs } = getRunProgress(
-      run,
-      now
-    );
-    elements.countdownDisplay.textContent = formatCountdown(stageRemainingMs);
-    this.updateCircleProgress(routineDurationMs > 0 ? routineRemainingMs / routineDurationMs : 0);
-    this.showStageSummary(run);
-    this.startCountdownUpdate();
-  },
-
-  showStageSummary(run) {
-    const stage = run.stages[run.stageIndex];
-    const position = formatUiString(UI_STRINGS.timer.stagePosition, {
-      label: stage.label,
-      n: run.stageIndex + 1,
-      total: run.stages.length,
-    });
-    const summaryByStatus = {
-      running: { position, status: "" },
-      paused: { position, status: UI_STRINGS.timer.paused },
-      awaitingNext: {
-        position: "",
-        status: formatUiString(UI_STRINGS.timer.waitingForNext, { label: stage.label }),
-      },
-    };
-    const summary = summaryByStatus[run.status] ?? { position: "", status: "" };
-    setTextIfChanged(elements.stagePosition, summary.position);
-    setTextIfChanged(elements.stageStatus, summary.status);
-  },
-
-  sendTimerCommand(message) {
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-        } else if (!response?.success) {
-          reject(new Error(response?.error || "No response from the service worker"));
-        } else {
-          resolve(response);
-        }
-      });
-    });
-  },
-
-  showCommandError(action, error) {
+async function runCommand(action, payload, messageElement) {
+  if (isCommandInFlight) return;
+  isCommandInFlight = true;
+  messageElement.textContent = "";
+  try {
+    await sendRunCommand(action, payload);
+  } catch (error) {
     console.error(`${action} failed:`, error);
-    this.showTimerMessage(UI_STRINGS.timer.unreachable, { isError: true });
-  },
+    messageElement.textContent = UI_STRINGS.timer.unreachable;
+  } finally {
+    isCommandInFlight = false;
+  }
+}
 
-  async startTimer(routineId) {
-    let response;
-    try {
-      response = await this.sendTimerCommand({ action: "startRoutine", routineId });
-    } catch (error) {
-      this.showCommandError("startRoutine", error);
-      return;
-    }
+function createRoutineCard(routine) {
+  const stages = expandRoutine(routine);
+  const totalSec = sumDurationSec(stages);
+  const durationText = formatDurationText(totalSec);
 
-    this.storedRun = response.run;
-    this.render();
-  },
+  const card = createElement("button", { className: "routine-card" });
+  card.type = "button";
+  card.dataset.routineId = routine.id;
+  card.setAttribute(
+    "aria-label",
+    formatUiString(UI_STRINGS.timer.startRoutine, { name: routine.name, duration: durationText })
+  );
 
-  clearPresetPoints() {
-    elements.presetPoints.replaceChildren();
-  },
+  const heading = createElement("span", { className: "routine-card-heading" });
+  heading.append(
+    createIcon("play"),
+    createElement("span", { className: "routine-card-name", text: routine.name }),
+    createElement("span", { className: "routine-card-duration", text: durationText })
+  );
+  card.append(heading, createStageStrip(stages));
 
-  layoutPointLabel(text, angle, center, radius) {
-    const { OFFSET, CHARACTER_WIDTH, HEIGHT, GAP } = POINT_LABEL;
-    const x = center.x + (radius + OFFSET) * Math.sin(angle);
-    const y = center.y - (radius + OFFSET) * Math.cos(angle);
-    const horizontalDirection = Math.sin(angle);
-    let anchor = "middle";
-    if (horizontalDirection > 0.3) anchor = "start";
-    if (horizontalDirection < -0.3) anchor = "end";
+  let note = "";
+  if (totalSec === 0) {
+    note = UI_STRINGS.timer.noDuration;
+    card.disabled = true;
+  } else if (hasShortStages(stages)) {
+    note = formatUiString(UI_STRINGS.timer.shortStages, { seconds: ROUTINE_LIMITS.stageMinSec });
+  }
+  if (note) {
+    const noteId = `routine_card_note_${routine.id}`;
+    card.append(createElement("span", { className: "routine-card-note", text: note, attributes: { id: noteId } }));
+    card.setAttribute("aria-describedby", noteId);
+  }
 
-    const width = text.length * CHARACTER_WIDTH;
-    const anchorShift = { start: 0, middle: width / 2, end: width }[anchor];
-    const box = {
-      left: x - anchorShift - GAP,
-      right: x - anchorShift + width + GAP,
-      top: y - HEIGHT / 2 - GAP,
-      bottom: y + HEIGHT / 2 + GAP,
+  card.addEventListener("click", () =>
+    runCommand("startRoutine", { routineId: routine.id }, elements.idleMessage)
+  );
+  const item = createElement("li");
+  item.append(card);
+  return item;
+}
+
+function findRoutineCard(routineId) {
+  return [...elements.cards.querySelectorAll(".routine-card")].find(
+    (card) => card.dataset.routineId === routineId
+  );
+}
+
+function renderRoutineCards() {
+  const { routines, routinesLoadFailed } = getPopupState();
+  const focusedRoutineId = elements.cards.contains(document.activeElement)
+    ? document.activeElement.dataset.routineId
+    : null;
+
+  elements.cards.replaceChildren(...routines.map(createRoutineCard));
+  const hasRoutines = routines.length > 0;
+  elements.cards.hidden = !hasRoutines;
+  elements.newRoutineButton.hidden = !hasRoutines;
+  elements.emptyState.hidden = hasRoutines || routinesLoadFailed;
+  if (routinesLoadFailed) elements.idleMessage.textContent = UI_STRINGS.timer.loadFailed;
+
+  if (focusedRoutineId) findRoutineCard(focusedRoutineId)?.focus();
+}
+
+export function focusRoutineCard(routineId) {
+  if (shownView === "run") {
+    elements.primaryButton.focus();
+    return;
+  }
+  const target =
+    findRoutineCard(routineId) ??
+    elements.cards.querySelector(".routine-card:not(:disabled)") ??
+    (elements.newRoutineButton.hidden ? elements.createRoutineButton : elements.newRoutineButton);
+  target.focus();
+}
+
+function startRenderLoop() {
+  if (renderIntervalId === null) {
+    renderIntervalId = setInterval(renderTimer, RENDER_INTERVAL_MS);
+  }
+}
+
+function stopRenderLoop() {
+  clearInterval(renderIntervalId);
+  renderIntervalId = null;
+}
+
+function showIdleView() {
+  stopRenderLoop();
+  const focusWasInRunView = elements.runView.contains(document.activeElement);
+  elements.runView.hidden = true;
+  elements.idleView.hidden = false;
+  const wasShowingRun = shownView === "run";
+  shownView = "idle";
+  if (wasShowingRun && focusWasInRunView) focusRoutineCard(lastRunRoutineId);
+}
+
+function describeStageLine(run) {
+  const stage = run.stages[run.stageIndex];
+  const position = { label: stage.label, n: run.stageIndex + 1, total: run.stages.length };
+  if (run.status === "awaitingNext") {
+    const finishedStage = run.stages[run.stageIndex - 1] ?? stage;
+    return {
+      kind: finishedStage.kind,
+      text: formatUiString(UI_STRINGS.timer.stageDone, { label: finishedStage.label }),
     };
+  }
+  const template =
+    run.status === "paused" ? UI_STRINGS.timer.pausedPosition : UI_STRINGS.timer.stagePosition;
+  return { kind: stage.kind, text: formatUiString(template, position) };
+}
 
-    const element = createSvgElement("text", {
-      class: "preset-point-label",
-      x,
-      y,
-      "text-anchor": anchor,
-    });
-    element.textContent = text;
-    return { element, box };
-  },
+function describeNextStage(run) {
+  const nextStage =
+    run.status === "awaitingNext" ? run.stages[run.stageIndex] : run.stages[run.stageIndex + 1];
+  if (!nextStage) return UI_STRINGS.timer.lastStage;
+  return formatUiString(UI_STRINGS.timer.next, {
+    label: nextStage.label,
+    duration: formatDurationText(nextStage.durationSec),
+  });
+}
 
-  drawPresetPoints(stages) {
-    this.clearPresetPoints();
-    const circle = elements.progressBar;
-    const center = { x: circle.cx.baseVal.value, y: circle.cy.baseVal.value };
-    const radius = circle.r.baseVal.value;
-    const totalDuration = getStagesDurationMs(stages);
-    if (totalDuration <= 0) return;
+function renderRunControls(run) {
+  const stage = run.stages[run.stageIndex];
+  const primaryAction = PRIMARY_ACTIONS[run.status];
+  setButtonContent(elements.primaryButton, primaryAction.icon, primaryAction.text(stage));
+  elements.primaryButton.dataset.action = primaryAction.action;
+  elements.extendButton.hidden = run.status === "awaitingNext";
+  elements.extendButton.disabled = stage.durationSec + EXTEND_MINUTES * 60 > EXTENDED_STAGE_MAX_SEC;
+}
 
-    const placedLabelBoxes = [];
-    let accumulatedTime = 0;
+function showRunView(run, now) {
+  const focusWasInIdleView = elements.idleView.contains(document.activeElement);
+  const enteringRunView = shownView !== "run";
+  elements.idleView.hidden = true;
+  elements.runView.hidden = false;
+  shownView = "run";
+  lastRunRoutineId = run.routineId;
 
-    stages.forEach((stage) => {
-      accumulatedTime += getStageDurationMs(stage);
-      if (accumulatedTime >= totalDuration) return;
+  const { stageRemainingMs, routineRemainingMs } = getRunProgress(run, now);
+  const stageLine = describeStageLine(run);
+  setTextIfChanged(elements.routineName, run.routineName);
+  setTextIfChanged(elements.stageLine, stageLine.text);
+  elements.stageLine.dataset.kind = stageLine.kind;
+  setTextIfChanged(elements.countdown, formatTimerCountdown(stageRemainingMs));
+  setTextIfChanged(elements.next, describeNextStage(run));
+  setTextIfChanged(
+    elements.endsAt,
+    formatUiString(UI_STRINGS.timer.endsAt, {
+      time: formatClockTime(now + routineRemainingMs, getPopupState().settings.timeFormat, UI_STRINGS.formats),
+    })
+  );
+  renderRunControls(run);
+  renderProgressRing(run, stageRemainingMs);
+  startRenderLoop();
 
-      const angle = (accumulatedTime / totalDuration) * 2 * Math.PI;
-      elements.presetPoints.append(
-        createSvgElement("circle", {
-          class: "preset-point",
-          cx: center.x + radius * Math.sin(angle),
-          cy: center.y - radius * Math.cos(angle),
-          r: 5,
-        })
-      );
+  if (enteringRunView && focusWasInIdleView) elements.primaryButton.focus();
+}
 
-      const label = this.layoutPointLabel(
-        formatCountdown(accumulatedTime),
-        angle,
-        center,
-        radius
-      );
-      if (placedLabelBoxes.some((box) => boxesOverlap(box, label.box))) {
-        return;
-      }
-      placedLabelBoxes.push(label.box);
-      elements.presetPoints.append(label.element);
-    });
-  },
+export function renderTimer() {
+  const now = Date.now();
+  const run = getDisplayedRun(now);
+  if (run) {
+    showRunView(run, now);
+  } else {
+    showIdleView();
+  }
+}
 
-  async stopTimer() {
-    let response;
-    try {
-      response = await this.sendTimerCommand({ action: "stopRoutine" });
-    } catch (error) {
-      this.showCommandError("stopRoutine", error);
-      return;
-    }
+export function initializeTimerView({ openRoutineEditor }) {
+  renderProgressRing = createProgressRing(elements.ring);
+  setButtonContent(elements.skipButton, "skip", UI_STRINGS.timer.skip);
+  setButtonContent(
+    elements.extendButton,
+    "",
+    formatUiString(UI_STRINGS.timer.extend, { minutes: EXTEND_MINUTES })
+  );
+  setButtonContent(elements.stopButton, "stop", UI_STRINGS.timer.stop);
+  setButtonContent(elements.newRoutineButton, "plus", UI_STRINGS.timer.newRoutine);
 
-    this.storedRun = response.run;
-    this.render();
-  },
+  elements.primaryButton.addEventListener("click", () =>
+    runCommand(elements.primaryButton.dataset.action, {}, elements.runMessage)
+  );
+  elements.skipButton.addEventListener("click", () =>
+    runCommand("skipStage", {}, elements.runMessage)
+  );
+  elements.extendButton.addEventListener("click", () =>
+    runCommand("extendStage", { minutes: EXTEND_MINUTES }, elements.runMessage)
+  );
+  elements.stopButton.addEventListener("click", () =>
+    runCommand("stopRoutine", {}, elements.runMessage)
+  );
+  [elements.newRoutineButton, elements.createRoutineButton].forEach((button) =>
+    button.addEventListener("click", () => openRoutineEditor({ returnFocusTo: button }))
+  );
 
-  showIdleState() {
-    this.stopCountdownUpdate();
-    elements.countdownDisplay.textContent = formatCountdown(0);
-    this.updateCircleProgress(0);
-    this.updateToggleButton(false);
-    this.clearPresetPoints();
-    this.drawnStages = null;
-    setTextIfChanged(elements.stagePosition, "");
-    setTextIfChanged(elements.stageStatus, "");
-  },
-
-  startCountdownUpdate() {
-    if (this.countdownIntervalId !== null) return;
-    this.countdownIntervalId = setInterval(() => this.render(), COUNTDOWN_UPDATE_INTERVAL_MS);
-  },
-
-  stopCountdownUpdate() {
-    clearInterval(this.countdownIntervalId);
-    this.countdownIntervalId = null;
-  },
-
-  updateCircleProgress(remainingFraction) {
-    const circle = elements.progressBar;
-    const circumference = 2 * Math.PI * circle.r.baseVal.value;
-    const isEmpty = remainingFraction <= 0;
-    circle.classList.toggle("is-empty", isEmpty);
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-    circle.style.strokeDashoffset = isEmpty ? 0 : -(1 - remainingFraction) * circumference;
-  },
-
-  toggleTimer() {
-    if (this.getDisplayedRun(Date.now())) {
-      this.stopTimer();
-      return;
-    }
-
-    const selectedPresetId = elements.presetSelect.value;
-    if (!selectedPresetId || !this.getPresetDuration(selectedPresetId)) {
-      this.updateStartButtonState();
-      return;
-    }
-    this.startTimer(selectedPresetId);
-  },
-
-  updateToggleButton(isRunning) {
-    this.isRunning = isRunning;
-    elements.toggleButton.textContent = isRunning ? UI_STRINGS.timer.stop : UI_STRINGS.timer.start;
-    this.updatePresetSelectState();
-    this.updateStartButtonState();
-  },
-
-  updatePresetSelectState() {
-    const { presetSelect, toggleButton } = elements;
-    const hadFocus = document.activeElement === presetSelect;
-    presetSelect.disabled = this.isRunning;
-    if (this.isRunning && hadFocus) toggleButton.focus();
-  },
-
-  selectPreset(presetId) {
-    elements.presetSelect.value = presetId;
-    chrome.storage.local.set({ selectedPresetId: presetId });
-    this.updateStartButtonState();
-  },
-
-  focusPresetControls() {
-    const { presetSelect, toggleButton } = elements;
-    (presetSelect.disabled ? toggleButton : presetSelect).focus();
-  },
-
-  showTimerMessage(text, { isError = false } = {}) {
-    elements.message.textContent = text;
-    elements.message.classList.toggle("error", isError);
-  },
-
-  updateStartButtonState() {
-    const button = elements.toggleButton;
-    if (this.isRunning) {
-      button.disabled = false;
-      this.showTimerMessage("");
-      return;
-    }
-
-    const selectedPresetId = elements.presetSelect.value;
-    const selectedPreset = this.presets.find((preset) => preset.id === selectedPresetId);
-    if (this.presets.length === 0) {
-      button.disabled = true;
-      this.showTimerMessage(UI_STRINGS.timer.noPresets);
-    } else if (!selectedPresetId) {
-      button.disabled = true;
-      this.showTimerMessage(UI_STRINGS.timer.selectPreset);
-    } else if (!this.getPresetDuration(selectedPresetId)) {
-      button.disabled = true;
-      this.showTimerMessage(UI_STRINGS.timer.noDuration, { isError: true });
-    } else if (hasShortStages(expandRoutine(selectedPreset))) {
-      button.disabled = false;
-      this.showTimerMessage(
-        formatUiString(UI_STRINGS.timer.shortStages, { seconds: ROUTINE_LIMITS.stageMinSec })
-      );
-    } else {
-      button.disabled = false;
-      this.showTimerMessage("");
-    }
-  },
-
-  initialize() {
-    elements.toggleButton.addEventListener("click", () => this.toggleTimer());
-    elements.presetSelect.addEventListener("change", (event) =>
-      this.selectPreset(event.target.value)
-    );
-  },
-};
+  subscribeToPopupState((change) => {
+    if (change.routines) renderRoutineCards();
+    if (change.run || change.settings) renderTimer();
+  });
+  renderRoutineCards();
+  renderTimer();
+}

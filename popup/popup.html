@@ -19,27 +19,30 @@
           </button>
         </header>
         <div class="tab-panel" id="panel_timer" data-tab="timer" role="tabpanel" aria-labelledby="tab_timer">
-          <div class="timer-circle">
-            <svg class="timer-progress" viewBox="0 0 320 250" width="320" height="250" aria-hidden="true">
-              <circle class="timer-progress-bg" cx="160" cy="125" r="90" fill="none"/>
-              <circle class="timer-progress-bar is-empty" cx="160" cy="125" r="90" fill="none" transform="rotate(-90 160 125)"/>
-              <g class="preset-points"></g>
-            </svg>
-            <div class="timer-display">
-              <p class="countdown" id="countdown">00:00:00</p>
-              <div class="stage-summary" aria-live="polite">
-                <p id="stage_position"></p>
-                <p id="stage_status"></p>
-              </div>
+          <div class="timer-idle" id="timer_idle">
+            <p class="panel-message" id="timer_idle_message" aria-live="polite"></p>
+            <ul class="routine-cards" id="routine_cards"></ul>
+            <button type="button" class="text-button" id="timer_new_routine"></button>
+            <div class="empty-state" id="timer_empty_state" hidden>
+              <p class="empty-state-title" data-ui-text="timer.noRoutines"></p>
+              <button type="button" class="button button-primary" id="timer_create_routine" data-ui-text="timer.createRoutine"></button>
             </div>
           </div>
-          <div class="timer-controls">
-            <label for="preset_select" class="visually-hidden">Preset</label>
-            <select id="preset_select" class="preset-select" aria-describedby="timer_message">
-              <option value="">Select preset</option>
-            </select>
-            <button id="timer_toggle" class="button" disabled>Start</button>
-            <p id="timer_message" class="form-message" aria-live="polite"></p>
+          <div class="timer-run" id="timer_run" hidden>
+            <h2 class="run-routine-name" id="run_routine_name"></h2>
+            <p class="run-stage-line" id="run_stage_line" aria-live="polite" aria-atomic="true"></p>
+            <div class="run-ring" id="run_ring">
+              <p class="run-countdown" id="run_countdown" role="timer"></p>
+            </div>
+            <p class="run-next" id="run_next"></p>
+            <p class="run-ends" id="run_ends"></p>
+            <div class="run-controls">
+              <button type="button" class="button button-primary" id="run_primary"></button>
+              <button type="button" class="button" id="run_skip"></button>
+              <button type="button" class="button" id="run_extend"></button>
+            </div>
+            <button type="button" class="button button-quiet" id="run_stop"></button>
+            <p class="form-message error" id="run_message" aria-live="polite"></p>
           </div>
         </div>
         <div class="tab-panel" id="panel_routines" data-tab="routines" role="tabpanel" aria-labelledby="tab_routines" hidden>

@@ -14,6 +14,14 @@ export function formatCountdown(milliseconds) {
   return [hours, minutes, seconds].map(padTwoDigits).join(":");
 }
 
+export function formatTimerCountdown(milliseconds) {
+  const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = padTwoDigits(Math.floor((totalSeconds % 3600) / 60));
+  const seconds = padTwoDigits(totalSeconds % 60);
+  return hours > 0 ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`;
+}
+
 export function formatSpokenDuration(totalSeconds, units) {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);

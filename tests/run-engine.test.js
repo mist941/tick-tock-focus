@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
+import { EXTENDED_STAGE_MAX_SEC } from "../shared/routine.js";
 import {
-  EXTENDED_STAGE_MAX_SEC,
   createRun,
   extendCurrentStage,
   migrateLegacyRun,

@@ -3,8 +3,9 @@ import { padTwoDigits } from "../shared/format.js";
 import { makeStepLabel } from "../shared/stage-labels.js";
 import { createElement } from "./dom-helpers.js";
 import * as PopupStorage from "./popup-storage.js";
-import { loadSavedPresets, showPresetsMessage } from "./routines-view.js";
-import { TimerView } from "./timer-view.js";
+import { switchTab } from "./navigation.js";
+import { reloadRoutines } from "./popup-state.js";
+import { showPresetsMessage } from "./routines-view.js";
 import { UI_STRINGS, formatUiString } from "./ui-strings.js";
 
 const SEGMENT_FIELD_LIMITS = {
@@ -145,8 +146,7 @@ async function savePreset() {
     await PopupStorage.saveRoutine(routine);
     showPresetsMessage("");
     hideForm();
-    await loadSavedPresets();
-    await TimerView.loadPresets();
+    await reloadRoutines();
   } catch (error) {
     console.error("Error saving preset:", error);
     showPresetsMessage(UI_STRINGS.presetForm.saveFailed);
@@ -355,6 +355,11 @@ function initializeInputLimits() {
       showFieldError("segment", "");
     });
   });
+}
+
+export function openRoutineEditor() {
+  switchTab("routines");
+  showForm();
 }
 
 export function initializeRoutineEditor() {

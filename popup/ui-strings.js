@@ -1,4 +1,4 @@
-import { fillTemplate } from "../shared/format.js";
+import { fillTemplate, formatSpokenDuration } from "../shared/format.js";
 
 export const UI_STRINGS = Object.freeze({
   navigation: {
@@ -18,19 +18,35 @@ export const UI_STRINGS = Object.freeze({
     opensInNewTab: "(opens in a new tab)",
     version: "Version {version}",
   },
+  formats: {
+    hours: "{count} h",
+    minutes: "{count} min",
+    seconds: "{count} s",
+    beforeNoon: "AM",
+    afterNoon: "PM",
+  },
   timer: {
-    selectPresetOption: "Select preset",
-    start: "Start",
-    stop: "Stop",
-    noPresets: "Create a preset on the Routines tab to start.",
-    selectPreset: "Select a preset to start.",
-    noDuration: "This preset has no duration. Select another one.",
+    newRoutine: "New routine",
+    noRoutines: "No routines yet",
+    createRoutine: "Create a routine",
+    startRoutine: "Start {name}, {duration}",
+    noDuration: "This routine has no duration.",
     shortStages:
-      "Some segments are shorter than {seconds} seconds, so their notifications may arrive late.",
-    unreachable: "Couldn't reach the timer. Close and reopen this popup, then try again.",
+      "Some steps are shorter than {seconds} seconds, so their notifications may arrive late.",
+    loadFailed: "Couldn't load your routines. Reopen the popup to try again.",
     stagePosition: "{label} · {n} of {total}",
-    paused: "Paused",
-    waitingForNext: "Waiting — next: {label}",
+    pausedPosition: "Paused · {label} {n} of {total}",
+    stageDone: "{label} done",
+    next: "Next: {label} · {duration}",
+    lastStage: "Last step",
+    endsAt: "Ends at {time}",
+    pause: "Pause",
+    resume: "Resume",
+    startStage: "Start {label}",
+    skip: "Skip",
+    extend: "+{minutes} min",
+    stop: "Stop",
+    unreachable: "Couldn't reach the timer. Close and reopen this popup, then try again.",
   },
   presetForm: {
     hours: "Hours",
@@ -60,6 +76,9 @@ export const UI_STRINGS = Object.freeze({
 });
 
 export const formatUiString = (template, values = {}) => fillTemplate(template, values);
+
+export const formatDurationText = (totalSeconds) =>
+  formatSpokenDuration(totalSeconds, UI_STRINGS.formats);
 
 export function lookupUiString(path) {
   const text = path.split(".").reduce((group, key) => group?.[key], UI_STRINGS);
