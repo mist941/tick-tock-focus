@@ -5,7 +5,7 @@ import { createElement } from "./dom-helpers.js";
 import * as PopupStorage from "./popup-storage.js";
 import { switchTab } from "./navigation.js";
 import { reloadRoutines } from "./popup-state.js";
-import { showPresetsMessage } from "./routines-view.js";
+import { showRoutinesMessage } from "./routines-view.js";
 import { UI_STRINGS, formatUiString } from "./ui-strings.js";
 
 const SEGMENT_FIELD_LIMITS = {
@@ -14,9 +14,9 @@ const SEGMENT_FIELD_LIMITS = {
   seconds: { min: 0, max: 59, label: UI_STRINGS.presetForm.seconds },
 };
 
+let returnFocusTarget = null;
+
 const elements = {
-  header: document.querySelector(".preset-header"),
-  createButton: document.getElementById("create_preset"),
   form: document.getElementById("preset_form"),
   cancelButton: document.getElementById("cancel_preset"),
   saveButton: document.getElementById("add_preset"),
@@ -77,16 +77,14 @@ function clearSegmentInputs() {
 
 function showForm() {
   elements.form.style.display = "block";
-  elements.header.style.display = "none";
   elements.inputs.name.focus();
 }
 
 function hideForm() {
   elements.form.style.display = "none";
-  elements.header.style.display = "block";
   clearForm();
   clearFieldErrors();
-  elements.createButton.focus();
+  returnFocusTarget?.focus();
 }
 
 const getSegmentItems = () => [...elements.list.querySelectorAll(".preset-item")];
@@ -144,12 +142,12 @@ async function savePreset() {
     }
 
     await PopupStorage.saveRoutine(routine);
-    showPresetsMessage("");
+    showRoutinesMessage("");
     hideForm();
     await reloadRoutines();
   } catch (error) {
     console.error("Error saving preset:", error);
-    showPresetsMessage(UI_STRINGS.presetForm.saveFailed);
+    showRoutinesMessage(UI_STRINGS.presetForm.saveFailed);
   }
 }
 
@@ -357,13 +355,13 @@ function initializeInputLimits() {
   });
 }
 
-export function openRoutineEditor() {
+export function openRoutineEditor({ returnFocusTo }) {
+  returnFocusTarget = returnFocusTo;
   switchTab("routines");
   showForm();
 }
 
 export function initializeRoutineEditor() {
-  elements.createButton.addEventListener("click", showForm);
   elements.cancelButton.addEventListener("click", hideForm);
   elements.saveButton.addEventListener("click", savePreset);
   elements.addSegmentButton.addEventListener("click", addSegment);

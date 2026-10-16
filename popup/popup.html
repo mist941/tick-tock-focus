@@ -46,9 +46,10 @@
           </div>
         </div>
         <div class="tab-panel" id="panel_routines" data-tab="routines" role="tabpanel" aria-labelledby="tab_routines" hidden>
-          <header class="preset-header">
-            <button class="button" id="create_preset">Create preset</button>
-          </header>
+          <p class="panel-message" id="routines_message" aria-live="polite"></p>
+          <ul class="routine-list" id="routine_list"></ul>
+          <p class="empty-state-title routines-empty" id="routines_empty" data-ui-text="routines.empty" hidden></p>
+          <button type="button" class="text-button" id="routines_new_routine"></button>
           <form id="preset_form" class="preset-form">
             <div class="preset-container">
               <div class="form-field">
@@ -87,8 +88,6 @@
               <button class="button" id="add_preset" type="button">Create</button>
             </div>
           </form>
-          <p id="presets_message" class="form-message error" aria-live="polite"></p>
-          <ul class="saved-presets-list"></ul>
         </div>
       </section>
 
@@ -107,6 +106,7 @@
           <p class="settings-version" id="settings_version"></p>
         </div>
       </section>
+      <div class="toast" id="toast" role="status"></div>
     </div>
     <script type="module" src="popup.js"></script>
 </body>

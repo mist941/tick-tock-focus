@@ -74,8 +74,8 @@ function getDisplayedRun(now) {
   }).run;
 }
 
-export function hasActiveRun() {
-  return getDisplayedRun(Date.now()) !== null;
+export function getActiveRun() {
+  return getDisplayedRun(Date.now());
 }
 
 async function runCommand(action, payload, messageElement) {
@@ -156,13 +156,13 @@ function renderRoutineCards() {
   if (focusedRoutineId) findRoutineCard(focusedRoutineId)?.focus();
 }
 
-export function focusRoutineCard(routineId) {
+export function focusTimer(routineId) {
   if (shownView === "run") {
     elements.primaryButton.focus();
     return;
   }
   const target =
-    findRoutineCard(routineId) ??
+    (routineId && findRoutineCard(routineId)) ??
     elements.cards.querySelector(".routine-card:not(:disabled)") ??
     (elements.newRoutineButton.hidden ? elements.createRoutineButton : elements.newRoutineButton);
   target.focus();
@@ -186,7 +186,7 @@ function showIdleView() {
   elements.idleView.hidden = false;
   const wasShowingRun = shownView === "run";
   shownView = "idle";
-  if (wasShowingRun && focusWasInRunView) focusRoutineCard(lastRunRoutineId);
+  if (wasShowingRun && focusWasInRunView) focusTimer(lastRunRoutineId);
 }
 
 function describeStageLine(run) {
