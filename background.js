@@ -9,6 +9,12 @@ import {
 } from "./shared/routine.js";
 import { makeStepLabel } from "./shared/stage-labels.js";
 import {
+  getBadgeColors,
+  getBadgeText,
+  getBadgeTitle,
+  getNextBadgeChangeAt,
+} from "./shared/badge.js";
+import {
   STORAGE_KEYS,
   getItems,
   getSettings,
@@ -28,6 +34,7 @@ import {
 import { NOTIFICATION_ID, buildNotification } from "./background/notifications.js";
 
 const STAGE_END_ALARM = "stage_end";
+const BADGE_TICK_ALARM = "badge_tick";
 const LEGACY_COUNTDOWN_ALARM = "countdown";
 const LEGACY_SEGMENT_ALARM_PREFIX = "clock_";
 const LEGACY_RUN_KEYS = ["isRunning", "endTime", "totalDuration", "presetName", "clocks"];
@@ -89,13 +96,45 @@ async function syncStageAlarm(run) {
   }
 }
 
+async function updateBadge(run) {
+  try {
+    const settings = await getSettings();
+    const shownRun = settings.showBadge === false ? null : run;
+    const now = Date.now();
+    const colors = getBadgeColors(shownRun);
+    await Promise.all([
+      chrome.action.setBadgeText({ text: getBadgeText(shownRun, now) }),
+      chrome.action.setTitle({ title: getBadgeTitle(shownRun, now) }),
+      ...(colors
+        ? [
+            chrome.action.setBadgeBackgroundColor({ color: colors.background }),
+            chrome.action.setBadgeTextColor({ color: colors.text }),
+          ]
+        : []),
+    ]);
+    const nextChangeAt = getNextBadgeChangeAt(shownRun, now);
+    if (nextChangeAt === null) {
+      await chrome.alarms.clear(BADGE_TICK_ALARM);
+    } else {
+      await chrome.alarms.create(BADGE_TICK_ALARM, { when: nextChangeAt });
+    }
+  } catch (error) {
+    console.error("Couldn't update the badge:", error);
+  }
+}
+
+async function syncAlarmsAndBadge(run) {
+  await syncStageAlarm(run);
+  await updateBadge(run);
+}
+
 async function saveRun(run) {
   if (run) {
     await chrome.storage.local.set({ [STORAGE_KEYS.RUN]: run });
   } else {
     await chrome.storage.local.remove(STORAGE_KEYS.RUN);
   }
-  await syncStageAlarm(run);
+  await syncAlarmsAndBadge(run);
 }
 
 async function loadRun(now) {
@@ -123,7 +162,7 @@ async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
   });
 
   if (plan.run === run) {
-    await syncStageAlarm(run);
+    await syncAlarmsAndBadge(run);
     return run;
   }
 
@@ -199,9 +238,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 
+async function redrawBadge() {
+  await updateBadge(await loadRun(Date.now()));
+}
+
 async function handleAlarm(alarm) {
   if (alarm.name === STAGE_END_ALARM) {
     await catchUpRun({ dueAt: alarm.scheduledTime });
+  } else if (alarm.name === BADGE_TICK_ALARM) {
+    await redrawBadge();
   } else if (isLegacyAlarmName(alarm.name)) {
     await chrome.alarms.clear(alarm.name);
     await catchUpRun();
@@ -212,6 +257,11 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   runExclusive(() => handleAlarm(alarm)).catch((error) =>
     console.error(`Handling alarm ${alarm.name} failed:`, error)
   );
+});
+
+chrome.storage.onChanged.addListener((changes) => {
+  if (!(STORAGE_KEYS.SETTINGS in changes)) return;
+  runExclusive(redrawBadge).catch((error) => console.error("Redrawing the badge failed:", error));
 });
 
 async function reconcileRunState() {
