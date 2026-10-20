@@ -1,11 +1,11 @@
 import {
+  EXTENDED_STAGE_MAX_SEC,
   getStageDurationMs,
   getStagesDurationMs,
   stagesFromLegacyClocks,
 } from "../shared/routine.js";
 
 export const RUN_SCHEMA_VERSION = 2;
-export const EXTENDED_STAGE_MAX_SEC = 24 * 3600;
 
 function startStage(run, stageIndex, now) {
   const { remainingMs, ...runWithoutRemaining } = run;

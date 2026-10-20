@@ -157,15 +157,17 @@ async function readRoutine(routineId) {
   return normalizeRoutine(items[key], makeStepLabel);
 }
 
-async function startRoutine({ routineId }) {
+async function startRoutine({ routineId, replaceRunning }) {
   const currentRun = await catchUpRun({ announceLateFinish: false });
-  if (currentRun) return currentRun;
+  const shouldReplace = replaceRunning === true;
+  if (currentRun && !shouldReplace) return currentRun;
 
   const routine = await readRoutine(routineId);
   if (!routine) throw new Error(`Routine ${routineId} was not found`);
   const stages = expandRoutine(routine);
   if (getStagesDurationMs(stages) <= 0) throw new Error(`Routine ${routineId} has no duration`);
 
+  if (currentRun) await clearStageNotification();
   const run = createRun(routine, stages, Date.now());
   await saveRun(run);
   return run;

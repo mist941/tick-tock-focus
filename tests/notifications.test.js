@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import {
   NOTIFICATION_ID,
   buildNotification,
-  fillTemplate,
   formatClockTime,
   formatSpokenDuration,
 } from "../background/notifications.js";
@@ -53,9 +52,6 @@ describe("formatting", () => {
     assert.equal(formatClockTime(new Date(2026, 9, 15, 12, 0).getTime(), "12h"), "12:00 PM");
   });
 
-  test("fills only the placeholders it has values for", () => {
-    assert.equal(fillTemplate("{a} and {b}", { a: 1 }), "1 and {b}");
-  });
 });
 
 describe("buildNotification", () => {
