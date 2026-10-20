@@ -15,6 +15,11 @@ export const NOTIFICATION_TEXTS = Object.freeze({
   lateFinishTitle: "{routineName} finished at {time}",
   caughtUpTitle: "Now: {label} · {n} of {total}",
   caughtUpMessage: "{remaining} left",
+  pauseButton: "Pause",
+  skipButton: "Skip",
+  startStageButton: "Start {label}",
+  stopButton: "Stop",
+  startAgainButton: "Start again",
   hours: "{count} h",
   minutes: "{count} min",
   seconds: "{count} s",
@@ -51,6 +56,29 @@ function describeUpcomingStage(run) {
   };
 }
 
+const pauseAndSkipButtons = () => [
+  { title: NOTIFICATION_TEXTS.pauseButton, command: { action: "pauseRoutine" } },
+  { title: NOTIFICATION_TEXTS.skipButton, command: { action: "skipStage" } },
+];
+
+const startAwaitedStageAndStopButtons = (run) => [
+  {
+    title: fillTemplate(NOTIFICATION_TEXTS.startStageButton, { label: run.stages[run.stageIndex].label }),
+    command: { action: "startNextStage" },
+  },
+  { title: NOTIFICATION_TEXTS.stopButton, command: { action: "stopRoutine" } },
+];
+
+const startAgainButtons = (run) =>
+  run.routineId
+    ? [
+        {
+          title: NOTIFICATION_TEXTS.startAgainButton,
+          command: { action: "startRoutine", routineId: run.routineId, replaceRunning: true },
+        },
+      ]
+    : [];
+
 const NOTIFICATION_BUILDERS = {
   stageDone(notification, { previousRun, nextRun, timeFormat }) {
     const completedStage = previousRun.stages[notification.stageIndex];
@@ -69,6 +97,7 @@ const NOTIFICATION_BUILDERS = {
             time: formatClockTime(nextRun.stageEndsAt, timeFormat),
           }),
       requireInteraction: isWaiting,
+      buttons: isWaiting ? startAwaitedStageAndStopButtons(nextRun) : pauseAndSkipButtons(),
     };
   },
 
@@ -80,6 +109,7 @@ const NOTIFICATION_BUILDERS = {
       }),
       message: fillTemplate(NOTIFICATION_TEXTS.stageDoneWaitMessage, describeUpcomingStage(nextRun)),
       requireInteraction: true,
+      buttons: startAwaitedStageAndStopButtons(nextRun),
     };
   },
 
@@ -90,6 +120,7 @@ const NOTIFICATION_BUILDERS = {
       }),
       message: describeCompletion(previousRun),
       requireInteraction: false,
+      buttons: startAgainButtons(previousRun),
     };
   },
 
@@ -101,6 +132,7 @@ const NOTIFICATION_BUILDERS = {
       }),
       message: describeCompletion(previousRun),
       requireInteraction: false,
+      buttons: [],
     };
   },
 
@@ -115,10 +147,22 @@ const NOTIFICATION_BUILDERS = {
         remaining: formatSpokenDuration(Math.ceil((nextRun.stageEndsAt - now) / 1000)),
       }),
       requireInteraction: false,
+      buttons: pauseAndSkipButtons(),
     };
   },
 };
 
 export function buildNotification(notification, context) {
   return NOTIFICATION_BUILDERS[notification.type](notification, context);
+}
+
+const RUN_KEY_FIELDS = ["startedAt", "stageIndex", "status"];
+
+export const getNotificationRunKey = (run) =>
+  run ? Object.fromEntries(RUN_KEY_FIELDS.map((field) => [field, run[field]])) : null;
+
+export function isNotificationForRun(runKey, run) {
+  const currentRunKey = getNotificationRunKey(run);
+  if (!runKey || !currentRunKey) return runKey === null && currentRunKey === null;
+  return RUN_KEY_FIELDS.every((field) => runKey[field] === currentRunKey[field]);
 }

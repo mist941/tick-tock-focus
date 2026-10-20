@@ -31,7 +31,12 @@ import {
   skipCurrentStage,
   startAwaitedStage,
 } from "./background/run-engine.js";
-import { NOTIFICATION_ID, buildNotification } from "./background/notifications.js";
+import {
+  NOTIFICATION_ID,
+  buildNotification,
+  getNotificationRunKey,
+  isNotificationForRun,
+} from "./background/notifications.js";
 
 const STAGE_END_ALARM = "stage_end";
 const BADGE_TICK_ALARM = "badge_tick";
@@ -53,8 +58,27 @@ async function readEngineSettings() {
   return { autoAdvance: settings.autoAdvance !== false, timeFormat: settings.timeFormat };
 }
 
-async function showNotification({ title, message, requireInteraction }) {
+async function saveNotificationActions(buttons, run) {
+  if (buttons.length === 0) {
+    await chrome.storage.session.remove(STORAGE_KEYS.NOTIFICATION_ACTIONS);
+    return;
+  }
+  await chrome.storage.session.set({
+    [STORAGE_KEYS.NOTIFICATION_ACTIONS]: {
+      runKey: getNotificationRunKey(run),
+      commands: buttons.map((button) => button.command),
+    },
+  });
+}
+
+async function readNotificationActions() {
+  const items = await chrome.storage.session.get(STORAGE_KEYS.NOTIFICATION_ACTIONS);
+  return items[STORAGE_KEYS.NOTIFICATION_ACTIONS] ?? null;
+}
+
+async function showNotification({ title, message, requireInteraction, buttons }, run) {
   try {
+    await saveNotificationActions(buttons, run);
     await chrome.notifications.create(NOTIFICATION_ID, {
       type: "basic",
       iconUrl: NOTIFICATION_ICON_URL,
@@ -62,6 +86,7 @@ async function showNotification({ title, message, requireInteraction }) {
       message,
       priority: 2,
       requireInteraction,
+      ...(buttons.length > 0 ? { buttons: buttons.map((button) => ({ title: button.title })) } : {}),
     });
   } catch (error) {
     console.error("Couldn't show notification:", error);
@@ -71,6 +96,7 @@ async function showNotification({ title, message, requireInteraction }) {
 async function clearStageNotification() {
   try {
     await chrome.notifications.clear(NOTIFICATION_ID);
+    await chrome.storage.session.remove(STORAGE_KEYS.NOTIFICATION_ACTIONS);
   } catch (error) {
     console.error("Couldn't clear the notification:", error);
   }
@@ -174,7 +200,8 @@ async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
         nextRun: plan.run,
         now: catchUpTime,
         timeFormat: settings.timeFormat,
-      })
+      }),
+      plan.run
     );
   }
   return plan.run;
@@ -236,6 +263,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ success: false, error: error.message });
     });
   return true;
+});
+
+async function handleNotificationButton(notificationId, buttonIndex) {
+  if (notificationId !== NOTIFICATION_ID) return;
+  const clickedActions = await readNotificationActions();
+  const run = await catchUpRun();
+  const shownActions = await readNotificationActions();
+  if (toComparableJson(shownActions) !== toComparableJson(clickedActions)) return;
+
+  await clearStageNotification();
+  const command = clickedActions?.commands[buttonIndex];
+  const handler = MESSAGE_HANDLERS.get(command?.action);
+  if (!handler || !isNotificationForRun(clickedActions.runKey, run)) return;
+  await handler(command);
+}
+
+chrome.notifications.onButtonClicked.addListener((notificationId, buttonIndex) => {
+  runExclusive(() => handleNotificationButton(notificationId, buttonIndex)).catch((error) =>
+    console.error("Handling a notification button failed:", error)
+  );
+});
+
+chrome.notifications.onClicked.addListener((notificationId) => {
+  if (notificationId === NOTIFICATION_ID) runExclusive(clearStageNotification);
 });
 
 async function redrawBadge() {
