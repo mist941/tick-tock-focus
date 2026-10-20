@@ -1,6 +1,7 @@
 import { ROUTINE_LIMITS } from "../shared/routine.js";
 
 export const DEFAULT_REPEAT_TIMES = 2;
+export const NEW_REPEAT_GROUP_KINDS = Object.freeze(["focus", "break"]);
 export const MAX_EDITOR_MINUTES = 1439;
 export const MAX_EDITOR_SECONDS = 59;
 
@@ -152,12 +153,15 @@ export function addRepeatGroup(model, { kindLabels }) {
     key: keys.createKey(),
     type: "repeat",
     times: DEFAULT_REPEAT_TIMES,
-    stages: [createStage(keys.createKey, "focus", kindLabels)],
+    stages: NEW_REPEAT_GROUP_KINDS.map((kind) => createStage(keys.createKey, kind, kindLabels)),
   };
   nextModel.blocks.push(group);
   nextModel.nextKeyNumber = keys.getNextKeyNumber();
   return { model: nextModel, addedKey: group.key, addedStageKey: group.stages[0].key };
 }
+
+export const canAddRepeatGroup = (model) =>
+  countEditorRows(model) + NEW_REPEAT_GROUP_KINDS.length <= ROUTINE_LIMITS.maxEditorRows;
 
 export function removeItem(model, key) {
   const item = findItem(model, key);

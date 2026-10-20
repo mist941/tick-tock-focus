@@ -10,6 +10,7 @@ import {
   MAX_EDITOR_SECONDS,
   addRepeatGroup,
   addStage,
+  canAddRepeatGroup,
   canMove,
   countEditorRows,
   createEditorModel,
@@ -387,7 +388,7 @@ function renderFooter() {
 
   const isAtRowLimit = editorRowCount >= ROUTINE_LIMITS.maxEditorRows;
   elements.addStageButton.disabled = isAtRowLimit;
-  elements.addGroupButton.disabled = isAtRowLimit;
+  elements.addGroupButton.disabled = !canAddRepeatGroup(model);
   elements.blocks.querySelectorAll('[data-control="add-stage"]').forEach((button) => {
     button.disabled = isAtRowLimit;
   });
