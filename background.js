@@ -146,7 +146,7 @@ async function applyRunCommand(transition) {
   const nextRun = transition(run, Date.now());
   if (nextRun === run) return run;
   await saveRun(nextRun);
-  if (run.status === "awaitingNext") await clearStageNotification();
+  if (run.status === "awaitingNext" || nextRun === null) await clearStageNotification();
   return nextRun;
 }
 
