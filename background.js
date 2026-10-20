@@ -36,7 +36,9 @@ import {
   buildNotification,
   getNotificationRunKey,
   isNotificationForRun,
+  playsSound,
 } from "./background/notifications.js";
+import { getSoundSettings } from "./shared/sounds.js";
 
 const STAGE_END_ALARM = "stage_end";
 const BADGE_TICK_ALARM = "badge_tick";
@@ -44,6 +46,7 @@ const LEGACY_COUNTDOWN_ALARM = "countdown";
 const LEGACY_SEGMENT_ALARM_PREFIX = "clock_";
 const LEGACY_RUN_KEYS = ["isRunning", "endTime", "totalDuration", "presetName", "clocks"];
 const NOTIFICATION_ICON_URL = "icons/icon512.png";
+const OFFSCREEN_DOCUMENT_PATH = "offscreen/offscreen.html";
 const UNINSTALL_FEEDBACK_URL = "https://ticktockfocus.com/uninstall.html";
 
 let lifecycleQueue = Promise.resolve();
@@ -86,10 +89,48 @@ async function showNotification({ title, message, requireInteraction, buttons },
       message,
       priority: 2,
       requireInteraction,
+      silent: true,
       ...(buttons.length > 0 ? { buttons: buttons.map((button) => ({ title: button.title })) } : {}),
     });
   } catch (error) {
     console.error("Couldn't show notification:", error);
+  }
+}
+
+let offscreenDocumentCreation = null;
+
+async function ensureOffscreenDocument() {
+  const offscreenDocuments = await chrome.runtime.getContexts({
+    contextTypes: ["OFFSCREEN_DOCUMENT"],
+    documentUrls: [chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH)],
+  });
+  if (offscreenDocuments.length > 0) return;
+  offscreenDocumentCreation ??= chrome.offscreen
+    .createDocument({
+      url: OFFSCREEN_DOCUMENT_PATH,
+      reasons: ["AUDIO_PLAYBACK"],
+      justification: "Plays the sound at the end of a timer stage.",
+    })
+    .finally(() => {
+      offscreenDocumentCreation = null;
+    });
+  await offscreenDocumentCreation;
+}
+
+async function playStageSound() {
+  try {
+    const { soundEnabled, soundId, soundVolume } = getSoundSettings(await getSettings());
+    if (!soundEnabled || soundVolume === 0) return;
+    await ensureOffscreenDocument();
+    const response = await chrome.runtime.sendMessage({
+      target: "offscreen",
+      action: "playSound",
+      soundId,
+      volume: soundVolume,
+    });
+    if (!response?.success) throw new Error(response?.error ?? "No answer from the offscreen document");
+  } catch (error) {
+    console.error("Couldn't play the sound:", error);
   }
 }
 
@@ -203,6 +244,7 @@ async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
       }),
       plan.run
     );
+    if (playsSound(plan.notification)) await playStageSound();
   }
   return plan.run;
 }

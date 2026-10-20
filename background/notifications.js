@@ -156,6 +156,10 @@ export function buildNotification(notification, context) {
   return NOTIFICATION_BUILDERS[notification.type](notification, context);
 }
 
+const NOTIFICATION_TYPES_WITH_SOUND = new Set(["stageDone", "routineComplete"]);
+
+export const playsSound = (notification) => NOTIFICATION_TYPES_WITH_SOUND.has(notification.type);
+
 const RUN_KEY_FIELDS = ["startedAt", "stageIndex", "status"];
 
 export const getNotificationRunKey = (run) =>

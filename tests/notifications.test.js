@@ -7,6 +7,7 @@ import {
   formatSpokenDuration,
   getNotificationRunKey,
   isNotificationForRun,
+  playsSound,
 } from "../background/notifications.js";
 
 const afternoon = new Date(2026, 9, 15, 14, 5).getTime();
@@ -208,6 +209,19 @@ describe("buildNotification", () => {
       ).buttons[0].title,
       "Start Deep work"
     );
+  });
+});
+
+describe("playsSound", () => {
+  test("plays for a stage that just ended and for a completed routine", () => {
+    assert.equal(playsSound({ type: "stageDone", stageIndex: 0 }), true);
+    assert.equal(playsSound({ type: "routineComplete" }), true);
+  });
+
+  test("stays silent when catching up after sleep or a closed browser", () => {
+    assert.equal(playsSound({ type: "lateStageDone", stageIndex: 0, endedAt: afternoon }), false);
+    assert.equal(playsSound({ type: "caughtUp" }), false);
+    assert.equal(playsSound({ type: "lateFinish", finishedAt: afternoon }), false);
   });
 });
 
