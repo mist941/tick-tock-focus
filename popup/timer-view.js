@@ -240,9 +240,11 @@ function showRunView(run, now) {
   setTextIfChanged(elements.next, describeNextStage(run));
   setTextIfChanged(
     elements.endsAt,
-    formatUiString(UI_STRINGS.timer.endsAt, {
-      time: formatClockTime(now + routineRemainingMs, getPopupState().settings.timeFormat, UI_STRINGS.formats),
-    })
+    run.status === "running"
+      ? formatUiString(UI_STRINGS.timer.endsAt, {
+          time: formatClockTime(now + routineRemainingMs, getPopupState().settings.timeFormat, UI_STRINGS.formats),
+        })
+      : ""
   );
   renderRunControls(run);
   renderProgressRing(run, stageRemainingMs);

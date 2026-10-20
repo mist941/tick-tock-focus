@@ -862,6 +862,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .run-ends {
+  min-height: 1lh;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
