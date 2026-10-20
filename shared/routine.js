@@ -256,7 +256,10 @@ export function planCatchUp(run, now, { autoAdvance, graceMs }) {
   if (!autoAdvance) {
     return {
       run: toAwaitingRun(run, completedStageIndex + 1),
-      notification: { type: "stageDone", stageIndex: completedStageIndex },
+      notification:
+        firstMissedEndMs <= graceMs
+          ? { type: "stageDone", stageIndex: completedStageIndex }
+          : { type: "lateStageDone", stageIndex: completedStageIndex, endedAt: completedAt },
     };
   }
 

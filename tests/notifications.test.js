@@ -92,6 +92,21 @@ describe("buildNotification", () => {
     );
   });
 
+  test("a stage that ended long ago in wait mode says when it ended", () => {
+    const { stageEndsAt, ...waiting } = run({ status: "awaitingNext", stageIndex: 1 });
+    const context = { previousRun: run(), nextRun: waiting, now: afternoon + 3_600_000 };
+    const notification = { type: "lateStageDone", stageIndex: 0, endedAt: afternoon };
+    assert.deepEqual(buildNotification(notification, { ...context, timeFormat: "24h" }), {
+      title: "Focus done at 14:05",
+      message: "Next: Break · 5 min",
+      requireInteraction: true,
+    });
+    assert.equal(
+      buildNotification(notification, { ...context, timeFormat: "12h" }).title,
+      "Focus done at 02:05 PM"
+    );
+  });
+
   test("routine complete counts the focus time", () => {
     assert.deepEqual(
       buildNotification(

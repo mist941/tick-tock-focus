@@ -8,6 +8,7 @@ export const NOTIFICATION_TEXTS = Object.freeze({
   stageDoneTitle: "{label} done · {n} of {total}",
   stageDoneAutoMessage: "Next: {nextLabel} · {duration}, ends at {time}",
   stageDoneWaitMessage: "Next: {nextLabel} · {duration}",
+  lateStageDoneTitle: "{label} done at {time}",
   routineCompleteTitle: "{routineName} complete",
   focusTotalMessage: "{focusTotal} of focus",
   totalDurationMessage: "{totalDuration} in total",
@@ -42,16 +43,22 @@ function describeCompletion(run) {
 
 const stagePosition = (run, stageIndex) => ({ n: stageIndex + 1, total: run.stages.length });
 
+function describeUpcomingStage(run) {
+  const upcomingStage = run.stages[run.stageIndex];
+  return {
+    nextLabel: upcomingStage.label,
+    duration: formatSpokenDuration(upcomingStage.durationSec),
+  };
+}
+
 const NOTIFICATION_BUILDERS = {
   stageDone(notification, { previousRun, nextRun, timeFormat }) {
     const completedStage = previousRun.stages[notification.stageIndex];
-    const nextStage = nextRun.stages[nextRun.stageIndex];
     const isWaiting = nextRun.status === "awaitingNext";
     const values = {
       label: completedStage.label,
       ...stagePosition(previousRun, notification.stageIndex),
-      nextLabel: nextStage.label,
-      duration: formatSpokenDuration(nextStage.durationSec),
+      ...describeUpcomingStage(nextRun),
     };
     return {
       title: fillTemplate(NOTIFICATION_TEXTS.stageDoneTitle, values),
@@ -62,6 +69,17 @@ const NOTIFICATION_BUILDERS = {
             time: formatClockTime(nextRun.stageEndsAt, timeFormat),
           }),
       requireInteraction: isWaiting,
+    };
+  },
+
+  lateStageDone(notification, { previousRun, nextRun, timeFormat }) {
+    return {
+      title: fillTemplate(NOTIFICATION_TEXTS.lateStageDoneTitle, {
+        label: previousRun.stages[notification.stageIndex].label,
+        time: formatClockTime(notification.endedAt, timeFormat),
+      }),
+      message: fillTemplate(NOTIFICATION_TEXTS.stageDoneWaitMessage, describeUpcomingStage(nextRun)),
+      requireInteraction: true,
     };
   },
 

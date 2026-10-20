@@ -433,12 +433,28 @@ describe("planCatchUp", () => {
 
   test("wait mode: stops after the stage that ended and waits for the next one", () => {
     const { stageEndsAt, ...runWithoutEnd } = makeRun();
-    const expected = {
-      run: { ...runWithoutEnd, status: "awaitingNext", stageIndex: 1 },
+    const awaitingRun = { ...runWithoutEnd, status: "awaitingNext", stageIndex: 1 };
+    assert.deepEqual(planCatchUp(makeRun(), startedAt + minute, wait), {
+      run: awaitingRun,
       notification: { type: "stageDone", stageIndex: 0 },
-    };
-    assert.deepEqual(planCatchUp(makeRun(), startedAt + minute, wait), expected);
-    assert.deepEqual(planCatchUp(makeRun(), startedAt + 10 * minute, wait), expected);
+    });
+    assert.deepEqual(planCatchUp(makeRun(), startedAt + 10 * minute, wait), {
+      run: awaitingRun,
+      notification: { type: "lateStageDone", stageIndex: 0, endedAt: startedAt + minute },
+    });
+  });
+
+  test("wait mode: a stage that ended exactly 60 s ago is not late", () => {
+    const boundary = startedAt + minute;
+    assert.deepEqual(planCatchUp(makeRun(), boundary + 60_000, wait).notification, {
+      type: "stageDone",
+      stageIndex: 0,
+    });
+    assert.deepEqual(planCatchUp(makeRun(), boundary + 60_001, wait).notification, {
+      type: "lateStageDone",
+      stageIndex: 0,
+      endedAt: boundary,
+    });
   });
 
   test("wait mode: the last stage still completes the routine", () => {
