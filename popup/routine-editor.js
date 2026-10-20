@@ -112,6 +112,12 @@ function createMoveButtons(key, labels) {
   return moveButtons;
 }
 
+function createItemActions(moveButtons, removeButton) {
+  const actions = createElement("span", { className: "editor-item-actions" });
+  actions.append(moveButtons, removeButton);
+  return actions;
+}
+
 function createGrip() {
   const grip = createElement("span", {
     className: "drag-handle",
@@ -222,21 +228,23 @@ function createStageRow(stage, item) {
   );
   removeButton.addEventListener("click", () => removeEditorItem(stage.key));
 
-  const fields = createElement("div", { className: "editor-row-fields" });
-  fields.append(
-    createGrip(),
+  const controls = createElement("div", { className: "editor-row-controls" });
+  controls.append(
     kindSelect,
-    labelInput,
     minutesInput,
     createUnit(UI_STRINGS.editor.minutesUnit),
     secondsInput,
     createUnit(UI_STRINGS.editor.secondsUnit),
-    createMoveButtons(stage.key, {
-      up: formatUiString(UI_STRINGS.editor.moveStageUp, { step: stageName }),
-      down: formatUiString(UI_STRINGS.editor.moveStageDown, { step: stageName }),
-    }),
-    removeButton
+    createItemActions(
+      createMoveButtons(stage.key, {
+        up: formatUiString(UI_STRINGS.editor.moveStageUp, { step: stageName }),
+        down: formatUiString(UI_STRINGS.editor.moveStageDown, { step: stageName }),
+      }),
+      removeButton
+    )
   );
+  const fields = createElement("div", { className: "editor-row-fields" });
+  fields.append(createGrip(), labelInput, controls);
   row.append(fields, createElement("p", { className: "field-error", attributes: { id: errorId } }));
   makeDraggable(row, stage.key);
   return row;
@@ -288,12 +296,13 @@ function createGroupBlock(group, item, items) {
     createGrip(),
     createElement("span", { className: "editor-group-title", text: UI_STRINGS.editor.repeat }),
     createTimesSelect(group, groupName, errorId),
-    createElement("span", { className: "editor-group-spacer" }),
-    createMoveButtons(group.key, {
-      up: formatUiString(UI_STRINGS.editor.moveGroupUp, { group: groupName }),
-      down: formatUiString(UI_STRINGS.editor.moveGroupDown, { group: groupName }),
-    }),
-    removeButton
+    createItemActions(
+      createMoveButtons(group.key, {
+        up: formatUiString(UI_STRINGS.editor.moveGroupUp, { group: groupName }),
+        down: formatUiString(UI_STRINGS.editor.moveGroupDown, { group: groupName }),
+      }),
+      removeButton
+    )
   );
 
   const stageList = createElement("ol", {

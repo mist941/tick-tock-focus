@@ -487,11 +487,23 @@ input[type="number"]::-webkit-inner-spin-button {
   border-radius: var(--border-radius-sm);
 
   & .field-error {
-    padding-left: 14px;
+    padding-left: 15px;
   }
 }
 
-.editor-row-fields,
+.editor-row-fields {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-xs) 3px;
+
+  & .drag-handle {
+    grid-row: span 2;
+    align-self: stretch;
+  }
+}
+
+.editor-row-controls,
 .editor-group-header {
   display: flex;
   align-items: center;
@@ -501,6 +513,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .drag-handle {
   flex: none;
   display: inline-flex;
+  align-items: center;
   width: 12px;
   color: var(--color-text-muted);
   cursor: grab;
@@ -513,14 +526,11 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .kind-select {
   flex: none;
-  width: 72px;
-  padding-inline: 2px;
   font-size: var(--font-size-sm);
 }
 
 .label-input {
-  flex: 1;
-  width: 0;
+  width: 100%;
   font-size: var(--font-size-sm);
 }
 
@@ -531,11 +541,11 @@ input[type="number"]::-webkit-inner-spin-button {
   font-variant-numeric: tabular-nums;
 
   &[data-control="minutes"] {
-    width: 40px;
+    width: 46px;
   }
 
   &[data-control="seconds"] {
-    width: 30px;
+    width: 32px;
   }
 }
 
@@ -545,19 +555,18 @@ input[type="number"]::-webkit-inner-spin-button {
   color: var(--color-text-muted);
 }
 
-.move-buttons {
+.editor-item-actions {
   flex: none;
   display: flex;
-  flex-direction: column;
+  margin-left: auto;
+}
 
-  & .editor-icon-button {
-    width: 22px;
-    height: 15px;
+.move-buttons {
+  display: flex;
 
-    & .icon {
-      width: 18px;
-      height: 18px;
-    }
+  & .editor-icon-button .icon {
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -594,10 +603,6 @@ input[type="number"]::-webkit-inner-spin-button {
 .times-select {
   width: 60px;
   font-size: var(--font-size-sm);
-}
-
-.editor-group-spacer {
-  flex: 1;
 }
 
 .editor-group-add {
