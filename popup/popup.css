@@ -910,6 +910,11 @@ input[type="number"]::-webkit-inner-spin-button {
   text-transform: uppercase;
   color: var(--kind-color, var(--color-text-muted));
   overflow-wrap: anywhere;
+
+  &:lang(uk) {
+    letter-spacing: normal;
+    text-transform: none;
+  }
 }
 
 .run-ring {
@@ -967,9 +972,15 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .run-controls {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-md);
   width: 100%;
   margin-top: var(--spacing-md);
+
+  & .button {
+    flex: 1 1 0;
+    min-width: fit-content;
+  }
 }
 
 .routine-list {
