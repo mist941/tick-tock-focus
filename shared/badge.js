@@ -8,14 +8,12 @@ export const BADGE_TEXTS = Object.freeze({
   idleTitle: "TickTockFocus",
   pausedBadge: "II",
   waitingBadge: "▶",
-  underMinuteBadge: "<1",
   hoursBadge: "{count}h",
   runningTitle: "{routineName} · {label} {n} of {total} · {timeLeft}",
   pausedTitle: "{routineName} · Paused · {label} {n} of {total}",
   waitingTitle: "{routineName} · Waiting for you · Next: {label} {n} of {total}",
   minutesLeft: "{count} min left",
   hoursLeft: "{count} h left",
-  underMinuteLeft: "less than 1 min left",
 });
 
 export const BADGE_COLORS = Object.freeze({
@@ -27,15 +25,12 @@ export const BADGE_COLORS = Object.freeze({
 
 function getTimeLeft(run, now) {
   const remainingMs = run.stageEndsAt - now;
-  if (remainingMs <= MINUTE_MS) {
-    return { badge: BADGE_TEXTS.underMinuteBadge, title: BADGE_TEXTS.underMinuteLeft, nextChangeMs: null };
-  }
-  const minutes = Math.ceil(remainingMs / MINUTE_MS);
+  const minutes = Math.max(1, Math.ceil(remainingMs / MINUTE_MS));
   if (minutes <= MAX_MINUTES_ON_BADGE) {
     return {
       badge: String(minutes),
       title: fillTemplate(BADGE_TEXTS.minutesLeft, { count: minutes }),
-      nextChangeMs: (minutes - 1) * MINUTE_MS,
+      nextChangeMs: minutes > 1 ? (minutes - 1) * MINUTE_MS : null,
     };
   }
   const hours = Math.ceil(remainingMs / HOUR_MS);
