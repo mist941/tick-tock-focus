@@ -1,3 +1,4 @@
+import { translate } from "./i18n.js";
 import {
   ROUTINE_SCHEMA_VERSION,
   expandRoutine,
@@ -22,36 +23,62 @@ const repeatGroup = (times, stages) => ({ type: "repeat", times, stages });
 export const ROUTINE_TEMPLATES = deepFreeze([
   {
     id: "pomodoro",
+    nameKey: "templateNamePomodoro",
     blocks: [
-      repeatGroup(3, [templateStage("focus", "focus", 25), templateStage("break", "break", 5)]),
-      singleStage("focus", "focus", 25),
-      singleStage("longBreak", "break", 15),
+      repeatGroup(3, [
+        templateStage("templateStageFocus", "focus", 25),
+        templateStage("templateStageBreak", "break", 5),
+      ]),
+      singleStage("templateStageFocus", "focus", 25),
+      singleStage("templateStageLongBreak", "break", 15),
     ],
   },
   {
     id: "52-17",
-    blocks: [repeatGroup(3, [templateStage("focus", "focus", 52), templateStage("break", "break", 17)])],
+    nameKey: "templateName5217",
+    blocks: [
+      repeatGroup(3, [
+        templateStage("templateStageFocus", "focus", 52),
+        templateStage("templateStageBreak", "break", 17),
+      ]),
+    ],
   },
   {
     id: "deep-work",
-    blocks: [singleStage("focus", "focus", 90), singleStage("break", "break", 20)],
+    nameKey: "templateNameDeepWork",
+    blocks: [
+      singleStage("templateStageFocus", "focus", 90),
+      singleStage("templateStageBreak", "break", 20),
+    ],
   },
   {
     id: "study",
-    blocks: [repeatGroup(3, [templateStage("study", "focus", 45), templateStage("break", "break", 10)])],
+    nameKey: "templateNameStudy",
+    blocks: [
+      repeatGroup(3, [
+        templateStage("templateStageStudy", "focus", 45),
+        templateStage("templateStageBreak", "break", 10),
+      ]),
+    ],
   },
   {
     id: "desk-break",
-    blocks: [repeatGroup(4, [templateStage("work", "focus", 30), templateStage("stretch", "break", 2)])],
+    nameKey: "templateNameDeskBreak",
+    blocks: [
+      repeatGroup(4, [
+        templateStage("templateStageWork", "focus", 30),
+        templateStage("templateStageStretch", "break", 2),
+      ]),
+    ],
   },
 ]);
 
 const findTemplate = (templateId) =>
   ROUTINE_TEMPLATES.find((template) => template.id === templateId) ?? null;
 
-function buildBlocks(template, texts) {
+function buildBlocks(template) {
   const toStage = ({ labelKey, kind, durationSec }) => ({
-    label: texts.stageLabels[labelKey],
+    label: translate(labelKey),
     kind,
     durationSec,
   });
@@ -62,27 +89,27 @@ function buildBlocks(template, texts) {
   );
 }
 
-export function previewTemplate(template, texts) {
-  const stages = expandRoutine({ blocks: buildBlocks(template, texts) });
+export function previewTemplate(template) {
+  const stages = expandRoutine({ blocks: buildBlocks(template) });
   return {
     id: template.id,
-    name: texts.names[template.id],
+    name: translate(template.nameKey),
     stages,
     durationSec: getStagesDurationMs(stages) / 1000,
   };
 }
 
-export function createRoutineFromTemplate(templateId, now, texts) {
+export function createRoutineFromTemplate(templateId, now) {
   const template = findTemplate(templateId);
   if (!template) return null;
   const routine = {
     id: crypto.randomUUID(),
-    name: texts.names[template.id],
+    name: translate(template.nameKey),
     createdAt: now,
     updatedAt: now,
     schemaVersion: ROUTINE_SCHEMA_VERSION,
     templateId: template.id,
-    blocks: buildBlocks(template, texts),
+    blocks: buildBlocks(template),
   };
   return { ...routine, clocks: toLegacyClocks(expandRoutine(routine)) };
 }

@@ -1,48 +1,15 @@
-import * as Format from "../shared/format.js";
-
-const { fillTemplate } = Format;
+import { formatDuration, formatTime, translate } from "../shared/i18n.js";
 
 export const NOTIFICATION_ID = "stage";
-
-export const NOTIFICATION_TEXTS = Object.freeze({
-  stageDoneTitle: "{label} done · {n} of {total}",
-  stageDoneAutoMessage: "Next: {nextLabel} · {duration}, ends at {time}",
-  stageDoneWaitMessage: "Next: {nextLabel} · {duration}",
-  lateStageDoneTitle: "{label} done at {time}",
-  routineCompleteTitle: "{routineName} complete",
-  focusTotalMessage: "{focusTotal} of focus",
-  totalDurationMessage: "{totalDuration} in total",
-  lateFinishTitle: "{routineName} finished at {time}",
-  caughtUpTitle: "Now: {label} · {n} of {total}",
-  caughtUpMessage: "{remaining} left",
-  pauseButton: "Pause",
-  skipButton: "Skip",
-  startStageButton: "Start {label}",
-  stopButton: "Stop",
-  startAgainButton: "Start again",
-  hours: "{count} h",
-  minutes: "{count} min",
-  seconds: "{count} s",
-  beforeNoon: "AM",
-  afterNoon: "PM",
-});
-
-export const formatSpokenDuration = (totalSeconds) =>
-  Format.formatSpokenDuration(totalSeconds, NOTIFICATION_TEXTS);
-
-export const formatClockTime = (timestamp, timeFormat) =>
-  Format.formatClockTime(timestamp, timeFormat, NOTIFICATION_TEXTS);
 
 const sumDurationSec = (stages) => stages.reduce((totalSec, stage) => totalSec + stage.durationSec, 0);
 
 function describeCompletion(run) {
   const focusSec = sumDurationSec(run.stages.filter((stage) => stage.kind === "focus"));
   return focusSec > 0
-    ? fillTemplate(NOTIFICATION_TEXTS.focusTotalMessage, {
-        focusTotal: formatSpokenDuration(focusSec),
-      })
-    : fillTemplate(NOTIFICATION_TEXTS.totalDurationMessage, {
-        totalDuration: formatSpokenDuration(sumDurationSec(run.stages)),
+    ? translate("notificationFocusTotalMessage", { focusTotal: formatDuration(focusSec) })
+    : translate("notificationTotalDurationMessage", {
+        totalDuration: formatDuration(sumDurationSec(run.stages)),
       });
 }
 
@@ -52,28 +19,28 @@ function describeUpcomingStage(run) {
   const upcomingStage = run.stages[run.stageIndex];
   return {
     nextLabel: upcomingStage.label,
-    duration: formatSpokenDuration(upcomingStage.durationSec),
+    duration: formatDuration(upcomingStage.durationSec),
   };
 }
 
 const pauseAndSkipButtons = () => [
-  { title: NOTIFICATION_TEXTS.pauseButton, command: { action: "pauseRoutine" } },
-  { title: NOTIFICATION_TEXTS.skipButton, command: { action: "skipStage" } },
+  { title: translate("notificationPauseButton"), command: { action: "pauseRoutine" } },
+  { title: translate("notificationSkipButton"), command: { action: "skipStage" } },
 ];
 
 const startAwaitedStageAndStopButtons = (run) => [
   {
-    title: fillTemplate(NOTIFICATION_TEXTS.startStageButton, { label: run.stages[run.stageIndex].label }),
+    title: translate("notificationStartStageButton", { label: run.stages[run.stageIndex].label }),
     command: { action: "startNextStage" },
   },
-  { title: NOTIFICATION_TEXTS.stopButton, command: { action: "stopRoutine" } },
+  { title: translate("notificationStopButton"), command: { action: "stopRoutine" } },
 ];
 
 const startAgainButtons = (run) =>
   run.routineId
     ? [
         {
-          title: NOTIFICATION_TEXTS.startAgainButton,
+          title: translate("notificationStartAgainButton"),
           command: { action: "startRoutine", routineId: run.routineId, replaceRunning: true },
         },
       ]
@@ -89,12 +56,12 @@ const NOTIFICATION_BUILDERS = {
       ...describeUpcomingStage(nextRun),
     };
     return {
-      title: fillTemplate(NOTIFICATION_TEXTS.stageDoneTitle, values),
+      title: translate("notificationStageDoneTitle", values),
       message: isWaiting
-        ? fillTemplate(NOTIFICATION_TEXTS.stageDoneWaitMessage, values)
-        : fillTemplate(NOTIFICATION_TEXTS.stageDoneAutoMessage, {
+        ? translate("notificationStageDoneWaitMessage", values)
+        : translate("notificationStageDoneAutoMessage", {
             ...values,
-            time: formatClockTime(nextRun.stageEndsAt, timeFormat),
+            time: formatTime(nextRun.stageEndsAt, timeFormat),
           }),
       requireInteraction: isWaiting,
       buttons: isWaiting ? startAwaitedStageAndStopButtons(nextRun) : pauseAndSkipButtons(),
@@ -103,11 +70,11 @@ const NOTIFICATION_BUILDERS = {
 
   lateStageDone(notification, { previousRun, nextRun, timeFormat }) {
     return {
-      title: fillTemplate(NOTIFICATION_TEXTS.lateStageDoneTitle, {
+      title: translate("notificationLateStageDoneTitle", {
         label: previousRun.stages[notification.stageIndex].label,
-        time: formatClockTime(notification.endedAt, timeFormat),
+        time: formatTime(notification.endedAt, timeFormat),
       }),
-      message: fillTemplate(NOTIFICATION_TEXTS.stageDoneWaitMessage, describeUpcomingStage(nextRun)),
+      message: translate("notificationStageDoneWaitMessage", describeUpcomingStage(nextRun)),
       requireInteraction: true,
       buttons: startAwaitedStageAndStopButtons(nextRun),
     };
@@ -115,9 +82,7 @@ const NOTIFICATION_BUILDERS = {
 
   routineComplete(notification, { previousRun }) {
     return {
-      title: fillTemplate(NOTIFICATION_TEXTS.routineCompleteTitle, {
-        routineName: previousRun.routineName,
-      }),
+      title: translate("notificationRoutineCompleteTitle", { routineName: previousRun.routineName }),
       message: describeCompletion(previousRun),
       requireInteraction: false,
       buttons: startAgainButtons(previousRun),
@@ -126,9 +91,9 @@ const NOTIFICATION_BUILDERS = {
 
   lateFinish(notification, { previousRun, timeFormat }) {
     return {
-      title: fillTemplate(NOTIFICATION_TEXTS.lateFinishTitle, {
+      title: translate("notificationLateFinishTitle", {
         routineName: previousRun.routineName,
-        time: formatClockTime(notification.finishedAt, timeFormat),
+        time: formatTime(notification.finishedAt, timeFormat),
       }),
       message: describeCompletion(previousRun),
       requireInteraction: false,
@@ -139,12 +104,12 @@ const NOTIFICATION_BUILDERS = {
   caughtUp(notification, { nextRun, now }) {
     const currentStage = nextRun.stages[nextRun.stageIndex];
     return {
-      title: fillTemplate(NOTIFICATION_TEXTS.caughtUpTitle, {
+      title: translate("notificationCaughtUpTitle", {
         label: currentStage.label,
         ...stagePosition(nextRun, nextRun.stageIndex),
       }),
-      message: fillTemplate(NOTIFICATION_TEXTS.caughtUpMessage, {
-        remaining: formatSpokenDuration(Math.ceil((nextRun.stageEndsAt - now) / 1000)),
+      message: translate("notificationCaughtUpMessage", {
+        remaining: formatDuration(Math.ceil((nextRun.stageEndsAt - now) / 1000)),
       }),
       requireInteraction: false,
       buttons: pauseAndSkipButtons(),

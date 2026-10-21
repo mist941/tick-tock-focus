@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "TickTockFocus - Multi-Step Timer & Routines",
+  "name": "__MSG_extensionName__",
   "version": "1.1.1",
+  "default_locale": "en",
   "minimum_chrome_version": "120",
-  "description": "Multi-step focus timer: Pomodoro, 52/17 or your own routine. A notification at every step. No site access, no account required.",
+  "description": "__MSG_extensionDescription__",
   "homepage_url": "https://ticktockfocus.com",
   "action": {
-    "default_title": "TickTockFocus",
+    "default_title": "__MSG_actionTitle__",
     "default_popup": "popup/popup.html",
     "default_icon": { 
       "16": "icons/icon16.png", 

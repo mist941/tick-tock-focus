@@ -1,1 +1,3 @@
-export const makeStepLabel = (position) => `Step ${position}`;
+import { translate } from "./i18n.js";
+
+export const makeStepLabel = (position) => translate("stageStepLabel", { position });

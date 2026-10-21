@@ -1,3 +1,4 @@
+import { formatDuration, translate } from "../shared/i18n.js";
 import { ROUTINE_LIMITS } from "../shared/routine.js";
 import { STORAGE_KEYS } from "../shared/storage.js";
 import {
@@ -11,17 +12,10 @@ import { createElement } from "../popup/dom-helpers.js";
 import { createIcon } from "../popup/icons.js";
 import * as PopupStorage from "../popup/popup-storage.js";
 import { createStageStrip } from "../popup/stage-graphics.js";
-import {
-  UI_STRINGS,
-  applyUiStrings,
-  formatDurationText,
-  formatUiString,
-} from "../popup/ui-strings.js";
+import { applyUiStrings } from "../popup/ui-strings.js";
 
 const ROUTINES_RELOAD_DELAY_MS = 150;
 const PRESELECTED_TEMPLATE_ID = "pomodoro";
-const TEMPLATE_TEXTS = UI_STRINGS.templates;
-const TEXTS = UI_STRINGS.welcome;
 
 const elements = {
   templateList: document.getElementById("template_list"),
@@ -47,20 +41,20 @@ function fillTemplateWithNodes(element, template, nodes) {
 
 function fillPageTexts() {
   applyUiStrings();
-  document.title = TEXTS.pageTitle;
+  document.title = translate("welcomePageTitle");
   const startButton = createElement("span", { className: "start-button-name" });
   startButton.append(
     createIcon("play"),
-    createElement("span", { className: "visually-hidden", text: TEXTS.startButton })
+    createElement("span", { className: "visually-hidden", text: translate("welcomeStartButton") })
   );
-  fillTemplateWithNodes(elements.startText, TEXTS.startText, { startButton });
-  elements.stepsText.textContent = formatUiString(TEXTS.stepsText, {
+  fillTemplateWithNodes(elements.startText, translate("welcomeStartText"), { startButton });
+  elements.stepsText.textContent = translate("welcomeStepsText", {
     minTimes: ROUTINE_LIMITS.repeatMinTimes,
     maxTimes: ROUTINE_LIMITS.repeatMaxTimes,
   });
   const seconds = { seconds: ROUTINE_LIMITS.stageMinSec };
-  elements.minimumTitle.textContent = formatUiString(TEXTS.minimumTitle, seconds);
-  elements.minimumText.textContent = formatUiString(TEXTS.minimumText, seconds);
+  elements.minimumTitle.textContent = translate("welcomeMinimumTitle", seconds);
+  elements.minimumText.textContent = translate("welcomeMinimumText", seconds);
 }
 
 function setAddStatus(text, { isError = false } = {}) {
@@ -71,7 +65,7 @@ function setAddStatus(text, { isError = false } = {}) {
 const getTemplateIdsToAdd = () => listTemplatesToAdd(selectedTemplateIds, storedRoutines);
 
 function createTemplateCard(template) {
-  const { id, name, stages, durationSec } = previewTemplate(template, TEMPLATE_TEXTS);
+  const { id, name, stages, durationSec } = previewTemplate(template);
   const checkbox = createElement("input", {
     className: "template-checkbox",
     attributes: { type: "checkbox", value: id },
@@ -93,10 +87,10 @@ function createTemplateCard(template) {
     heading,
     createElement("span", {
       className: "template-card-duration",
-      text: formatDurationText(durationSec),
+      text: formatDuration(durationSec),
     }),
     createStageStrip(stages),
-    createElement("span", { className: "template-card-added", text: TEXTS.added })
+    createElement("span", { className: "template-card-added", text: translate("welcomeAdded") })
   );
   const item = createElement("li");
   item.dataset.templateId = id;
@@ -141,16 +135,16 @@ async function addSelectedTemplates() {
     const routines = await PopupStorage.getRoutines();
     const now = Date.now();
     const newRoutines = listTemplatesToAdd(selectedTemplateIds, routines).map((templateId, index) =>
-      createRoutineFromTemplate(templateId, now + index, TEMPLATE_TEXTS)
+      createRoutineFromTemplate(templateId, now + index)
     );
     await PopupStorage.saveRoutines(newRoutines);
     storedRoutines = [...routines, ...newRoutines];
     selectedTemplateIds.clear();
     renderTemplateCards();
-    setAddStatus(TEXTS.addedToRoutines);
+    setAddStatus(translate("welcomeAddedToRoutines"));
   } catch (error) {
     console.error("Error adding the routines:", error);
-    setAddStatus(TEXTS.addFailed, { isError: true });
+    setAddStatus(translate("welcomeAddFailed"), { isError: true });
   } finally {
     isAdding = false;
   }

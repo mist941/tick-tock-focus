@@ -1,12 +1,17 @@
+import { translate } from "../shared/i18n.js";
 import { SOUND_IDS, getSoundPath, getSoundSettings } from "../shared/sounds.js";
 import { createElement } from "./dom-helpers.js";
 import { createIcon } from "./icons.js";
 import { openScreen, registerScreen } from "./navigation.js";
 import { getPopupState, subscribeToPopupState } from "./popup-state.js";
 import * as PopupStorage from "./popup-storage.js";
-import { UI_STRINGS, formatUiString } from "./ui-strings.js";
 
 const DEFAULT_TIME_FORMAT = "24h";
+const SOUND_NAME_KEYS = {
+  chime: "popupSettingsSoundChime",
+  bell: "popupSettingsSoundBell",
+  soft: "popupSettingsSoundSoft",
+};
 
 const elements = {
   openButton: document.getElementById("open_settings"),
@@ -27,7 +32,7 @@ let saveQueue = Promise.resolve();
 let testAudio = null;
 
 function describeVolume(volume) {
-  const text = formatUiString(UI_STRINGS.settings.volumePercent, { volume });
+  const text = translate("popupSettingsVolumePercent", { volume });
   elements.volumeSlider.setAttribute("aria-valuetext", text);
   elements.volumeValue.textContent = text;
 }
@@ -71,7 +76,7 @@ function saveSetting(key, value) {
       (error) => {
         pendingSaveCount -= 1;
         console.error(`Error saving the ${key} setting:`, error);
-        elements.message.textContent = UI_STRINGS.settings.saveFailed;
+        elements.message.textContent = translate("popupSettingsSaveFailed");
         renderSettings();
       }
     );
@@ -88,14 +93,14 @@ function initializeSoundControls() {
   elements.soundSelect.replaceChildren(
     ...SOUND_IDS.map((soundId) =>
       createElement("option", {
-        text: UI_STRINGS.settings.soundNames[soundId],
+        text: translate(SOUND_NAME_KEYS[soundId]),
         attributes: { value: soundId },
       })
     )
   );
   elements.testSoundButton.replaceChildren(
     createIcon("play"),
-    createElement("span", { text: UI_STRINGS.settings.testSound })
+    createElement("span", { text: translate("popupSettingsTestSound") })
   );
 
   elements.soundEnabled.addEventListener("change", () => {
@@ -115,7 +120,7 @@ function initializeSoundControls() {
 }
 
 export function initializeSettingsView() {
-  elements.version.textContent = formatUiString(UI_STRINGS.settings.version, {
+  elements.version.textContent = translate("popupSettingsVersion", {
     version: chrome.runtime.getManifest().version,
   });
   elements.nextStepOptions.forEach((option) =>
