@@ -19,6 +19,7 @@ A multi-step focus timer for Chrome: Pomodoro, 52/17 or your own routine. A rout
 - Keeps running with the popup closed. If the timer ended while Chrome was closed or the computer was asleep, one silent notification tells you when it finished
 - Routines and settings sync across your computers when Chrome Sync is on
 - Light and dark theme, 12- or 24-hour time, usable with just the keyboard
+- In English and Ukrainian, following the language Chrome is displayed in
 
 ## Usage
 
@@ -34,6 +35,17 @@ A multi-step focus timer for Chrome: Pomodoro, 52/17 or your own routine. A rout
 There is no build step and there are no dependencies: the repository root is the unpacked extension. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and select the repository folder. Chrome 120 or later is required.
 
 The unit tests for the shared logic run on Node's built-in test runner, with nothing to install: `npm test` (or `node --test`).
+
+## Languages
+
+The extension is in English and Ukrainian and follows the language Chrome is displayed in; there is no language setting of its own. Chrome in any other language shows English. The texts live in `_locales/<code>/messages.json`, read through `chrome.i18n`.
+
+To add a language:
+
+1. Copy `_locales/en` to `_locales/<code>`, using Chrome's code for the language, such as `de` or `pt_BR`.
+2. Translate every `message` in the copy. Keep the `{placeholders}` and the name TickTockFocus as they are, and set `languageCode` to the code with a hyphen (`de`, `pt-BR`). `chrome.i18n` has no plural forms, so word the texts so that they read right with any number, like "Steps: 8".
+3. Run `npm test`. It checks that the new language has every message with the same placeholders, that none is empty, and that the name and description fit the Chrome Web Store's limits of 75 and 132 characters.
+4. Switch Chrome to that language (Settings → Languages, or start Chrome with `--lang=<code>`), reload the extension and check that no text is cut off in the popup and on the welcome page.
 
 ## Privacy
 
