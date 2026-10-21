@@ -142,6 +142,7 @@ describe("messages in the code", () => {
   test("every message the code asks for exists", () => {
     const usedKeys = [
       ...matchAll(sourceText, /translate\(\s*"([^"]*)"/g),
+      ...matchAll(sourceText, /data-ui-(?:text|label)="([^"]*)"/g),
       ...matchAll(manifestText, /__MSG_(\w+)__/g),
     ];
     assert.deepEqual(

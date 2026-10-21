@@ -530,7 +530,88 @@
   "linkReportBug": {
     "message": "Report a bug"
   },
+  "linkPrivacyPolicy": {
+    "message": "Privacy policy"
+  },
   "linkOpensInNewTab": {
     "message": "(opens in a new tab)"
+  },
+  "welcomePageTitle": {
+    "message": "Welcome to TickTockFocus"
+  },
+  "welcomeTitle": {
+    "message": "TickTockFocus"
+  },
+  "welcomeTagline": {
+    "message": "Time any routine, step by step."
+  },
+  "welcomePickTitle": {
+    "message": "Pick routines to start with"
+  },
+  "welcomeAdded": {
+    "message": "Added"
+  },
+  "welcomeAddSelected": {
+    "message": "Add selected"
+  },
+  "welcomeAddedToRoutines": {
+    "message": "Added to your routines"
+  },
+  "welcomeAddFailed": {
+    "message": "Couldn't add the routines. Try again."
+  },
+  "welcomePinTitle": {
+    "message": "Pin the extension"
+  },
+  "welcomePinText": {
+    "message": "Click the puzzle icon in the toolbar, then the pin next to TickTockFocus."
+  },
+  "welcomeStartTitle": {
+    "message": "Start a routine"
+  },
+  "welcomeStartText": {
+    "message": "Click the icon and press {startButton} on a routine."
+  },
+  "welcomeStartButton": {
+    "message": "Start"
+  },
+  "welcomeHowItWorksTitle": {
+    "message": "How it works"
+  },
+  "welcomeStepsTitle": {
+    "message": "Steps, types and repeat groups"
+  },
+  "welcomeStepsText": {
+    "message": "A routine is a list of steps that run one after another. Each step is Focus, Break or Custom, which gives it its colour, and a repeat group runs its steps {minTimes} to {maxTimes} times."
+  },
+  "welcomeControlsTitle": {
+    "message": "Pause, Skip, +5 min"
+  },
+  "welcomeControlsText": {
+    "message": "Pause a step and pick it up later, skip to the next one, or give the current one 5 more minutes."
+  },
+  "welcomeNextStepTitle": {
+    "message": "Start automatically or wait for you"
+  },
+  "welcomeNextStepText": {
+    "message": "When a step ends, the next one starts on its own or waits until you press Start. Choose in Settings."
+  },
+  "welcomeAlertsTitle": {
+    "message": "Notifications, sound and the time on the icon"
+  },
+  "welcomeAlertsText": {
+    "message": "Every step ends with a notification and a short sound, and the notification's buttons pause, skip or start the next step. The toolbar icon shows the minutes left. Settings turns the sound or the time on the icon off."
+  },
+  "welcomeMinimumTitle": {
+    "message": "Steps are at least {seconds} seconds"
+  },
+  "welcomeMinimumText": {
+    "message": "Chrome won't ring an extension's alarm sooner than {seconds} seconds after it's set, so a shorter step would end late."
+  },
+  "welcomePrivacyTitle": {
+    "message": "Privacy"
+  },
+  "welcomePrivacyText": {
+    "message": "No site access, no account, no tracking. Routines and settings sync with Chrome Sync when it's on; the running timer stays on this computer."
   }
 }
