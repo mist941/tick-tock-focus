@@ -8,6 +8,8 @@ A multi-step focus timer for Chrome: Pomodoro, 52/17 or your own routine. A rout
 
 ## Features
 
+- Five ready-made routines to start from: Pomodoro, 52/17, Deep work, Study and Desk break
+- A welcome page after installing, to pick the routines you want and learn how the timer works
 - Routines of up to 20 steps of 30 seconds or more, each Focus, Break or Custom, with repeat groups (×2 to ×10) for cycles like Pomodoro; reorder steps by dragging or with the ↑/↓ buttons
 - A progress ring split into the routine's steps and coloured by kind
 - Pause, skip or add 5 minutes; the next step starts automatically or waits for you
@@ -20,11 +22,12 @@ A multi-step focus timer for Chrome: Pomodoro, 52/17 or your own routine. A rout
 
 ## Usage
 
-1. On the **Routines** tab, click **New routine**, enter a name and add steps; **Add repeat group** adds a Focus and a Break step that repeat, and you can change them or add more. Click **Save**.
-2. On the **Timer** tab, click a routine to start it. **Pause**, **Skip**, **+5 min** and **Stop** control the run. The toolbar icon shows the minutes left, **II** while paused and **▶** while the next step waits for you.
-3. When a step ends, the notification's buttons pause, skip, start the next step or stop without opening the popup.
-4. On the **Routines** tab, ▶ starts a routine and **⋯** edits, duplicates or deletes it.
-5. **Settings** (⚙) chooses whether the next step starts automatically or waits for you, the time format, the sound and its volume (**Test** plays it), and whether the toolbar icon shows the time left.
+1. After installing, the welcome page opens: tick the routines you want to start with and click **Add selected**. While you have no routines, the **Timer** tab offers the same ones with **Add**, next to **or build your own**.
+2. On the **Routines** tab, click **New routine**, enter a name and add steps; **Add repeat group** adds a Focus and a Break step that repeat, and you can change them or add more. Click **Save**.
+3. On the **Timer** tab, click a routine to start it. **Pause**, **Skip**, **+5 min** and **Stop** control the run. The toolbar icon shows the minutes left, **II** while paused and **▶** while the next step waits for you.
+4. When a step ends, the notification's buttons pause, skip, start the next step or stop without opening the popup.
+5. On the **Routines** tab, ▶ starts a routine and **⋯** edits, duplicates or deletes it.
+6. **Settings** (⚙) chooses whether the next step starts automatically or waits for you, the time format, the sound and its volume (**Test** plays it), and whether the toolbar icon shows the time left. **How it works** opens the welcome page's guide again.
 
 ## Development
 
@@ -34,7 +37,7 @@ The unit tests for the shared logic run on Node's built-in test runner, with not
 
 ## Privacy
 
-The extension uses only the `storage`, `alarms`, `notifications` and `offscreen` permissions. `offscreen` lets it play the end-of-step sound from a hidden extension page, because the background service worker can't play audio; that page only plays the sound files bundled with the extension and handles no data. Routines and settings live in Chrome's sync storage, so they follow your Google account when Chrome Sync is on; the running timer stays in your browser. There are no servers, tracking or analytics. When you remove the extension, Chrome opens a short page on ticktockfocus.com that asks for feedback; the extension sends nothing with it. See the [privacy policy](https://ticktockfocus.com/privacy.html).
+The extension uses only the `storage`, `alarms`, `notifications` and `offscreen` permissions. `offscreen` lets it play the end-of-step sound from a hidden extension page, because the background service worker can't play audio; that page only plays the sound files bundled with the extension and handles no data. Routines and settings live in Chrome's sync storage, so they follow your Google account when Chrome Sync is on; the running timer stays in your browser. To know when to ask for a rating, the extension counts the routines you finish and remembers your answer to that question; both stay in the browser's local storage, are never synced or sent anywhere, and nothing checks whether you left a rating. There are no servers, tracking or analytics. When you remove the extension, Chrome opens a short page on ticktockfocus.com that asks for feedback; the extension sends nothing with it. See the [privacy policy](https://ticktockfocus.com/privacy.html).
 
 ## License
 

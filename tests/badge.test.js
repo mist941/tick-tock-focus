@@ -63,11 +63,12 @@ describe("getBadgeText", () => {
     assert.equal(getBadgeText(runningRun(minute + 1), now), "2");
   });
 
-  test("shows <1 in the last minute", () => {
-    assert.equal(getBadgeText(runningRun(minute), now), "<1");
-    assert.equal(getBadgeText(runningRun(1), now), "<1");
-    assert.equal(getBadgeText(runningRun(0), now), "<1");
-    assert.equal(getBadgeText(runningRun(-5_000), now), "<1");
+  test("shows 1 for the whole last minute, also when the stage is overdue", () => {
+    assert.equal(getBadgeText(runningRun(minute), now), "1");
+    assert.equal(getBadgeText(runningRun(30_000), now), "1");
+    assert.equal(getBadgeText(runningRun(1), now), "1");
+    assert.equal(getBadgeText(runningRun(0), now), "1");
+    assert.equal(getBadgeText(runningRun(-5_000), now), "1");
   });
 
   test("shows hours, rounded up, once the minutes would reach 100", () => {
@@ -93,7 +94,7 @@ describe("getNextBadgeChangeAt", () => {
   });
 
   test("is the moment the badge text changes", () => {
-    for (const remainingMs of [25 * minute, 2 * minute + 5_000, 99 * minute + 30_000, 2 * hour + 1, 5 * hour]) {
+    for (const remainingMs of [25 * minute, 2 * minute + 5_000, minute + 30_000, 99 * minute + 30_000, 2 * hour + 1, 5 * hour]) {
       const run = runningRun(remainingMs);
       const changeAt = getNextBadgeChangeAt(run, now);
       assert.ok(changeAt > now, `${remainingMs}`);
@@ -107,8 +108,17 @@ describe("getNextBadgeChangeAt", () => {
     assert.equal(getNextBadgeChangeAt(run, now), run.stageEndsAt - 99 * minute);
   });
 
-  test("has no change before the stage ends once <1 shows", () => {
+  test("goes from 2 to 1 one minute before the stage ends", () => {
+    const run = runningRun(minute + 30_000);
+    const changeAt = getNextBadgeChangeAt(run, now);
+    assert.equal(changeAt, run.stageEndsAt - minute);
+    assert.equal(getBadgeText(run, changeAt - 1), "2");
+    assert.equal(getBadgeText(run, changeAt), "1");
+  });
+
+  test("has no change before the stage ends once 1 shows", () => {
     assert.equal(getNextBadgeChangeAt(runningRun(minute), now), null);
+    assert.equal(getNextBadgeChangeAt(runningRun(30_000), now), null);
     assert.equal(getNextBadgeChangeAt(runningRun(0), now), null);
   });
 
@@ -146,7 +156,7 @@ describe("getBadgeTitle", () => {
     assert.equal(getBadgeTitle(runningRun(3 * hour), now), "Pomodoro · Focus 1 of 3 · 3 h left");
     assert.equal(
       getBadgeTitle(runningRun(30_000, { stageIndex: 2 }), now),
-      "Pomodoro · Review 3 of 3 · less than 1 min left"
+      "Pomodoro · Review 3 of 3 · 1 min left"
     );
   });
 

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TickTockFocus</title>
+    <link rel="stylesheet" href="../shared/theme.css">
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -19,13 +20,28 @@
           </button>
         </header>
         <div class="tab-panel" id="panel_timer" data-tab="timer" role="tabpanel" aria-labelledby="tab_timer">
+          <div class="notice whats-new" id="whats_new">
+            <p class="whats-new-text" id="whats_new_text" role="status"></p>
+            <a class="notice-link" id="whats_new_link" href="../welcome/welcome.html#how-it-works" target="_blank" rel="noopener noreferrer" hidden><span data-ui-text="whatsNew.seeHowItWorks"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
+            <button type="button" class="icon-button notice-close" id="whats_new_close" data-ui-label="whatsNew.close" hidden></button>
+          </div>
           <div class="timer-idle" id="timer_idle">
             <p class="panel-message" id="timer_idle_message" aria-live="polite"></p>
+            <div class="notice" id="rating_prompt" role="group" aria-labelledby="rating_prompt_text" hidden>
+              <p id="rating_prompt_text" data-ui-text="rating.question"></p>
+              <div class="notice-actions">
+                <a class="button button-primary" id="rating_rate" href="https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae/reviews" target="_blank" rel="noopener noreferrer"><span data-ui-text="rating.rate"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
+                <button type="button" class="button button-secondary" id="rating_later" data-ui-text="rating.later"></button>
+                <button type="button" class="button button-quiet" id="rating_never" data-ui-text="rating.never"></button>
+              </div>
+            </div>
             <ul class="routine-cards" id="routine_cards"></ul>
             <button type="button" class="text-button" id="timer_new_routine"></button>
             <div class="empty-state" id="timer_empty_state" hidden>
               <p class="empty-state-title" data-ui-text="timer.noRoutines"></p>
-              <button type="button" class="button button-primary" id="timer_create_routine" data-ui-text="timer.createRoutine"></button>
+              <p class="empty-state-text" id="template_cards_intro" data-ui-text="timer.templatesIntro"></p>
+              <ul class="template-cards" id="template_cards" aria-labelledby="template_cards_intro"></ul>
+              <button type="button" class="text-button" id="timer_build_own" data-ui-text="timer.buildYourOwn"></button>
             </div>
           </div>
           <div class="timer-run" id="timer_run" hidden>
@@ -126,6 +142,7 @@
           </fieldset>
           <p class="panel-message" id="settings_message" aria-live="polite"></p>
           <nav class="settings-links" data-ui-label="settings.linksLabel">
+            <a href="../welcome/welcome.html#how-it-works" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.howItWorks"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
             <a href="https://ticktockfocus.com" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.website"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
             <a href="mailto:support@ticktockfocus.com?subject=TickTockFocus%20feedback" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.sendFeedback"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
             <a href="https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae/reviews" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.rate"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>

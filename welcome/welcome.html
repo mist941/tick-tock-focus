@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TickTockFocus</title>
+    <link rel="icon" href="../icons/icon32.png">
+    <link rel="stylesheet" href="../shared/theme.css">
+    <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+    <div class="page">
+      <header class="page-header">
+        <img class="page-icon" src="../icons/icon128.png" alt="" width="56" height="56">
+        <h1 class="page-title" data-ui-text="welcome.title"></h1>
+        <p class="page-tagline" data-ui-text="welcome.tagline"></p>
+      </header>
+      <main class="page-main">
+        <ol class="steps">
+          <li class="step">
+            <h2 class="step-title" id="pick_heading" data-ui-text="welcome.pickTitle"></h2>
+            <div class="template-picker">
+              <div role="group" aria-labelledby="pick_heading">
+                <ul class="template-list" id="template_list"></ul>
+              </div>
+              <div class="add-row">
+                <button type="button" class="primary-button" id="add_templates" data-ui-text="welcome.addSelected"></button>
+                <p class="add-status" id="add_status" role="status"></p>
+              </div>
+            </div>
+          </li>
+          <li class="step">
+            <h2 class="step-title" data-ui-text="welcome.pinTitle"></h2>
+            <p class="step-text" data-ui-text="welcome.pinText"></p>
+          </li>
+          <li class="step">
+            <h2 class="step-title" data-ui-text="welcome.startTitle"></h2>
+            <p class="step-text" id="start_text"></p>
+          </li>
+        </ol>
+        <section class="how-it-works" id="how-it-works" aria-labelledby="how_it_works_heading">
+          <h2 class="section-title" id="how_it_works_heading" data-ui-text="welcome.howItWorksTitle"></h2>
+          <ul class="feature-list">
+            <li class="feature">
+              <h3 class="feature-title" data-ui-text="welcome.stepsTitle"></h3>
+              <p class="feature-text" id="steps_text"></p>
+            </li>
+            <li class="feature">
+              <h3 class="feature-title" data-ui-text="welcome.controlsTitle"></h3>
+              <p class="feature-text" data-ui-text="welcome.controlsText"></p>
+            </li>
+            <li class="feature">
+              <h3 class="feature-title" data-ui-text="welcome.nextStepTitle"></h3>
+              <p class="feature-text" data-ui-text="welcome.nextStepText"></p>
+            </li>
+            <li class="feature">
+              <h3 class="feature-title" data-ui-text="welcome.alertsTitle"></h3>
+              <p class="feature-text" data-ui-text="welcome.alertsText"></p>
+            </li>
+            <li class="feature">
+              <h3 class="feature-title" id="minimum_title"></h3>
+              <p class="feature-text" id="minimum_text"></p>
+            </li>
+            <li class="feature">
+              <h3 class="feature-title" data-ui-text="welcome.privacyTitle"></h3>
+              <p class="feature-text" data-ui-text="welcome.privacyText"></p>
+            </li>
+          </ul>
+        </section>
+      </main>
+      <footer class="page-footer">
+        <nav data-ui-label="settings.linksLabel">
+          <ul class="footer-links">
+            <li><a href="https://ticktockfocus.com" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.website"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a></li>
+            <li><a href="https://ticktockfocus.com/privacy.html" target="_blank" rel="noopener noreferrer"><span data-ui-text="welcome.privacyPolicy"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a></li>
+            <li><a href="mailto:support@ticktockfocus.com?subject=TickTockFocus%20feedback" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.sendFeedback"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a></li>
+          </ul>
+        </nav>
+      </footer>
+    </div>
+    <script type="module" src="welcome.js"></script>
+</body>
+</html>

@@ -39,6 +39,8 @@ import {
   playsSound,
 } from "./background/notifications.js";
 import { getSoundSettings } from "./shared/sounds.js";
+import { WHATS_NEW_VERSION, isOlderThanWhatsNew } from "./shared/whats-new.js";
+import { addCompletedRoutine, countsAsCompletedRoutine } from "./shared/rating-prompt.js";
 
 const STAGE_END_ALARM = "stage_end";
 const BADGE_TICK_ALARM = "badge_tick";
@@ -47,6 +49,7 @@ const LEGACY_SEGMENT_ALARM_PREFIX = "clock_";
 const LEGACY_RUN_KEYS = ["isRunning", "endTime", "totalDuration", "presetName", "clocks"];
 const NOTIFICATION_ICON_URL = "icons/icon512.png";
 const OFFSCREEN_DOCUMENT_PATH = "offscreen/offscreen.html";
+const WELCOME_PAGE_ON_INSTALL_PATH = "welcome/welcome.html?reason=install";
 const UNINSTALL_FEEDBACK_URL = "https://ticktockfocus.com/uninstall.html";
 
 let lifecycleQueue = Promise.resolve();
@@ -217,6 +220,19 @@ async function loadRun(now) {
   return run;
 }
 
+async function countCompletedRoutine() {
+  try {
+    const { [STORAGE_KEYS.COMPLETED_ROUTINES]: completedRoutines } = await chrome.storage.local.get(
+      STORAGE_KEYS.COMPLETED_ROUTINES
+    );
+    await chrome.storage.local.set({
+      [STORAGE_KEYS.COMPLETED_ROUTINES]: addCompletedRoutine(completedRoutines),
+    });
+  } catch (error) {
+    console.error("Couldn't count the completed routine:", error);
+  }
+}
+
 async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
   const now = Date.now();
   const run = await loadRun(now);
@@ -234,6 +250,7 @@ async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
   }
 
   await saveRun(plan.run);
+  if (countsAsCompletedRoutine(plan.notification)) await countCompletedRoutine();
   if (plan.notification && (announceLateFinish || plan.notification.type !== "lateFinish")) {
     await showNotification(
       buildNotification(plan.notification, {
@@ -391,11 +408,29 @@ async function migrateStoredPresets() {
   }
 }
 
-chrome.runtime.onInstalled.addListener(({ reason }) => {
+async function openWelcomePage() {
+  try {
+    await chrome.tabs.create({ url: chrome.runtime.getURL(WELCOME_PAGE_ON_INSTALL_PATH) });
+  } catch (error) {
+    console.error("Couldn't open the welcome page:", error);
+  }
+}
+
+async function markWhatsNewPending(previousVersion) {
+  if (!isOlderThanWhatsNew(previousVersion)) return;
+  await chrome.storage.local.set({ [STORAGE_KEYS.WHATS_NEW_PENDING]: WHATS_NEW_VERSION });
+}
+
+chrome.runtime.onInstalled.addListener(({ reason, previousVersion }) => {
   queueReconcileRunState();
-  if (reason === "update") {
+  if (reason === "install") {
+    openWelcomePage();
+  } else if (reason === "update") {
     migrateStoredPresets().catch((error) =>
       console.error("Migrating presets to routines failed:", error)
+    );
+    markWhatsNewPending(previousVersion).catch((error) =>
+      console.error("Marking what's new as pending failed:", error)
     );
   }
 });
