@@ -26,7 +26,9 @@
             <button type="button" class="text-button" id="timer_new_routine"></button>
             <div class="empty-state" id="timer_empty_state" hidden>
               <p class="empty-state-title" data-ui-text="timer.noRoutines"></p>
-              <button type="button" class="button button-primary" id="timer_create_routine" data-ui-text="timer.createRoutine"></button>
+              <p class="empty-state-text" id="template_cards_intro" data-ui-text="timer.templatesIntro"></p>
+              <ul class="template-cards" id="template_cards" aria-labelledby="template_cards_intro"></ul>
+              <button type="button" class="text-button" id="timer_build_own" data-ui-text="timer.buildYourOwn"></button>
             </div>
           </div>
           <div class="timer-run" id="timer_run" hidden>

@@ -49,7 +49,10 @@ export const UI_STRINGS = Object.freeze({
   timer: {
     newRoutine: "New routine",
     noRoutines: "No routines yet",
-    createRoutine: "Create a routine",
+    templatesIntro: "Start with one of these:",
+    add: "Add",
+    addTemplate: "Add {name}",
+    buildYourOwn: "or build your own",
     startRoutine: "Start {name}, {duration}",
     noDuration: "This routine has no duration.",
     shortStages:

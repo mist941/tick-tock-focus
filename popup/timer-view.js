@@ -7,9 +7,11 @@ import {
   planCatchUp,
 } from "../shared/routine.js";
 import { formatClockTime, formatTimerCountdown } from "../shared/format.js";
+import { ROUTINE_TEMPLATES, createRoutineFromTemplate, previewTemplate } from "../shared/templates.js";
 import { createElement, setTextIfChanged } from "./dom-helpers.js";
 import { createIcon } from "./icons.js";
-import { getPopupState, subscribeToPopupState } from "./popup-state.js";
+import { getPopupState, reloadRoutines, subscribeToPopupState } from "./popup-state.js";
+import * as PopupStorage from "./popup-storage.js";
 import { sendRunCommand } from "./run-commands.js";
 import { createProgressRing, createStageStrip } from "./stage-graphics.js";
 import { UI_STRINGS, formatDurationText, formatUiString } from "./ui-strings.js";
@@ -23,7 +25,8 @@ const elements = {
   cards: document.getElementById("routine_cards"),
   newRoutineButton: document.getElementById("timer_new_routine"),
   emptyState: document.getElementById("timer_empty_state"),
-  createRoutineButton: document.getElementById("timer_create_routine"),
+  templateCards: document.getElementById("template_cards"),
+  buildOwnButton: document.getElementById("timer_build_own"),
   runView: document.getElementById("timer_run"),
   routineName: document.getElementById("run_routine_name"),
   stageLine: document.getElementById("run_stage_line"),
@@ -53,6 +56,7 @@ let renderIntervalId = null;
 let shownView = null;
 let lastRunRoutineId = null;
 let isCommandInFlight = false;
+let isAddingTemplate = false;
 
 const hasShortStages = (stages) =>
   stages.some((stage) => stage.durationSec < ROUTINE_LIMITS.stageMinSec);
@@ -140,6 +144,45 @@ function findRoutineCard(routineId) {
   );
 }
 
+async function addTemplate(templateId) {
+  if (isAddingTemplate) return;
+  isAddingTemplate = true;
+  elements.idleMessage.textContent = "";
+  const routine = createRoutineFromTemplate(templateId, Date.now(), UI_STRINGS.templates);
+  try {
+    await PopupStorage.saveRoutine(routine);
+    await reloadRoutines();
+    findRoutineCard(routine.id)?.focus();
+  } catch (error) {
+    console.error("Error adding the routine:", error);
+    elements.idleMessage.textContent = UI_STRINGS.routines.saveFailed;
+  } finally {
+    isAddingTemplate = false;
+  }
+}
+
+function createTemplateCard(template) {
+  const { id, name, stages, durationSec } = previewTemplate(template, UI_STRINGS.templates);
+  const heading = createElement("span", { className: "template-card-heading" });
+  heading.append(
+    createElement("span", { className: "template-card-name", text: name }),
+    createElement("span", { className: "template-card-duration", text: formatDurationText(durationSec) })
+  );
+  const addButton = createElement("button", {
+    className: "button button-secondary template-card-add",
+    attributes: {
+      type: "button",
+      "aria-label": formatUiString(UI_STRINGS.timer.addTemplate, { name }),
+    },
+  });
+  setButtonContent(addButton, "plus", UI_STRINGS.timer.add);
+  addButton.addEventListener("click", () => addTemplate(id));
+
+  const card = createElement("li", { className: "template-card" });
+  card.append(heading, addButton, createStageStrip(stages));
+  return card;
+}
+
 function renderRoutineCards() {
   const { routines, routinesLoadFailed } = getPopupState();
   const focusedRoutineId = elements.cards.contains(document.activeElement)
@@ -156,6 +199,9 @@ function renderRoutineCards() {
   if (focusedRoutineId) findRoutineCard(focusedRoutineId)?.focus();
 }
 
+const getVisibleNewRoutineButton = () =>
+  elements.newRoutineButton.hidden ? elements.buildOwnButton : elements.newRoutineButton;
+
 export function focusTimer(routineId) {
   if (shownView === "run") {
     elements.primaryButton.focus();
@@ -164,7 +210,8 @@ export function focusTimer(routineId) {
   const target =
     (routineId && findRoutineCard(routineId)) ??
     elements.cards.querySelector(".routine-card:not(:disabled)") ??
-    (elements.newRoutineButton.hidden ? elements.createRoutineButton : elements.newRoutineButton);
+    (elements.emptyState.hidden ? null : elements.templateCards.querySelector("button")) ??
+    getVisibleNewRoutineButton();
   target.focus();
 }
 
@@ -273,6 +320,7 @@ export function initializeTimerView({ openRoutineEditor }) {
   );
   setButtonContent(elements.stopButton, "stop", UI_STRINGS.timer.stop);
   setButtonContent(elements.newRoutineButton, "plus", UI_STRINGS.timer.newRoutine);
+  elements.templateCards.replaceChildren(...ROUTINE_TEMPLATES.map(createTemplateCard));
 
   elements.primaryButton.addEventListener("click", () =>
     runCommand(elements.primaryButton.dataset.action, {}, elements.runMessage)
@@ -286,9 +334,7 @@ export function initializeTimerView({ openRoutineEditor }) {
   elements.stopButton.addEventListener("click", () =>
     runCommand("stopRoutine", {}, elements.runMessage)
   );
-  const getVisibleNewRoutineButton = () =>
-    elements.newRoutineButton.hidden ? elements.createRoutineButton : elements.newRoutineButton;
-  [elements.newRoutineButton, elements.createRoutineButton].forEach((button) =>
+  [elements.newRoutineButton, elements.buildOwnButton].forEach((button) =>
     button.addEventListener("click", () =>
       openRoutineEditor({ returnFocusTo: getVisibleNewRoutineButton })
     )

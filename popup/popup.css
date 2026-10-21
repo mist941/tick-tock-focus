@@ -737,14 +737,16 @@ input[type="number"]::-webkit-inner-spin-button {
   fill: var(--color-text-muted);
 }
 
-.routine-card-name {
+.routine-card-name,
+.template-card-name {
   flex: 1;
   min-width: 0;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
 
-.routine-card-duration {
+.routine-card-duration,
+.template-card-duration {
   flex: none;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
@@ -774,6 +776,47 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .empty-state-title {
   color: var(--color-text-muted);
+}
+
+.empty-state-text {
+  margin-bottom: calc(-1 * var(--spacing-sm));
+  font-size: var(--font-size-sm);
+}
+
+.template-cards {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.template-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-surface-muted);
+  border-radius: var(--border-radius-md);
+
+  & .stage-strip {
+    grid-column: 1;
+  }
+}
+
+.template-card-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+}
+
+.template-card-add {
+  grid-row: span 2;
+  padding: var(--spacing-xs) var(--spacing-md);
 }
 
 .timer-run {
