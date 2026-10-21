@@ -68,5 +68,7 @@ describe("formatTime", () => {
     assert.equal(formatTime(afternoon, undefined), "14:05");
     assert.equal(formatTime(afternoon, "12h"), "02:05 PM");
     assert.equal(formatTime(morning, "12h"), "09:30 AM");
+    assert.equal(formatTime(new Date(2026, 9, 15, 0, 1).getTime(), "12h"), "12:01 AM");
+    assert.equal(formatTime(new Date(2026, 9, 15, 12, 0).getTime(), "12h"), "12:00 PM");
   });
 });

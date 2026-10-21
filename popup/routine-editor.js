@@ -1,3 +1,4 @@
+import { formatDuration, translate } from "../shared/i18n.js";
 import {
   ROUTINE_LIMITS,
   ROUTINE_SCHEMA_VERSION,
@@ -33,10 +34,30 @@ import { closeScreen, openScreen, registerScreen } from "./navigation.js";
 import { reloadRoutines } from "./popup-state.js";
 import * as PopupStorage from "./popup-storage.js";
 import { getActiveRun } from "./timer-view.js";
-import { UI_STRINGS, formatDurationText, formatUiString } from "./ui-strings.js";
 
-const KIND_LABELS = UI_STRINGS.editor.kinds;
+const KIND_LABELS = {
+  focus: translate("popupEditorKindFocus"),
+  break: translate("popupEditorKindBreak"),
+  custom: translate("popupEditorKindCustom"),
+};
 const MODEL_OPTIONS = { kindLabels: KIND_LABELS };
+
+const ERROR_MESSAGE_KEYS = {
+  nameMissing: "popupEditorErrorNameMissing",
+  nameTooLong: "popupEditorErrorNameTooLong",
+  labelMissing: "popupEditorErrorLabelMissing",
+  labelTooLong: "popupEditorErrorLabelTooLong",
+  kindInvalid: "popupEditorErrorKindInvalid",
+  durationInvalid: "popupEditorErrorDurationInvalid",
+  durationTooShort: "popupEditorErrorDurationTooShort",
+  durationTooLong: "popupEditorErrorDurationTooLong",
+  repeatTimesOutOfRange: "popupEditorErrorRepeatTimesOutOfRange",
+  repeatEmpty: "popupEditorErrorRepeatEmpty",
+  nestedRepeat: "popupEditorErrorNestedRepeat",
+  noStages: "popupEditorErrorNoStages",
+  tooManyRows: "popupEditorErrorTooManyRows",
+  tooManyStages: "popupEditorErrorTooManyStages",
+};
 
 const elements = {
   heading: document.getElementById("editor_heading"),
@@ -89,9 +110,6 @@ function findStage(key) {
   const block = model.blocks[item.blockIndex];
   return item.stageIndex === null ? block : block.stages[item.stageIndex];
 }
-
-const describeGroupNumber = (groupNumber) =>
-  formatUiString(UI_STRINGS.editor.groupNumber, { position: groupNumber });
 
 function createIconButton(iconName, label, control) {
   const button = createElement("button", {
@@ -148,11 +166,11 @@ function createNumberInput({ value, control, label, maxLength, errorId }) {
   });
 }
 
-function createKindSelect(stage, stageName) {
+function createKindSelect(stage, position) {
   const kindSelect = createElement("select", {
     className: "input kind-select",
     attributes: {
-      "aria-label": formatUiString(UI_STRINGS.editor.kindOf, { step: stageName }),
+      "aria-label": translate("popupEditorKindOf", { position }),
       "data-control": "kind",
     },
   });
@@ -168,10 +186,10 @@ function createStageRow(stage, item) {
   const row = createElement("li", { className: "editor-row" });
   row.dataset.key = stage.key;
   row.dataset.kind = stage.kind;
-  const stageName = formatUiString(UI_STRINGS.editor.stageNumber, { position: item.stageNumber });
+  const position = item.stageNumber;
   const errorId = `editor_error_${stage.key}`;
 
-  const kindSelect = createKindSelect(stage, stageName);
+  const kindSelect = createKindSelect(stage, position);
   const labelInput = createElement("input", {
     className: "input label-input",
     attributes: {
@@ -179,7 +197,7 @@ function createStageRow(stage, item) {
       autocomplete: "off",
       maxlength: String(ROUTINE_LIMITS.labelMaxLength),
       value: stage.label,
-      "aria-label": formatUiString(UI_STRINGS.editor.labelOf, { step: stageName }),
+      "aria-label": translate("popupEditorLabelOf", { position }),
       "aria-describedby": errorId,
       "data-control": "label",
     },
@@ -187,14 +205,14 @@ function createStageRow(stage, item) {
   const minutesInput = createNumberInput({
     value: stage.minutes,
     control: "minutes",
-    label: formatUiString(UI_STRINGS.editor.minutesOf, { step: stageName }),
+    label: translate("popupEditorMinutesOf", { position }),
     maxLength: String(MAX_EDITOR_MINUTES).length,
     errorId,
   });
   const secondsInput = createNumberInput({
     value: stage.seconds,
     control: "seconds",
-    label: formatUiString(UI_STRINGS.editor.secondsOf, { step: stageName }),
+    label: translate("popupEditorSecondsOf", { position }),
     maxLength: 2,
     errorId,
   });
@@ -224,7 +242,7 @@ function createStageRow(stage, item) {
 
   const removeButton = createIconButton(
     "close",
-    formatUiString(UI_STRINGS.editor.removeStage, { step: stageName }),
+    translate("popupEditorRemoveStage", { position }),
     "remove"
   );
   removeButton.addEventListener("click", () => removeEditorItem(stage.key));
@@ -233,13 +251,13 @@ function createStageRow(stage, item) {
   controls.append(
     kindSelect,
     minutesInput,
-    createUnit(UI_STRINGS.editor.minutesUnit),
+    createUnit(translate("popupEditorMinutesUnit")),
     secondsInput,
-    createUnit(UI_STRINGS.editor.secondsUnit),
+    createUnit(translate("popupEditorSecondsUnit")),
     createItemActions(
       createMoveButtons(stage.key, {
-        up: formatUiString(UI_STRINGS.editor.moveStageUp, { step: stageName }),
-        down: formatUiString(UI_STRINGS.editor.moveStageDown, { step: stageName }),
+        up: translate("popupEditorMoveStageUp", { position }),
+        down: translate("popupEditorMoveStageDown", { position }),
       }),
       removeButton
     )
@@ -251,11 +269,11 @@ function createStageRow(stage, item) {
   return row;
 }
 
-function createTimesSelect(group, groupName, errorId) {
+function createTimesSelect(group, groupNumber, errorId) {
   const timesSelect = createElement("select", {
     className: "input times-select",
     attributes: {
-      "aria-label": formatUiString(UI_STRINGS.editor.repeatCountOf, { group: groupName }),
+      "aria-label": translate("popupEditorRepeatCountOf", { position: groupNumber }),
       "aria-describedby": errorId,
       "data-control": "times",
     },
@@ -266,7 +284,7 @@ function createTimesSelect(group, groupName, errorId) {
     times += 1
   ) {
     const option = createElement("option", {
-      text: formatUiString(UI_STRINGS.editor.timesOption, { times }),
+      text: translate("popupEditorTimesOption", { times }),
       attributes: { value: String(times) },
     });
     option.selected = times === group.times;
@@ -282,12 +300,12 @@ function createTimesSelect(group, groupName, errorId) {
 function createGroupBlock(group, item, items) {
   const groupElement = createElement("li", { className: "editor-group" });
   groupElement.dataset.key = group.key;
-  const groupName = describeGroupNumber(item.groupNumber);
+  const position = item.groupNumber;
   const errorId = `editor_error_${group.key}`;
 
   const removeButton = createIconButton(
     "close",
-    formatUiString(UI_STRINGS.editor.removeGroup, { group: groupName }),
+    translate("popupEditorRemoveGroup", { position }),
     "remove"
   );
   removeButton.addEventListener("click", () => removeEditorItem(group.key));
@@ -295,12 +313,12 @@ function createGroupBlock(group, item, items) {
   const header = createElement("div", { className: "editor-group-header" });
   header.append(
     createGrip(),
-    createElement("span", { className: "editor-group-title", text: UI_STRINGS.editor.repeat }),
-    createTimesSelect(group, groupName, errorId),
+    createElement("span", { className: "editor-group-title", text: translate("popupEditorRepeat") }),
+    createTimesSelect(group, position, errorId),
     createItemActions(
       createMoveButtons(group.key, {
-        up: formatUiString(UI_STRINGS.editor.moveGroupUp, { group: groupName }),
-        down: formatUiString(UI_STRINGS.editor.moveGroupDown, { group: groupName }),
+        up: translate("popupEditorMoveGroupUp", { position }),
+        down: translate("popupEditorMoveGroupDown", { position }),
       }),
       removeButton
     )
@@ -308,7 +326,7 @@ function createGroupBlock(group, item, items) {
 
   const stageList = createElement("ol", {
     className: "editor-group-stages",
-    attributes: { "aria-label": groupName },
+    attributes: { "aria-label": translate("popupEditorGroupName", { position }) },
   });
   const stageItems = items.filter((candidate) => candidate.groupKey === group.key);
   group.stages.forEach((stage, stageIndex) =>
@@ -321,7 +339,7 @@ function createGroupBlock(group, item, items) {
   });
   addButton.append(
     createIcon("plus"),
-    createElement("span", { text: UI_STRINGS.editor.addStageToGroup })
+    createElement("span", { text: translate("popupEditorAddStageToGroup") })
   );
   addButton.addEventListener("click", () => addEditorStage(group.key));
 
@@ -369,17 +387,16 @@ function focusControl({ key, control }) {
 
 function renderFooter() {
   const { expandedStageCount, totalDurationSec, editorRowCount } = summarizeModel(model);
-  const template =
-    expandedStageCount === 1 ? UI_STRINGS.editor.totalOneStep : UI_STRINGS.editor.total;
-  elements.total.textContent = formatUiString(template, {
-    duration: formatDurationText(totalDurationSec),
+  const messageKey = expandedStageCount === 1 ? "popupEditorTotalOneStep" : "popupEditorTotal";
+  elements.total.textContent = translate(messageKey, {
+    duration: formatDuration(totalDurationSec),
     count: expandedStageCount,
   });
 
   const isOverRowLimit = exceedsEditorRows(model);
   elements.limitNote.hidden = !isOverRowLimit;
   elements.limitNote.textContent = isOverRowLimit
-    ? formatUiString(UI_STRINGS.editor.rowLimit, {
+    ? translate("popupEditorRowLimit", {
         count: editorRowCount,
         limit: ROUTINE_LIMITS.maxEditorRows,
       })
@@ -395,8 +412,7 @@ function renderFooter() {
 }
 
 function describeError(error) {
-  const template = UI_STRINGS.editor.errors[error.code] ?? UI_STRINGS.editor.errors.invalid;
-  return formatUiString(template, {
+  return translate(ERROR_MESSAGE_KEYS[error.code] ?? "popupEditorErrorInvalid", {
     limit: typeof error.limit === "number" ? error.limit : "",
     count: summarizeModel(model).expandedStageCount,
   });
@@ -457,18 +473,16 @@ function announceMove(key) {
   const item = findItem(model, key);
   if (!item) return;
   if (item.type === "repeat") {
-    elements.status.textContent = formatUiString(UI_STRINGS.editor.groupMoved, {
-      group: describeGroupNumber(item.groupNumber),
-    });
+    elements.status.textContent = translate("popupEditorGroupMoved", { position: item.groupNumber });
     return;
   }
   const groupItem = item.groupKey ? findItem(model, item.groupKey) : null;
-  const template = groupItem ? UI_STRINGS.editor.stageMovedInGroup : UI_STRINGS.editor.stageMoved;
-  elements.status.textContent = formatUiString(template, {
+  const messageKey = groupItem ? "popupEditorStageMovedInGroup" : "popupEditorStageMoved";
+  elements.status.textContent = translate(messageKey, {
     label: findStage(key).label,
     position: item.stageNumber,
     count: countEditorRows(model),
-    group: groupItem ? describeGroupNumber(groupItem.groupNumber) : "",
+    groupPosition: groupItem?.groupNumber ?? "",
   });
 }
 
@@ -607,8 +621,8 @@ function loadRoutine(routine) {
   initialContent = describeModelContent(model);
   fieldErrors = [];
   elements.heading.textContent = routine
-    ? UI_STRINGS.editor.editHeading
-    : UI_STRINGS.editor.newHeading;
+    ? translate("popupEditorEditHeading")
+    : translate("popupEditorNewHeading");
   elements.nameInput.value = model.name;
   elements.discardPrompt.hidden = true;
   elements.status.textContent = "";
@@ -639,7 +653,7 @@ async function saveEditedRoutine() {
     await PopupStorage.saveRoutine(routine);
   } catch (error) {
     console.error("Error saving the routine:", error);
-    elements.routineError.textContent = UI_STRINGS.editor.saveFailed;
+    elements.routineError.textContent = translate("popupEditorSaveFailed");
     elements.routineError.focus();
     return;
   }
@@ -677,11 +691,11 @@ export function initializeRoutineEditor() {
   });
   elements.addStageButton.replaceChildren(
     createIcon("plus"),
-    createElement("span", { text: UI_STRINGS.editor.addStage })
+    createElement("span", { text: translate("popupEditorAddStage") })
   );
   elements.addGroupButton.replaceChildren(
     createIcon("plus"),
-    createElement("span", { text: UI_STRINGS.editor.addGroup })
+    createElement("span", { text: translate("popupEditorAddGroup") })
   );
   elements.addStageButton.addEventListener("click", () => addEditorStage());
   elements.addGroupButton.addEventListener("click", addEditorGroup);

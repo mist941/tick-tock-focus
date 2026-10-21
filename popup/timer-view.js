@@ -6,7 +6,8 @@ import {
   getRunProgress,
   planCatchUp,
 } from "../shared/routine.js";
-import { formatClockTime, formatTimerCountdown } from "../shared/format.js";
+import { formatTimerCountdown } from "../shared/format.js";
+import { formatDuration, formatTime, translate } from "../shared/i18n.js";
 import { ROUTINE_TEMPLATES, createRoutineFromTemplate, previewTemplate } from "../shared/templates.js";
 import { createElement, setTextIfChanged } from "./dom-helpers.js";
 import { createIcon } from "./icons.js";
@@ -14,7 +15,6 @@ import { getPopupState, reloadRoutines, subscribeToPopupState } from "./popup-st
 import * as PopupStorage from "./popup-storage.js";
 import { sendRunCommand } from "./run-commands.js";
 import { createProgressRing, createStageStrip } from "./stage-graphics.js";
-import { UI_STRINGS, formatDurationText, formatUiString } from "./ui-strings.js";
 
 const EXTEND_MINUTES = 5;
 const RENDER_INTERVAL_MS = 1000;
@@ -42,12 +42,12 @@ const elements = {
 };
 
 const PRIMARY_ACTIONS = {
-  running: { action: "pauseRoutine", icon: "pause", text: () => UI_STRINGS.timer.pause },
-  paused: { action: "resumeRoutine", icon: "play", text: () => UI_STRINGS.timer.resume },
+  running: { action: "pauseRoutine", icon: "pause", text: () => translate("popupTimerPause") },
+  paused: { action: "resumeRoutine", icon: "play", text: () => translate("popupTimerResume") },
   awaitingNext: {
     action: "startNextStage",
     icon: "play",
-    text: (stage) => formatUiString(UI_STRINGS.timer.startStage, { label: stage.label }),
+    text: (stage) => translate("popupTimerStartStage", { label: stage.label }),
   },
 };
 
@@ -90,7 +90,7 @@ async function runCommand(action, payload, messageElement) {
     await sendRunCommand(action, payload);
   } catch (error) {
     console.error(`${action} failed:`, error);
-    messageElement.textContent = UI_STRINGS.timer.unreachable;
+    messageElement.textContent = translate("popupTimerUnreachable");
   } finally {
     isCommandInFlight = false;
   }
@@ -99,14 +99,14 @@ async function runCommand(action, payload, messageElement) {
 function createRoutineCard(routine) {
   const stages = expandRoutine(routine);
   const totalSec = sumDurationSec(stages);
-  const durationText = formatDurationText(totalSec);
+  const durationText = formatDuration(totalSec);
 
   const card = createElement("button", { className: "routine-card" });
   card.type = "button";
   card.dataset.routineId = routine.id;
   card.setAttribute(
     "aria-label",
-    formatUiString(UI_STRINGS.timer.startRoutine, { name: routine.name, duration: durationText })
+    translate("popupTimerStartRoutine", { name: routine.name, duration: durationText })
   );
 
   const heading = createElement("span", { className: "routine-card-heading" });
@@ -119,10 +119,10 @@ function createRoutineCard(routine) {
 
   let note = "";
   if (totalSec === 0) {
-    note = UI_STRINGS.timer.noDuration;
+    note = translate("popupTimerNoDuration");
     card.disabled = true;
   } else if (hasShortStages(stages)) {
-    note = formatUiString(UI_STRINGS.timer.shortStages, { seconds: ROUTINE_LIMITS.stageMinSec });
+    note = translate("popupTimerShortStages", { seconds: ROUTINE_LIMITS.stageMinSec });
   }
   if (note) {
     const noteId = `routine_card_note_${routine.id}`;
@@ -148,34 +148,34 @@ async function addTemplate(templateId) {
   if (isAddingTemplate) return;
   isAddingTemplate = true;
   elements.idleMessage.textContent = "";
-  const routine = createRoutineFromTemplate(templateId, Date.now(), UI_STRINGS.templates);
+  const routine = createRoutineFromTemplate(templateId, Date.now());
   try {
     await PopupStorage.saveRoutine(routine);
     await reloadRoutines();
     findRoutineCard(routine.id)?.focus();
   } catch (error) {
     console.error("Error adding the routine:", error);
-    elements.idleMessage.textContent = UI_STRINGS.routines.saveFailed;
+    elements.idleMessage.textContent = translate("popupRoutinesSaveFailed");
   } finally {
     isAddingTemplate = false;
   }
 }
 
 function createTemplateCard(template) {
-  const { id, name, stages, durationSec } = previewTemplate(template, UI_STRINGS.templates);
+  const { id, name, stages, durationSec } = previewTemplate(template);
   const heading = createElement("span", { className: "template-card-heading" });
   heading.append(
     createElement("span", { className: "template-card-name", text: name }),
-    createElement("span", { className: "template-card-duration", text: formatDurationText(durationSec) })
+    createElement("span", { className: "template-card-duration", text: formatDuration(durationSec) })
   );
   const addButton = createElement("button", {
     className: "button button-secondary template-card-add",
     attributes: {
       type: "button",
-      "aria-label": formatUiString(UI_STRINGS.timer.addTemplate, { name }),
+      "aria-label": translate("popupTimerAddTemplate", { name }),
     },
   });
-  setButtonContent(addButton, "plus", UI_STRINGS.timer.add);
+  setButtonContent(addButton, "plus", translate("popupTimerAdd"));
   addButton.addEventListener("click", () => addTemplate(id));
 
   const card = createElement("li", { className: "template-card" });
@@ -194,7 +194,7 @@ function renderRoutineCards() {
   elements.cards.hidden = !hasRoutines;
   elements.newRoutineButton.hidden = !hasRoutines;
   elements.emptyState.hidden = hasRoutines || routinesLoadFailed;
-  if (routinesLoadFailed) elements.idleMessage.textContent = UI_STRINGS.timer.loadFailed;
+  if (routinesLoadFailed) elements.idleMessage.textContent = translate("popupTimerLoadFailed");
 
   if (focusedRoutineId) findRoutineCard(focusedRoutineId)?.focus();
 }
@@ -243,21 +243,20 @@ function describeStageLine(run) {
     const finishedStage = run.stages[run.stageIndex - 1] ?? stage;
     return {
       kind: finishedStage.kind,
-      text: formatUiString(UI_STRINGS.timer.stageDone, { label: finishedStage.label }),
+      text: translate("popupTimerStageDone", { label: finishedStage.label }),
     };
   }
-  const template =
-    run.status === "paused" ? UI_STRINGS.timer.pausedPosition : UI_STRINGS.timer.stagePosition;
-  return { kind: stage.kind, text: formatUiString(template, position) };
+  const messageKey = run.status === "paused" ? "popupTimerPausedPosition" : "popupTimerStagePosition";
+  return { kind: stage.kind, text: translate(messageKey, position) };
 }
 
 function describeNextStage(run) {
   const nextStage =
     run.status === "awaitingNext" ? run.stages[run.stageIndex] : run.stages[run.stageIndex + 1];
-  if (!nextStage) return UI_STRINGS.timer.lastStage;
-  return formatUiString(UI_STRINGS.timer.next, {
+  if (!nextStage) return translate("popupTimerLastStage");
+  return translate("popupTimerNext", {
     label: nextStage.label,
-    duration: formatDurationText(nextStage.durationSec),
+    duration: formatDuration(nextStage.durationSec),
   });
 }
 
@@ -288,8 +287,8 @@ function showRunView(run, now) {
   setTextIfChanged(
     elements.endsAt,
     run.status === "running"
-      ? formatUiString(UI_STRINGS.timer.endsAt, {
-          time: formatClockTime(now + routineRemainingMs, getPopupState().settings.timeFormat, UI_STRINGS.formats),
+      ? translate("popupTimerEndsAt", {
+          time: formatTime(now + routineRemainingMs, getPopupState().settings.timeFormat),
         })
       : ""
   );
@@ -312,14 +311,14 @@ export function renderTimer() {
 
 export function initializeTimerView({ openRoutineEditor }) {
   renderProgressRing = createProgressRing(elements.ring);
-  setButtonContent(elements.skipButton, "skip", UI_STRINGS.timer.skip);
+  setButtonContent(elements.skipButton, "skip", translate("popupTimerSkip"));
   setButtonContent(
     elements.extendButton,
     "",
-    formatUiString(UI_STRINGS.timer.extend, { minutes: EXTEND_MINUTES })
+    translate("popupTimerExtend", { minutes: EXTEND_MINUTES })
   );
-  setButtonContent(elements.stopButton, "stop", UI_STRINGS.timer.stop);
-  setButtonContent(elements.newRoutineButton, "plus", UI_STRINGS.timer.newRoutine);
+  setButtonContent(elements.stopButton, "stop", translate("popupTimerStop"));
+  setButtonContent(elements.newRoutineButton, "plus", translate("popupTimerNewRoutine"));
   elements.templateCards.replaceChildren(...ROUTINE_TEMPLATES.map(createTemplateCard));
 
   elements.primaryButton.addEventListener("click", () =>

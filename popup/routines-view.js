@@ -1,3 +1,4 @@
+import { formatDuration, translate } from "../shared/i18n.js";
 import { ROUTINE_LIMITS, expandRoutine } from "../shared/routine.js";
 import { createElement } from "./dom-helpers.js";
 import { createIcon } from "./icons.js";
@@ -8,7 +9,6 @@ import * as PopupStorage from "./popup-storage.js";
 import { sendRunCommand } from "./run-commands.js";
 import { focusTimer, getActiveRun } from "./timer-view.js";
 import { showToast } from "./toast.js";
-import { UI_STRINGS, formatDurationText, formatUiString } from "./ui-strings.js";
 
 const elements = {
   message: document.getElementById("routines_message"),
@@ -28,13 +28,12 @@ export function showRoutinesMessage(text) {
 function describeRoutine(routine) {
   const stages = expandRoutine(routine);
   const totalSec = stages.reduce((sumSec, stage) => sumSec + stage.durationSec, 0);
-  const template =
-    stages.length === 1 ? UI_STRINGS.routines.summaryOneStep : UI_STRINGS.routines.summary;
-  return formatUiString(template, { count: stages.length, duration: formatDurationText(totalSec) });
+  const messageKey = stages.length === 1 ? "popupRoutinesSummaryOneStep" : "popupRoutinesSummary";
+  return translate(messageKey, { count: stages.length, duration: formatDuration(totalSec) });
 }
 
 function copyNameFor(name) {
-  return formatUiString(UI_STRINGS.routines.copyName, { name })
+  return translate("popupRoutinesCopyName", { name })
     .slice(0, ROUTINE_LIMITS.nameMaxLength)
     .trimEnd();
 }
@@ -57,7 +56,7 @@ async function startRoutine(routineId, { replaceRunning }) {
     await sendRunCommand("startRoutine", { routineId, replaceRunning });
   } catch (error) {
     console.error("startRoutine failed:", error);
-    showRoutinesMessage(UI_STRINGS.timer.unreachable);
+    showRoutinesMessage(translate("popupTimerUnreachable"));
     return;
   }
   pendingReplacementRoutineId = null;
@@ -93,7 +92,7 @@ function createReplacementConfirmation(routine, activeRun) {
     attributes: { role: "group", "aria-labelledby": textId },
   });
   const question = createElement("p", {
-    text: formatUiString(UI_STRINGS.routines.confirmReplace, {
+    text: translate("popupRoutinesConfirmReplace", {
       running: activeRun.routineName,
       name: routine.name,
     }),
@@ -101,12 +100,12 @@ function createReplacementConfirmation(routine, activeRun) {
   });
   const startButton = createElement("button", {
     className: "button button-primary",
-    text: UI_STRINGS.routines.confirmStart,
+    text: translate("popupRoutinesConfirmStart"),
     attributes: { type: "button", "data-row-control": "confirm-start" },
   });
   const cancelButton = createElement("button", {
     className: "button button-secondary",
-    text: UI_STRINGS.routines.confirmCancel,
+    text: translate("popupRoutinesConfirmCancel"),
     attributes: { type: "button", "data-row-control": "confirm-cancel" },
   });
   startButton.addEventListener("click", () => startRoutine(routine.id, { replaceRunning: true }));
@@ -126,13 +125,14 @@ function createRoutineRow(routine, activeRun, routineIndex) {
   const row = createElement("li", { className: "routine-row" });
   row.dataset.routineId = routine.id;
 
+  const startLabel = translate("popupRoutinesStart", { name: routine.name });
   const startButton = createElement("button", {
     className: "icon-button routine-row-start",
     attributes: {
       type: "button",
       "data-row-control": "start",
-      "aria-label": formatUiString(UI_STRINGS.routines.start, { name: routine.name }),
-      title: formatUiString(UI_STRINGS.routines.start, { name: routine.name }),
+      "aria-label": startLabel,
+      title: startLabel,
     },
   });
   startButton.append(createIcon("play"));
@@ -145,16 +145,16 @@ function createRoutineRow(routine, activeRun, routineIndex) {
   );
   if (activeRun && activeRun.routineId === routine.id) {
     details.append(
-      createElement("span", { className: "routine-row-badge", text: UI_STRINGS.routines.running })
+      createElement("span", { className: "routine-row-badge", text: translate("popupRoutinesRunning") })
     );
   }
 
   const { container: menuContainer, button: menuButton } = createMenuButton({
     menuId: `routine_menu_${routineIndex}`,
-    label: formatUiString(UI_STRINGS.routines.moreActions, { name: routine.name }),
+    label: translate("popupRoutinesMoreActions", { name: routine.name }),
     items: [
       {
-        text: UI_STRINGS.routines.edit,
+        text: translate("popupRoutinesEdit"),
         onSelect: () =>
           openRoutineEditor({
             routine,
@@ -163,9 +163,9 @@ function createRoutineRow(routine, activeRun, routineIndex) {
               elements.newRoutineButton,
           }),
       },
-      { text: UI_STRINGS.routines.duplicate, onSelect: () => duplicateRoutine(routine) },
+      { text: translate("popupRoutinesDuplicate"), onSelect: () => duplicateRoutine(routine) },
       {
-        text: UI_STRINGS.routines.delete,
+        text: translate("popupRoutinesDelete"),
         onSelect: () => deleteRoutine(routine, routineIndex),
         isDanger: true,
       },
@@ -197,7 +197,7 @@ function renderRoutineList() {
   );
   elements.list.hidden = routines.length === 0;
   elements.emptyState.hidden = routines.length > 0 || routinesLoadFailed;
-  if (routinesLoadFailed) showRoutinesMessage(UI_STRINGS.timer.loadFailed);
+  if (routinesLoadFailed) showRoutinesMessage(translate("popupTimerLoadFailed"));
   renderedActiveRoutineId = activeRun?.routineId ?? null;
 
   if (focusedRoutineId && focusedControl) focusRowControl(focusedRoutineId, focusedControl);
@@ -216,13 +216,13 @@ async function duplicateRoutine(routine) {
     await PopupStorage.saveRoutine(copy);
   } catch (error) {
     console.error("Error duplicating the routine:", error);
-    showRoutinesMessage(UI_STRINGS.routines.saveFailed);
+    showRoutinesMessage(translate("popupRoutinesSaveFailed"));
     return;
   }
   showRoutinesMessage("");
   await reloadRoutines();
   focusRowControl(copy.id, "menu");
-  showToast({ message: formatUiString(UI_STRINGS.routines.duplicated, { name: copy.name }) });
+  showToast({ message: translate("popupRoutinesDuplicated", { name: copy.name }) });
 }
 
 async function restoreRoutine(routine) {
@@ -230,7 +230,7 @@ async function restoreRoutine(routine) {
     await PopupStorage.saveRoutine(routine);
   } catch (error) {
     console.error("Error restoring the routine:", error);
-    showRoutinesMessage(UI_STRINGS.routines.saveFailed);
+    showRoutinesMessage(translate("popupRoutinesSaveFailed"));
     return;
   }
   await reloadRoutines();
@@ -242,15 +242,15 @@ async function deleteRoutine(routine, routineIndex) {
     await PopupStorage.deleteRoutine(routine.id);
   } catch (error) {
     console.error("Error deleting the routine:", error);
-    showRoutinesMessage(UI_STRINGS.routines.deleteFailed);
+    showRoutinesMessage(translate("popupRoutinesDeleteFailed"));
     return;
   }
   showRoutinesMessage("");
   await reloadRoutines();
   focusRowAt(routineIndex);
   showToast({
-    message: UI_STRINGS.routines.deleted,
-    actionText: UI_STRINGS.routines.undo,
+    message: translate("popupRoutinesDeleted"),
+    actionText: translate("popupRoutinesUndo"),
     onAction: () => restoreRoutine(routine),
     getFocusFallback: () =>
       elements.list.querySelector('[data-row-control="menu"]') ?? elements.newRoutineButton,
@@ -261,7 +261,7 @@ export function initializeRoutinesView({ openRoutineEditor: openEditor }) {
   openRoutineEditor = openEditor;
   elements.newRoutineButton.replaceChildren(
     createIcon("plus"),
-    createElement("span", { text: UI_STRINGS.routines.newRoutine })
+    createElement("span", { text: translate("popupRoutinesNewRoutine") })
   );
   elements.newRoutineButton.addEventListener("click", () =>
     openRoutineEditor({ returnFocusTo: elements.newRoutineButton })

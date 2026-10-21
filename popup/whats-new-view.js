@@ -1,10 +1,10 @@
+import { translate } from "../shared/i18n.js";
 import { WHATS_NEW_VERSION } from "../shared/whats-new.js";
 import { setTextIfChanged } from "./dom-helpers.js";
 import { createIcon } from "./icons.js";
 import { getPopupState, reloadNotices, subscribeToPopupState } from "./popup-state.js";
 import * as PopupStorage from "./popup-storage.js";
 import { focusTimer } from "./timer-view.js";
-import { UI_STRINGS } from "./ui-strings.js";
 
 const elements = {
   text: document.getElementById("whats_new_text"),
@@ -16,7 +16,7 @@ export const isWhatsNewShown = () => getPopupState().notices.whatsNewPending ===
 
 function renderWhatsNew() {
   const isShown = isWhatsNewShown();
-  setTextIfChanged(elements.text, isShown ? UI_STRINGS.whatsNew.message : "");
+  setTextIfChanged(elements.text, isShown ? translate("popupWhatsNewMessage") : "");
   elements.link.hidden = !isShown;
   elements.closeButton.hidden = !isShown;
 }

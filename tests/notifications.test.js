@@ -1,17 +1,15 @@
+import "./support/messages.js";
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import {
   NOTIFICATION_ID,
   buildNotification,
-  formatClockTime,
-  formatSpokenDuration,
   getNotificationRunKey,
   isNotificationForRun,
   playsSound,
 } from "../background/notifications.js";
 
 const afternoon = new Date(2026, 9, 15, 14, 5).getTime();
-const morning = new Date(2026, 9, 15, 9, 30).getTime();
 
 const stages = [
   { label: "Focus", kind: "focus", durationSec: 1500 },
@@ -46,30 +44,10 @@ const startBreakAndStop = [
   { title: "Stop", command: { action: "stopRoutine" } },
 ];
 
-describe("formatting", () => {
-  test("uses one notification id so each one replaces the previous", () => {
+describe("NOTIFICATION_ID", () => {
+  test("is one id, so each notification replaces the previous", () => {
     assert.equal(NOTIFICATION_ID, "stage");
   });
-
-  test("formats durations with the non-zero units", () => {
-    assert.equal(formatSpokenDuration(1500), "25 min");
-    assert.equal(formatSpokenDuration(5400), "1 h 30 min");
-    assert.equal(formatSpokenDuration(3600), "1 h");
-    assert.equal(formatSpokenDuration(45), "45 s");
-    assert.equal(formatSpokenDuration(3725), "1 h 2 min 5 s");
-    assert.equal(formatSpokenDuration(0), "0 s");
-  });
-
-  test("formats the time in the 24-hour or 12-hour format", () => {
-    assert.equal(formatClockTime(afternoon, "24h"), "14:05");
-    assert.equal(formatClockTime(morning, "24h"), "09:30");
-    assert.equal(formatClockTime(afternoon, undefined), "14:05");
-    assert.equal(formatClockTime(afternoon, "12h"), "02:05 PM");
-    assert.equal(formatClockTime(morning, "12h"), "09:30 AM");
-    assert.equal(formatClockTime(new Date(2026, 9, 15, 0, 1).getTime(), "12h"), "12:01 AM");
-    assert.equal(formatClockTime(new Date(2026, 9, 15, 12, 0).getTime(), "12h"), "12:00 PM");
-  });
-
 });
 
 describe("buildNotification", () => {

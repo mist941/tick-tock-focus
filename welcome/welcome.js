@@ -1,3 +1,4 @@
+import { formatDuration } from "../shared/i18n.js";
 import { ROUTINE_LIMITS } from "../shared/routine.js";
 import { STORAGE_KEYS } from "../shared/storage.js";
 import {
@@ -14,13 +15,12 @@ import { createStageStrip } from "../popup/stage-graphics.js";
 import {
   UI_STRINGS,
   applyUiStrings,
-  formatDurationText,
   formatUiString,
+  lookupUiString,
 } from "../popup/ui-strings.js";
 
 const ROUTINES_RELOAD_DELAY_MS = 150;
 const PRESELECTED_TEMPLATE_ID = "pomodoro";
-const TEMPLATE_TEXTS = UI_STRINGS.templates;
 const TEXTS = UI_STRINGS.welcome;
 
 const elements = {
@@ -46,7 +46,7 @@ function fillTemplateWithNodes(element, template, nodes) {
 }
 
 function fillPageTexts() {
-  applyUiStrings();
+  applyUiStrings(document, lookupUiString);
   document.title = TEXTS.pageTitle;
   const startButton = createElement("span", { className: "start-button-name" });
   startButton.append(
@@ -71,7 +71,7 @@ function setAddStatus(text, { isError = false } = {}) {
 const getTemplateIdsToAdd = () => listTemplatesToAdd(selectedTemplateIds, storedRoutines);
 
 function createTemplateCard(template) {
-  const { id, name, stages, durationSec } = previewTemplate(template, TEMPLATE_TEXTS);
+  const { id, name, stages, durationSec } = previewTemplate(template);
   const checkbox = createElement("input", {
     className: "template-checkbox",
     attributes: { type: "checkbox", value: id },
@@ -93,7 +93,7 @@ function createTemplateCard(template) {
     heading,
     createElement("span", {
       className: "template-card-duration",
-      text: formatDurationText(durationSec),
+      text: formatDuration(durationSec),
     }),
     createStageStrip(stages),
     createElement("span", { className: "template-card-added", text: TEXTS.added })
@@ -141,7 +141,7 @@ async function addSelectedTemplates() {
     const routines = await PopupStorage.getRoutines();
     const now = Date.now();
     const newRoutines = listTemplatesToAdd(selectedTemplateIds, routines).map((templateId, index) =>
-      createRoutineFromTemplate(templateId, now + index, TEMPLATE_TEXTS)
+      createRoutineFromTemplate(templateId, now + index)
     );
     await PopupStorage.saveRoutines(newRoutines);
     storedRoutines = [...routines, ...newRoutines];

@@ -1,3 +1,4 @@
+import { translate } from "../shared/i18n.js";
 import { migrateLegacyLocalStorage } from "./legacy-migration.js";
 import { initializeNavigation } from "./navigation.js";
 import {
@@ -14,7 +15,7 @@ import { initializeRoutinesView, showRoutinesMessage } from "./routines-view.js"
 import { initializeSettingsView } from "./settings-view.js";
 import { initializeTimerView } from "./timer-view.js";
 import { initializeToast } from "./toast.js";
-import { UI_STRINGS, applyUiStrings } from "./ui-strings.js";
+import { applyUiStrings } from "./ui-strings.js";
 import { initializeWhatsNewView } from "./whats-new-view.js";
 
 async function initializePopup() {
@@ -29,7 +30,7 @@ async function initializePopup() {
       await migrateLegacyLocalStorage();
     } catch (error) {
       console.error("Error migrating presets from localStorage:", error);
-      showRoutinesMessage(UI_STRINGS.routines.migrationFailed);
+      showRoutinesMessage(translate("popupRoutinesMigrationFailed"));
     }
 
     try {

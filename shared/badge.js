@@ -1,20 +1,10 @@
-import { fillTemplate } from "./format.js";
+import { translate } from "./i18n.js";
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const MAX_MINUTES_ON_BADGE = 99;
-
-export const BADGE_TEXTS = Object.freeze({
-  idleTitle: "TickTockFocus",
-  pausedBadge: "II",
-  waitingBadge: "▶",
-  hoursBadge: "{count}h",
-  runningTitle: "{routineName} · {label} {n} of {total} · {timeLeft}",
-  pausedTitle: "{routineName} · Paused · {label} {n} of {total}",
-  waitingTitle: "{routineName} · Waiting for you · Next: {label} {n} of {total}",
-  minutesLeft: "{count} min left",
-  hoursLeft: "{count} h left",
-});
+const PAUSED_BADGE = "II";
+const WAITING_BADGE = "▶";
 
 export const BADGE_COLORS = Object.freeze({
   focus: Object.freeze({ background: "#2e7d32", text: "#ffffff" }),
@@ -29,22 +19,22 @@ function getTimeLeft(run, now) {
   if (minutes <= MAX_MINUTES_ON_BADGE) {
     return {
       badge: String(minutes),
-      title: fillTemplate(BADGE_TEXTS.minutesLeft, { count: minutes }),
+      title: translate("badgeMinutesLeft", { count: minutes }),
       nextChangeMs: minutes > 1 ? (minutes - 1) * MINUTE_MS : null,
     };
   }
   const hours = Math.ceil(remainingMs / HOUR_MS);
   return {
-    badge: fillTemplate(BADGE_TEXTS.hoursBadge, { count: hours }),
-    title: fillTemplate(BADGE_TEXTS.hoursLeft, { count: hours }),
+    badge: translate("badgeHours", { count: hours }),
+    title: translate("badgeHoursLeft", { count: hours }),
     nextChangeMs: Math.max((hours - 1) * HOUR_MS, MAX_MINUTES_ON_BADGE * MINUTE_MS),
   };
 }
 
 export function getBadgeText(run, now) {
   if (!run) return "";
-  if (run.status === "paused") return BADGE_TEXTS.pausedBadge;
-  if (run.status === "awaitingNext") return BADGE_TEXTS.waitingBadge;
+  if (run.status === "paused") return PAUSED_BADGE;
+  if (run.status === "awaitingNext") return WAITING_BADGE;
   return getTimeLeft(run, now).badge;
 }
 
@@ -61,14 +51,14 @@ export function getBadgeColors(run) {
 }
 
 export function getBadgeTitle(run, now) {
-  if (!run) return BADGE_TEXTS.idleTitle;
+  if (!run) return translate("actionTitle");
   const values = {
     routineName: run.routineName,
     label: run.stages[run.stageIndex].label,
     n: run.stageIndex + 1,
     total: run.stages.length,
   };
-  if (run.status === "paused") return fillTemplate(BADGE_TEXTS.pausedTitle, values);
-  if (run.status === "awaitingNext") return fillTemplate(BADGE_TEXTS.waitingTitle, values);
-  return fillTemplate(BADGE_TEXTS.runningTitle, { ...values, timeLeft: getTimeLeft(run, now).title });
+  if (run.status === "paused") return translate("badgePausedTitle", values);
+  if (run.status === "awaitingNext") return translate("badgeWaitingTitle", values);
+  return translate("badgeRunningTitle", { ...values, timeLeft: getTimeLeft(run, now).title });
 }

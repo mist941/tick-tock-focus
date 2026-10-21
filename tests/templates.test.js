@@ -1,5 +1,7 @@
+import { useLocale } from "./support/messages.js";
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
+import { formatDuration, setMessageLookup, translate } from "../shared/i18n.js";
 import { expandRoutine, normalizeRoutine, toLegacyClocks, validateRoutine } from "../shared/routine.js";
 import {
   ROUTINE_TEMPLATES,
@@ -8,9 +10,7 @@ import {
   listTemplatesToAdd,
   previewTemplate,
 } from "../shared/templates.js";
-import { UI_STRINGS, formatDurationText } from "../popup/ui-strings.js";
 
-const texts = UI_STRINGS.templates;
 const now = 1_760_000_000_000;
 
 const expectedTemplates = {
@@ -32,12 +32,12 @@ describe("ROUTINE_TEMPLATES", () => {
     assert.equal(new Set(templateIds).size, templateIds.length);
   });
 
-  test("has a name for every template and a label for every stage in the strings", () => {
+  test("has a message for the name of every template and the label of every stage", () => {
     for (const template of ROUTINE_TEMPLATES) {
-      assert.equal(typeof texts.names[template.id], "string", template.id);
+      assert.equal(translate(template.nameKey), expectedTemplates[template.id].name, template.id);
       const stages = template.blocks.flatMap((block) => (block.type === "repeat" ? block.stages : [block]));
       for (const stage of stages) {
-        assert.equal(typeof texts.stageLabels[stage.labelKey], "string", `${template.id} ${stage.labelKey}`);
+        assert.notEqual(translate(stage.labelKey), "", `${template.id} ${stage.labelKey}`);
       }
     }
   });
@@ -51,21 +51,21 @@ describe("ROUTINE_TEMPLATES", () => {
 describe("createRoutineFromTemplate", () => {
   test("makes a routine that passes validateRoutine from every template", () => {
     for (const templateId of templateIds) {
-      assert.deepEqual(validateRoutine(createRoutineFromTemplate(templateId, now, texts)), [], templateId);
+      assert.deepEqual(validateRoutine(createRoutineFromTemplate(templateId, now)), [], templateId);
     }
   });
 
   test("expands every template to its listed step count and total", () => {
     for (const [templateId, expected] of Object.entries(expectedTemplates)) {
-      const stages = expandRoutine(createRoutineFromTemplate(templateId, now, texts));
+      const stages = expandRoutine(createRoutineFromTemplate(templateId, now));
       const totalSec = stages.reduce((sumSec, stage) => sumSec + stage.durationSec, 0);
       assert.equal(stages.length, expected.stageCount, templateId);
-      assert.equal(formatDurationText(totalSec), expected.total, templateId);
+      assert.equal(formatDuration(totalSec), expected.total, templateId);
     }
   });
 
   test("builds the blocks of each template", () => {
-    const stagesOf = (templateId) => describeStages(expandRoutine(createRoutineFromTemplate(templateId, now, texts)));
+    const stagesOf = (templateId) => describeStages(expandRoutine(createRoutineFromTemplate(templateId, now)));
     assert.deepEqual(stagesOf("pomodoro"), [
       ...Array(3).fill(["Focus focus 25", "Break break 5"]).flat(),
       "Focus focus 25",
@@ -78,7 +78,7 @@ describe("createRoutineFromTemplate", () => {
   });
 
   test("keeps the repeat groups instead of writing out every step", () => {
-    const pomodoro = createRoutineFromTemplate("pomodoro", now, texts);
+    const pomodoro = createRoutineFromTemplate("pomodoro", now);
     assert.deepEqual(pomodoro.blocks, [
       {
         type: "repeat",
@@ -94,7 +94,7 @@ describe("createRoutineFromTemplate", () => {
   });
 
   test("is a v2 routine with the template id, the given time and the derived clocks", () => {
-    const routine = createRoutineFromTemplate("deep-work", now, texts);
+    const routine = createRoutineFromTemplate("deep-work", now);
     assert.equal(typeof routine.id, "string");
     assert.notEqual(routine.id, "");
     assert.equal(routine.name, "Deep work");
@@ -109,44 +109,48 @@ describe("createRoutineFromTemplate", () => {
     ]);
   });
 
-  test("takes the name and labels from the texts it is given", () => {
-    const otherTexts = {
-      names: { ...texts.names, study: "Lernen" },
-      stageLabels: { ...texts.stageLabels, study: "Lernen", break: "Pause" },
-    };
-    const routine = createRoutineFromTemplate("study", now, otherTexts);
-    assert.equal(routine.name, "Lernen");
-    assert.deepEqual(routine.blocks[0].stages.map((stage) => stage.label), ["Lernen", "Pause"]);
+  test("writes the name and labels in the language of the messages when it creates the routine", () => {
+    setMessageLookup((key) => `<${key}>`);
+    try {
+      const routine = createRoutineFromTemplate("study", now);
+      assert.equal(routine.name, "<templateNameStudy>");
+      assert.deepEqual(routine.blocks[0].stages.map((stage) => stage.label), [
+        "<templateStageStudy>",
+        "<templateStageBreak>",
+      ]);
+    } finally {
+      useLocale("en");
+    }
   });
 
   test("gives every routine a new id", () => {
-    const ids = Array.from({ length: 20 }, () => createRoutineFromTemplate("pomodoro", now, texts).id);
+    const ids = Array.from({ length: 20 }, () => createRoutineFromTemplate("pomodoro", now).id);
     assert.equal(new Set(ids).size, ids.length);
   });
 
   test("returns a fresh routine that shares nothing with the template", () => {
-    const first = createRoutineFromTemplate("pomodoro", now, texts);
+    const first = createRoutineFromTemplate("pomodoro", now);
     first.blocks[0].stages[0].durationSec = 60;
     first.blocks[0].times = 9;
-    const second = createRoutineFromTemplate("pomodoro", now, texts);
+    const second = createRoutineFromTemplate("pomodoro", now);
     assert.equal(second.blocks[0].stages[0].durationSec, 1500);
     assert.equal(second.blocks[0].times, 3);
   });
 
   test("returns null for an unknown template", () => {
-    assert.equal(createRoutineFromTemplate("gong", now, texts), null);
-    assert.equal(createRoutineFromTemplate(undefined, now, texts), null);
+    assert.equal(createRoutineFromTemplate("gong", now), null);
+    assert.equal(createRoutineFromTemplate(undefined, now), null);
   });
 
   test("keeps templateId when the routine is read back", () => {
-    const routine = createRoutineFromTemplate("study", now, texts);
+    const routine = createRoutineFromTemplate("study", now);
     assert.equal(normalizeRoutine(structuredClone(routine), (position) => `Step ${position}`).templateId, "study");
   });
 });
 
 describe("previewTemplate", () => {
   test("gives the name, the expanded stages and the total for a card", () => {
-    const preview = previewTemplate(ROUTINE_TEMPLATES[0], texts);
+    const preview = previewTemplate(ROUTINE_TEMPLATES[0]);
     assert.equal(preview.id, "pomodoro");
     assert.equal(preview.name, "Pomodoro");
     assert.equal(preview.stages.length, 8);
@@ -156,8 +160,8 @@ describe("previewTemplate", () => {
   test("matches the routine the template creates", () => {
     for (const template of ROUTINE_TEMPLATES) {
       assert.deepEqual(
-        previewTemplate(template, texts).stages,
-        expandRoutine(createRoutineFromTemplate(template.id, now, texts)),
+        previewTemplate(template).stages,
+        expandRoutine(createRoutineFromTemplate(template.id, now)),
         template.id
       );
     }
@@ -165,7 +169,7 @@ describe("previewTemplate", () => {
 });
 
 describe("added templates", () => {
-  const routineFrom = (templateId) => createRoutineFromTemplate(templateId, now, texts);
+  const routineFrom = (templateId) => createRoutineFromTemplate(templateId, now);
   const ownRoutine = { id: "own", name: "Mine", schemaVersion: 2, blocks: [] };
 
   test("finds the templates the routines came from", () => {

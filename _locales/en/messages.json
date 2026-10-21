@@ -25,5 +25,512 @@
   },
   "formatAfterNoon": {
     "message": "PM"
+  },
+  "stageStepLabel": {
+    "message": "Step {position}"
+  },
+  "templateNamePomodoro": {
+    "message": "Pomodoro"
+  },
+  "templateName5217": {
+    "message": "52/17"
+  },
+  "templateNameDeepWork": {
+    "message": "Deep work"
+  },
+  "templateNameStudy": {
+    "message": "Study"
+  },
+  "templateNameDeskBreak": {
+    "message": "Desk break"
+  },
+  "templateStageFocus": {
+    "message": "Focus"
+  },
+  "templateStageBreak": {
+    "message": "Break"
+  },
+  "templateStageLongBreak": {
+    "message": "Long break"
+  },
+  "templateStageStudy": {
+    "message": "Study"
+  },
+  "templateStageWork": {
+    "message": "Work"
+  },
+  "templateStageStretch": {
+    "message": "Stretch"
+  },
+  "notificationStageDoneTitle": {
+    "message": "{label} done · {n} of {total}"
+  },
+  "notificationStageDoneAutoMessage": {
+    "message": "Next: {nextLabel} · {duration}, ends at {time}"
+  },
+  "notificationStageDoneWaitMessage": {
+    "message": "Next: {nextLabel} · {duration}"
+  },
+  "notificationLateStageDoneTitle": {
+    "message": "{label} done at {time}"
+  },
+  "notificationRoutineCompleteTitle": {
+    "message": "{routineName} complete"
+  },
+  "notificationFocusTotalMessage": {
+    "message": "{focusTotal} of focus"
+  },
+  "notificationTotalDurationMessage": {
+    "message": "{totalDuration} in total"
+  },
+  "notificationLateFinishTitle": {
+    "message": "{routineName} finished at {time}"
+  },
+  "notificationCaughtUpTitle": {
+    "message": "Now: {label} · {n} of {total}"
+  },
+  "notificationCaughtUpMessage": {
+    "message": "{remaining} left"
+  },
+  "notificationPauseButton": {
+    "message": "Pause"
+  },
+  "notificationSkipButton": {
+    "message": "Skip"
+  },
+  "notificationStartStageButton": {
+    "message": "Start {label}"
+  },
+  "notificationStopButton": {
+    "message": "Stop"
+  },
+  "notificationStartAgainButton": {
+    "message": "Start again"
+  },
+  "badgeHours": {
+    "message": "{count}h"
+  },
+  "badgeRunningTitle": {
+    "message": "{routineName} · {label} {n} of {total} · {timeLeft}"
+  },
+  "badgePausedTitle": {
+    "message": "{routineName} · Paused · {label} {n} of {total}"
+  },
+  "badgeWaitingTitle": {
+    "message": "{routineName} · Waiting for you · Next: {label} {n} of {total}"
+  },
+  "badgeMinutesLeft": {
+    "message": "{count} min left"
+  },
+  "badgeHoursLeft": {
+    "message": "{count} h left"
+  },
+  "popupNavigationSections": {
+    "message": "Sections"
+  },
+  "popupNavigationTimerTab": {
+    "message": "Timer"
+  },
+  "popupNavigationRoutinesTab": {
+    "message": "Routines"
+  },
+  "popupNavigationSettings": {
+    "message": "Settings"
+  },
+  "popupNavigationBack": {
+    "message": "Back"
+  },
+  "popupTimerNewRoutine": {
+    "message": "New routine"
+  },
+  "popupTimerNoRoutines": {
+    "message": "No routines yet"
+  },
+  "popupTimerTemplatesIntro": {
+    "message": "Start with one of these:"
+  },
+  "popupTimerAdd": {
+    "message": "Add"
+  },
+  "popupTimerAddTemplate": {
+    "message": "Add {name}"
+  },
+  "popupTimerBuildYourOwn": {
+    "message": "or build your own"
+  },
+  "popupTimerStartRoutine": {
+    "message": "Start {name}, {duration}"
+  },
+  "popupTimerNoDuration": {
+    "message": "This routine has no duration."
+  },
+  "popupTimerShortStages": {
+    "message": "Some steps are shorter than {seconds} seconds, so their notifications may arrive late."
+  },
+  "popupTimerLoadFailed": {
+    "message": "Couldn't load your routines. Reopen the popup to try again."
+  },
+  "popupTimerStagePosition": {
+    "message": "{label} · {n} of {total}"
+  },
+  "popupTimerPausedPosition": {
+    "message": "Paused · {label} {n} of {total}"
+  },
+  "popupTimerStageDone": {
+    "message": "{label} done"
+  },
+  "popupTimerNext": {
+    "message": "Next: {label} · {duration}"
+  },
+  "popupTimerLastStage": {
+    "message": "Last step"
+  },
+  "popupTimerEndsAt": {
+    "message": "Ends at {time}"
+  },
+  "popupTimerPause": {
+    "message": "Pause"
+  },
+  "popupTimerResume": {
+    "message": "Resume"
+  },
+  "popupTimerStartStage": {
+    "message": "Start {label}"
+  },
+  "popupTimerSkip": {
+    "message": "Skip"
+  },
+  "popupTimerExtend": {
+    "message": "+{minutes} min"
+  },
+  "popupTimerStop": {
+    "message": "Stop"
+  },
+  "popupTimerUnreachable": {
+    "message": "Couldn't reach the timer. Close and reopen this popup, then try again."
+  },
+  "popupWhatsNewMessage": {
+    "message": "New in 1.2: named steps, repeats, pause and skip, sound and time on the icon."
+  },
+  "popupWhatsNewSeeHowItWorks": {
+    "message": "See how it works"
+  },
+  "popupWhatsNewClose": {
+    "message": "Close"
+  },
+  "popupRatingQuestion": {
+    "message": "Enjoying TickTockFocus? A rating helps others find it."
+  },
+  "popupRatingRate": {
+    "message": "Rate"
+  },
+  "popupRatingLater": {
+    "message": "Later"
+  },
+  "popupRatingNever": {
+    "message": "Don't ask again"
+  },
+  "popupRoutinesEmpty": {
+    "message": "No routines yet"
+  },
+  "popupRoutinesNewRoutine": {
+    "message": "New routine"
+  },
+  "popupRoutinesSummary": {
+    "message": "{count} steps · {duration}"
+  },
+  "popupRoutinesSummaryOneStep": {
+    "message": "1 step · {duration}"
+  },
+  "popupRoutinesStart": {
+    "message": "Start {name}"
+  },
+  "popupRoutinesRunning": {
+    "message": "Running"
+  },
+  "popupRoutinesMoreActions": {
+    "message": "More actions for {name}"
+  },
+  "popupRoutinesEdit": {
+    "message": "Edit"
+  },
+  "popupRoutinesDuplicate": {
+    "message": "Duplicate"
+  },
+  "popupRoutinesDelete": {
+    "message": "Delete"
+  },
+  "popupRoutinesCopyName": {
+    "message": "Copy of {name}"
+  },
+  "popupRoutinesDuplicated": {
+    "message": "{name} added"
+  },
+  "popupRoutinesDeleted": {
+    "message": "Routine deleted"
+  },
+  "popupRoutinesUndo": {
+    "message": "Undo"
+  },
+  "popupRoutinesConfirmReplace": {
+    "message": "Stop {running} and start {name}?"
+  },
+  "popupRoutinesConfirmStart": {
+    "message": "Start"
+  },
+  "popupRoutinesConfirmCancel": {
+    "message": "Cancel"
+  },
+  "popupRoutinesSaveFailed": {
+    "message": "Couldn't save the routine. Try again."
+  },
+  "popupRoutinesDeleteFailed": {
+    "message": "Couldn't delete the routine. Try again."
+  },
+  "popupRoutinesMigrationFailed": {
+    "message": "Couldn't move your presets from the previous version. They're still on this device; reopen the popup to try again."
+  },
+  "popupEditorNewHeading": {
+    "message": "New routine"
+  },
+  "popupEditorEditHeading": {
+    "message": "Edit routine"
+  },
+  "popupEditorName": {
+    "message": "Name"
+  },
+  "popupEditorStepsLabel": {
+    "message": "Steps"
+  },
+  "popupEditorRunningNote": {
+    "message": "Changes apply the next time you start it."
+  },
+  "popupEditorRowLimit": {
+    "message": "This routine has {count} steps; up to {limit} are allowed. Remove steps or group them into a repeat to save."
+  },
+  "popupEditorKindFocus": {
+    "message": "Focus"
+  },
+  "popupEditorKindBreak": {
+    "message": "Break"
+  },
+  "popupEditorKindCustom": {
+    "message": "Custom"
+  },
+  "popupEditorKindOf": {
+    "message": "Kind of step {position}"
+  },
+  "popupEditorLabelOf": {
+    "message": "Name of step {position}"
+  },
+  "popupEditorMinutesOf": {
+    "message": "Minutes of step {position}"
+  },
+  "popupEditorSecondsOf": {
+    "message": "Seconds of step {position}"
+  },
+  "popupEditorMinutesUnit": {
+    "message": "min"
+  },
+  "popupEditorSecondsUnit": {
+    "message": "s"
+  },
+  "popupEditorMoveStageUp": {
+    "message": "Move step {position} up"
+  },
+  "popupEditorMoveStageDown": {
+    "message": "Move step {position} down"
+  },
+  "popupEditorRemoveStage": {
+    "message": "Remove step {position}"
+  },
+  "popupEditorRepeat": {
+    "message": "Repeat"
+  },
+  "popupEditorGroupName": {
+    "message": "repeat group {position}"
+  },
+  "popupEditorRepeatCountOf": {
+    "message": "Repeat count of repeat group {position}"
+  },
+  "popupEditorTimesOption": {
+    "message": "×{times}"
+  },
+  "popupEditorMoveGroupUp": {
+    "message": "Move repeat group {position} up"
+  },
+  "popupEditorMoveGroupDown": {
+    "message": "Move repeat group {position} down"
+  },
+  "popupEditorRemoveGroup": {
+    "message": "Remove repeat group {position} and its steps"
+  },
+  "popupEditorAddStage": {
+    "message": "Add step"
+  },
+  "popupEditorAddGroup": {
+    "message": "Add repeat group"
+  },
+  "popupEditorAddStageToGroup": {
+    "message": "Add step to group"
+  },
+  "popupEditorTotal": {
+    "message": "Total {duration} · {count} steps"
+  },
+  "popupEditorTotalOneStep": {
+    "message": "Total {duration} · 1 step"
+  },
+  "popupEditorStageMoved": {
+    "message": "{label} moved to position {position} of {count}."
+  },
+  "popupEditorStageMovedInGroup": {
+    "message": "{label} moved to position {position} of {count}, in repeat group {groupPosition}."
+  },
+  "popupEditorGroupMoved": {
+    "message": "Moved. This is now repeat group {position}."
+  },
+  "popupEditorCancel": {
+    "message": "Cancel"
+  },
+  "popupEditorSave": {
+    "message": "Save"
+  },
+  "popupEditorDiscardQuestion": {
+    "message": "Discard your changes?"
+  },
+  "popupEditorDiscard": {
+    "message": "Discard"
+  },
+  "popupEditorKeepEditing": {
+    "message": "Keep editing"
+  },
+  "popupEditorSaveFailed": {
+    "message": "Couldn't save the routine. Try again."
+  },
+  "popupEditorErrorInvalid": {
+    "message": "This step can't be saved. Check its values."
+  },
+  "popupEditorErrorNameMissing": {
+    "message": "Enter a name."
+  },
+  "popupEditorErrorNameTooLong": {
+    "message": "Use at most {limit} characters."
+  },
+  "popupEditorErrorLabelMissing": {
+    "message": "Enter a name for this step."
+  },
+  "popupEditorErrorLabelTooLong": {
+    "message": "Use at most {limit} characters."
+  },
+  "popupEditorErrorKindInvalid": {
+    "message": "Choose a kind."
+  },
+  "popupEditorErrorDurationInvalid": {
+    "message": "Enter minutes and seconds."
+  },
+  "popupEditorErrorDurationTooShort": {
+    "message": "Make this step at least {limit} seconds long."
+  },
+  "popupEditorErrorDurationTooLong": {
+    "message": "Make this step shorter than 24 hours."
+  },
+  "popupEditorErrorRepeatTimesOutOfRange": {
+    "message": "Choose how many times to repeat."
+  },
+  "popupEditorErrorRepeatEmpty": {
+    "message": "Add a step to this group or remove the group."
+  },
+  "popupEditorErrorNestedRepeat": {
+    "message": "A repeat group can't contain another group."
+  },
+  "popupEditorErrorNoStages": {
+    "message": "Add at least one step."
+  },
+  "popupEditorErrorTooManyRows": {
+    "message": "A routine can have at most {limit} steps."
+  },
+  "popupEditorErrorTooManyStages": {
+    "message": "With repeats this routine has {count} steps; up to {limit} are allowed."
+  },
+  "popupSettingsHeading": {
+    "message": "Settings"
+  },
+  "popupSettingsNextStep": {
+    "message": "Next step"
+  },
+  "popupSettingsStartAutomatically": {
+    "message": "Start automatically"
+  },
+  "popupSettingsWaitForMe": {
+    "message": "Wait for me"
+  },
+  "popupSettingsTimeFormat": {
+    "message": "Time format"
+  },
+  "popupSettingsHours24": {
+    "message": "24-hour"
+  },
+  "popupSettingsHours12": {
+    "message": "12-hour"
+  },
+  "popupSettingsSound": {
+    "message": "Sound"
+  },
+  "popupSettingsPlaySound": {
+    "message": "Play a sound when a step ends"
+  },
+  "popupSettingsTone": {
+    "message": "Tone"
+  },
+  "popupSettingsSoundChime": {
+    "message": "Chime"
+  },
+  "popupSettingsSoundBell": {
+    "message": "Bell"
+  },
+  "popupSettingsSoundSoft": {
+    "message": "Soft"
+  },
+  "popupSettingsVolume": {
+    "message": "Volume"
+  },
+  "popupSettingsVolumePercent": {
+    "message": "{volume}%"
+  },
+  "popupSettingsTestSound": {
+    "message": "Test"
+  },
+  "popupSettingsTimeOnIcon": {
+    "message": "Time on icon"
+  },
+  "popupSettingsShowTimeOnIcon": {
+    "message": "Show the time left on the toolbar icon"
+  },
+  "popupSettingsSaveFailed": {
+    "message": "Couldn't save the setting. Try again."
+  },
+  "popupSettingsVersion": {
+    "message": "Version {version}"
+  },
+  "linkListLabel": {
+    "message": "TickTockFocus links"
+  },
+  "linkHowItWorks": {
+    "message": "How it works"
+  },
+  "linkWebsite": {
+    "message": "Website"
+  },
+  "linkSendFeedback": {
+    "message": "Send feedback"
+  },
+  "linkRateOnStore": {
+    "message": "Rate on Chrome Web Store"
+  },
+  "linkReportBug": {
+    "message": "Report a bug"
+  },
+  "linkOpensInNewTab": {
+    "message": "(opens in a new tab)"
   }
 }

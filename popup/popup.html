@@ -11,37 +11,37 @@
     <div class="app">
       <section class="screen" data-screen="main">
         <header class="app-header">
-          <div class="tab-list" role="tablist" data-ui-label="navigation.sections">
-            <button type="button" class="tab" role="tab" id="tab_timer" data-tab="timer" aria-controls="panel_timer" aria-selected="true" data-ui-text="navigation.timerTab"></button>
-            <button type="button" class="tab" role="tab" id="tab_routines" data-tab="routines" aria-controls="panel_routines" aria-selected="false" tabindex="-1" data-ui-text="navigation.routinesTab"></button>
+          <div class="tab-list" role="tablist" data-ui-label="popupNavigationSections">
+            <button type="button" class="tab" role="tab" id="tab_timer" data-tab="timer" aria-controls="panel_timer" aria-selected="true" data-ui-text="popupNavigationTimerTab"></button>
+            <button type="button" class="tab" role="tab" id="tab_routines" data-tab="routines" aria-controls="panel_routines" aria-selected="false" tabindex="-1" data-ui-text="popupNavigationRoutinesTab"></button>
           </div>
-          <button type="button" class="icon-button" id="open_settings" data-ui-label="navigation.settings">
+          <button type="button" class="icon-button" id="open_settings" data-ui-label="popupNavigationSettings">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.14 12.94a7.07 7.07 0 0 0 .05-.94 7.07 7.07 0 0 0-.05-.94l2.03-1.58a.49.49 0 0 0 .12-.62l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.03 7.03 0 0 0-1.62-.94l-.36-2.54A.48.48 0 0 0 13.92 2h-3.84a.48.48 0 0 0-.48.41l-.36 2.54a7.37 7.37 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.72 8.47a.48.48 0 0 0 .12.62l2.03 1.58a7.07 7.07 0 0 0-.05.94c0 .32.02.63.05.94l-2.03 1.58a.49.49 0 0 0-.12.62l1.92 3.32c.12.22.38.3.59.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.25.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54a7.37 7.37 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.48.48 0 0 0-.12-.62l-2.03-1.58ZM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2Z"/></svg>
           </button>
         </header>
         <div class="tab-panel" id="panel_timer" data-tab="timer" role="tabpanel" aria-labelledby="tab_timer">
           <div class="notice whats-new" id="whats_new">
             <p class="whats-new-text" id="whats_new_text" role="status"></p>
-            <a class="notice-link" id="whats_new_link" href="../welcome/welcome.html#how-it-works" target="_blank" rel="noopener noreferrer" hidden><span data-ui-text="whatsNew.seeHowItWorks"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
-            <button type="button" class="icon-button notice-close" id="whats_new_close" data-ui-label="whatsNew.close" hidden></button>
+            <a class="notice-link" id="whats_new_link" href="../welcome/welcome.html#how-it-works" target="_blank" rel="noopener noreferrer" hidden><span data-ui-text="popupWhatsNewSeeHowItWorks"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="linkOpensInNewTab"></span></a>
+            <button type="button" class="icon-button notice-close" id="whats_new_close" data-ui-label="popupWhatsNewClose" hidden></button>
           </div>
           <div class="timer-idle" id="timer_idle">
             <p class="panel-message" id="timer_idle_message" aria-live="polite"></p>
             <div class="notice" id="rating_prompt" role="group" aria-labelledby="rating_prompt_text" hidden>
-              <p id="rating_prompt_text" data-ui-text="rating.question"></p>
+              <p id="rating_prompt_text" data-ui-text="popupRatingQuestion"></p>
               <div class="notice-actions">
-                <a class="button button-primary" id="rating_rate" href="https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae/reviews" target="_blank" rel="noopener noreferrer"><span data-ui-text="rating.rate"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
-                <button type="button" class="button button-secondary" id="rating_later" data-ui-text="rating.later"></button>
-                <button type="button" class="button button-quiet" id="rating_never" data-ui-text="rating.never"></button>
+                <a class="button button-primary" id="rating_rate" href="https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae/reviews" target="_blank" rel="noopener noreferrer"><span data-ui-text="popupRatingRate"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="linkOpensInNewTab"></span></a>
+                <button type="button" class="button button-secondary" id="rating_later" data-ui-text="popupRatingLater"></button>
+                <button type="button" class="button button-quiet" id="rating_never" data-ui-text="popupRatingNever"></button>
               </div>
             </div>
             <ul class="routine-cards" id="routine_cards"></ul>
             <button type="button" class="text-button" id="timer_new_routine"></button>
             <div class="empty-state" id="timer_empty_state" hidden>
-              <p class="empty-state-title" data-ui-text="timer.noRoutines"></p>
-              <p class="empty-state-text" id="template_cards_intro" data-ui-text="timer.templatesIntro"></p>
+              <p class="empty-state-title" data-ui-text="popupTimerNoRoutines"></p>
+              <p class="empty-state-text" id="template_cards_intro" data-ui-text="popupTimerTemplatesIntro"></p>
               <ul class="template-cards" id="template_cards" aria-labelledby="template_cards_intro"></ul>
-              <button type="button" class="text-button" id="timer_build_own" data-ui-text="timer.buildYourOwn"></button>
+              <button type="button" class="text-button" id="timer_build_own" data-ui-text="popupTimerBuildYourOwn"></button>
             </div>
           </div>
           <div class="timer-run" id="timer_run" hidden>
@@ -64,25 +64,25 @@
         <div class="tab-panel" id="panel_routines" data-tab="routines" role="tabpanel" aria-labelledby="tab_routines" hidden>
           <p class="panel-message" id="routines_message" aria-live="polite"></p>
           <ul class="routine-list" id="routine_list"></ul>
-          <p class="empty-state-title routines-empty" id="routines_empty" data-ui-text="routines.empty" hidden></p>
+          <p class="empty-state-title routines-empty" id="routines_empty" data-ui-text="popupRoutinesEmpty" hidden></p>
           <button type="button" class="text-button" id="routines_new_routine"></button>
         </div>
       </section>
 
       <section class="screen" data-screen="editor" aria-labelledby="editor_heading" hidden>
         <header class="screen-header">
-          <button type="button" class="icon-button" data-back data-ui-label="navigation.back"><span class="back-arrow" aria-hidden="true">←</span></button>
+          <button type="button" class="icon-button" data-back data-ui-label="popupNavigationBack"><span class="back-arrow" aria-hidden="true">←</span></button>
           <h1 class="screen-heading" id="editor_heading" tabindex="-1" data-screen-heading></h1>
         </header>
         <form class="screen-body editor-form" id="editor_form" novalidate>
-          <p class="editor-note" id="editor_running_note" data-ui-text="editor.runningNote" hidden></p>
+          <p class="editor-note" id="editor_running_note" data-ui-text="popupEditorRunningNote" hidden></p>
           <p class="editor-note is-warning" id="editor_limit_note" hidden></p>
           <div class="form-field">
-            <label class="input-label" for="editor_name" data-ui-text="editor.name"></label>
+            <label class="input-label" for="editor_name" data-ui-text="popupEditorName"></label>
             <input type="text" class="input" id="editor_name" autocomplete="off" aria-describedby="editor_name_error">
             <p class="field-error" id="editor_name_error"></p>
           </div>
-          <ol class="editor-blocks" id="editor_blocks" data-ui-label="editor.stepsLabel"></ol>
+          <ol class="editor-blocks" id="editor_blocks" data-ui-label="popupEditorStepsLabel"></ol>
           <div class="editor-add-buttons">
             <button type="button" class="text-button" id="editor_add_stage"></button>
             <button type="button" class="text-button" id="editor_add_group"></button>
@@ -93,60 +93,60 @@
         <footer class="editor-footer">
           <p class="editor-total" id="editor_total"></p>
           <div class="editor-discard" id="editor_discard" role="group" aria-labelledby="editor_discard_text" hidden>
-            <p id="editor_discard_text" data-ui-text="editor.discardQuestion"></p>
+            <p id="editor_discard_text" data-ui-text="popupEditorDiscardQuestion"></p>
             <div class="editor-actions">
-              <button type="button" class="button button-secondary" id="editor_discard_confirm" data-ui-text="editor.discard"></button>
-              <button type="button" class="button button-primary" id="editor_keep_editing" data-ui-text="editor.keepEditing"></button>
+              <button type="button" class="button button-secondary" id="editor_discard_confirm" data-ui-text="popupEditorDiscard"></button>
+              <button type="button" class="button button-primary" id="editor_keep_editing" data-ui-text="popupEditorKeepEditing"></button>
             </div>
           </div>
           <div class="editor-actions">
-            <button type="button" class="button button-secondary" id="editor_cancel" data-ui-text="editor.cancel"></button>
-            <button type="button" class="button button-primary" id="editor_save" data-ui-text="editor.save"></button>
+            <button type="button" class="button button-secondary" id="editor_cancel" data-ui-text="popupEditorCancel"></button>
+            <button type="button" class="button button-primary" id="editor_save" data-ui-text="popupEditorSave"></button>
           </div>
         </footer>
       </section>
 
       <section class="screen" data-screen="settings" aria-labelledby="settings_heading" hidden>
         <header class="screen-header">
-          <button type="button" class="icon-button" data-back data-ui-label="navigation.back"><span class="back-arrow" aria-hidden="true">←</span></button>
-          <h1 class="screen-heading" id="settings_heading" tabindex="-1" data-screen-heading data-ui-text="settings.heading"></h1>
+          <button type="button" class="icon-button" data-back data-ui-label="popupNavigationBack"><span class="back-arrow" aria-hidden="true">←</span></button>
+          <h1 class="screen-heading" id="settings_heading" tabindex="-1" data-screen-heading data-ui-text="popupSettingsHeading"></h1>
         </header>
         <div class="screen-body settings-body">
           <fieldset class="settings-group">
-            <legend data-ui-text="settings.nextStep"></legend>
-            <label class="radio-option"><input type="radio" name="next_step" value="auto"><span data-ui-text="settings.startAutomatically"></span></label>
-            <label class="radio-option"><input type="radio" name="next_step" value="wait"><span data-ui-text="settings.waitForMe"></span></label>
+            <legend data-ui-text="popupSettingsNextStep"></legend>
+            <label class="radio-option"><input type="radio" name="next_step" value="auto"><span data-ui-text="popupSettingsStartAutomatically"></span></label>
+            <label class="radio-option"><input type="radio" name="next_step" value="wait"><span data-ui-text="popupSettingsWaitForMe"></span></label>
           </fieldset>
           <fieldset class="settings-group">
-            <legend data-ui-text="settings.timeFormat"></legend>
-            <label class="radio-option"><input type="radio" name="time_format" value="24h"><span data-ui-text="settings.hours24"></span></label>
-            <label class="radio-option"><input type="radio" name="time_format" value="12h"><span data-ui-text="settings.hours12"></span></label>
+            <legend data-ui-text="popupSettingsTimeFormat"></legend>
+            <label class="radio-option"><input type="radio" name="time_format" value="24h"><span data-ui-text="popupSettingsHours24"></span></label>
+            <label class="radio-option"><input type="radio" name="time_format" value="12h"><span data-ui-text="popupSettingsHours12"></span></label>
           </fieldset>
           <fieldset class="settings-group">
-            <legend data-ui-text="settings.sound"></legend>
-            <label class="switch-option"><input type="checkbox" class="switch" role="switch" id="sound_enabled"><span data-ui-text="settings.playSound"></span></label>
+            <legend data-ui-text="popupSettingsSound"></legend>
+            <label class="switch-option"><input type="checkbox" class="switch" role="switch" id="sound_enabled"><span data-ui-text="popupSettingsPlaySound"></span></label>
             <div class="setting-row">
-              <label class="setting-label" for="sound_id" data-ui-text="settings.tone"></label>
+              <label class="setting-label" for="sound_id" data-ui-text="popupSettingsTone"></label>
               <select class="input setting-select" id="sound_id"></select>
               <button type="button" class="button button-secondary setting-test" id="sound_test"></button>
             </div>
             <div class="setting-row">
-              <label class="setting-label" for="sound_volume" data-ui-text="settings.volume"></label>
+              <label class="setting-label" for="sound_volume" data-ui-text="popupSettingsVolume"></label>
               <input type="range" class="volume-slider" id="sound_volume" min="0" max="100" step="5">
               <span class="volume-value" id="sound_volume_value" aria-hidden="true"></span>
             </div>
           </fieldset>
           <fieldset class="settings-group">
-            <legend data-ui-text="settings.timeOnIcon"></legend>
-            <label class="switch-option"><input type="checkbox" class="switch" role="switch" id="show_badge"><span data-ui-text="settings.showTimeOnIcon"></span></label>
+            <legend data-ui-text="popupSettingsTimeOnIcon"></legend>
+            <label class="switch-option"><input type="checkbox" class="switch" role="switch" id="show_badge"><span data-ui-text="popupSettingsShowTimeOnIcon"></span></label>
           </fieldset>
           <p class="panel-message" id="settings_message" aria-live="polite"></p>
-          <nav class="settings-links" data-ui-label="settings.linksLabel">
-            <a href="../welcome/welcome.html#how-it-works" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.howItWorks"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
-            <a href="https://ticktockfocus.com" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.website"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
-            <a href="mailto:support@ticktockfocus.com?subject=TickTockFocus%20feedback" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.sendFeedback"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
-            <a href="https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae/reviews" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.rate"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
-            <a href="https://github.com/mist941/tick-tock-focus/issues" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.reportBug"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
+          <nav class="settings-links" data-ui-label="linkListLabel">
+            <a href="../welcome/welcome.html#how-it-works" target="_blank" rel="noopener noreferrer"><span data-ui-text="linkHowItWorks"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="linkOpensInNewTab"></span></a>
+            <a href="https://ticktockfocus.com" target="_blank" rel="noopener noreferrer"><span data-ui-text="linkWebsite"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="linkOpensInNewTab"></span></a>
+            <a href="mailto:support@ticktockfocus.com?subject=TickTockFocus%20feedback" target="_blank" rel="noopener noreferrer"><span data-ui-text="linkSendFeedback"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="linkOpensInNewTab"></span></a>
+            <a href="https://chromewebstore.google.com/detail/nealkefeifpkmkbfcfbkffdgnlohjbae/reviews" target="_blank" rel="noopener noreferrer"><span data-ui-text="linkRateOnStore"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="linkOpensInNewTab"></span></a>
+            <a href="https://github.com/mist941/tick-tock-focus/issues" target="_blank" rel="noopener noreferrer"><span data-ui-text="linkReportBug"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="linkOpensInNewTab"></span></a>
           </nav>
           <p class="settings-version" id="settings_version"></p>
         </div>
