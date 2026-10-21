@@ -157,6 +157,11 @@ export const UI_STRINGS = Object.freeze({
     migrationFailed:
       "Couldn't move your presets from the previous version. They're still on this device; reopen the popup to try again.",
   },
+  whatsNew: {
+    message: "New in 1.2: named steps, repeats, pause and skip, sound and time on the icon.",
+    seeHowItWorks: "See how it works",
+    close: "Close",
+  },
   templates: {
     names: {
       pomodoro: "Pomodoro",

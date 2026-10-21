@@ -20,6 +20,11 @@
           </button>
         </header>
         <div class="tab-panel" id="panel_timer" data-tab="timer" role="tabpanel" aria-labelledby="tab_timer">
+          <div class="notice whats-new" id="whats_new">
+            <p class="whats-new-text" id="whats_new_text" role="status"></p>
+            <a class="notice-link" id="whats_new_link" href="../welcome/welcome.html#how-it-works" target="_blank" rel="noopener noreferrer" hidden><span data-ui-text="whatsNew.seeHowItWorks"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>
+            <button type="button" class="icon-button notice-close" id="whats_new_close" data-ui-label="whatsNew.close" hidden></button>
+          </div>
           <div class="timer-idle" id="timer_idle">
             <p class="panel-message" id="timer_idle_message" aria-live="polite"></p>
             <ul class="routine-cards" id="routine_cards"></ul>

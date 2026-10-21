@@ -8,6 +8,7 @@ const state = {
   routinesLoadFailed: false,
   settings: {},
   storedRun: null,
+  notices: { whatsNewPending: null },
 };
 const listeners = new Set();
 
@@ -56,6 +57,15 @@ export function setStoredRun(run) {
   notifyListeners({ run: true });
 }
 
+export async function reloadNotices() {
+  try {
+    state.notices = await PopupStorage.getNotices();
+  } catch (error) {
+    console.error("Error loading the notices:", error);
+  }
+  notifyListeners({ notices: true });
+}
+
 export function watchPopupStorage() {
   let routinesReloadTimeoutId = null;
   chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -66,5 +76,8 @@ export function watchPopupStorage() {
     }
     if (changedKeys.includes(STORAGE_KEYS.SETTINGS)) reloadSettings();
     if (areaName === "local" && STORAGE_KEYS.RUN in changes) reloadRun();
+    if (areaName === "local" && PopupStorage.NOTICE_KEYS.some((key) => key in changes)) {
+      reloadNotices();
+    }
   });
 }

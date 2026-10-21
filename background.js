@@ -39,6 +39,7 @@ import {
   playsSound,
 } from "./background/notifications.js";
 import { getSoundSettings } from "./shared/sounds.js";
+import { WHATS_NEW_VERSION, isOlderThanWhatsNew } from "./shared/whats-new.js";
 
 const STAGE_END_ALARM = "stage_end";
 const BADGE_TICK_ALARM = "badge_tick";
@@ -400,13 +401,21 @@ async function openWelcomePage() {
   }
 }
 
-chrome.runtime.onInstalled.addListener(({ reason }) => {
+async function markWhatsNewPending(previousVersion) {
+  if (!isOlderThanWhatsNew(previousVersion)) return;
+  await chrome.storage.local.set({ [STORAGE_KEYS.WHATS_NEW_PENDING]: WHATS_NEW_VERSION });
+}
+
+chrome.runtime.onInstalled.addListener(({ reason, previousVersion }) => {
   queueReconcileRunState();
   if (reason === "install") {
     openWelcomePage();
   } else if (reason === "update") {
     migrateStoredPresets().catch((error) =>
       console.error("Migrating presets to routines failed:", error)
+    );
+    markWhatsNewPending(previousVersion).catch((error) =>
+      console.error("Marking what's new as pending failed:", error)
     );
   }
 });

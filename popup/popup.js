@@ -1,6 +1,12 @@
 import { migrateLegacyLocalStorage } from "./legacy-migration.js";
 import { initializeNavigation } from "./navigation.js";
-import { reloadRoutines, reloadRun, reloadSettings, watchPopupStorage } from "./popup-state.js";
+import {
+  reloadNotices,
+  reloadRoutines,
+  reloadRun,
+  reloadSettings,
+  watchPopupStorage,
+} from "./popup-state.js";
 import * as PopupStorage from "./popup-storage.js";
 import { initializeRoutineEditor, openRoutineEditor } from "./routine-editor.js";
 import { initializeRoutinesView, showRoutinesMessage } from "./routines-view.js";
@@ -8,6 +14,7 @@ import { initializeSettingsView } from "./settings-view.js";
 import { initializeTimerView } from "./timer-view.js";
 import { initializeToast } from "./toast.js";
 import { UI_STRINGS, applyUiStrings } from "./ui-strings.js";
+import { initializeWhatsNewView } from "./whats-new-view.js";
 
 async function initializePopup() {
   try {
@@ -31,9 +38,10 @@ async function initializePopup() {
     }
 
     watchPopupStorage();
-    await Promise.all([reloadRoutines(), reloadSettings(), reloadRun()]);
+    await Promise.all([reloadRoutines(), reloadSettings(), reloadRun(), reloadNotices()]);
     initializeTimerView({ openRoutineEditor });
     initializeRoutinesView({ openRoutineEditor });
+    initializeWhatsNewView();
   } catch (error) {
     console.error("Error initializing the popup:", error);
   }
