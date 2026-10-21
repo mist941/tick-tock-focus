@@ -1,0 +1,115 @@
+:root {
+  color-scheme: light dark;
+
+  --color-page: #eef1ee;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f4f1;
+  --color-surface-hover: #e4e9e4;
+  --color-surface-active: #d8dfd8;
+  --color-border: #d3d9d3;
+  --color-border-strong: #7b857b;
+  --color-text: #1a1d1a;
+  --color-text-muted: #525a52;
+  --color-brand: #2e7d32;
+  --color-brand-hover: #256a29;
+  --color-brand-tint: #c8e6c9;
+  --color-brand-text: #2e7d32;
+  --color-on-brand: #ffffff;
+  --color-focus-ring: #2e7d32;
+  --color-danger: #c62828;
+  --color-toast: #2b302b;
+  --color-toast-text: #ffffff;
+  --color-kind-focus: #2e7d32;
+  --color-kind-break: #1565c0;
+  --color-kind-custom: #6b6b6b;
+  --color-ring-track: #e3e8e3;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 5px;
+  --spacing-md: 7px;
+  --spacing-lg: 10px;
+  --spacing-xl: 20px;
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 15px;
+  --transition-default: background-color 300ms ease, color 300ms ease;
+  --font-family: system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-page: #111311;
+    --color-surface: #1c1f1c;
+    --color-surface-muted: #262a26;
+    --color-surface-hover: #313631;
+    --color-surface-active: #3b413b;
+    --color-border: #3a403a;
+    --color-border-strong: #858f85;
+    --color-text: #eef1ee;
+    --color-text-muted: #a9b1a9;
+    --color-brand-tint: #23462a;
+    --color-brand-text: #81c784;
+    --color-focus-ring: #81c784;
+    --color-danger: #ef9a9a;
+    --color-toast: #e8ebe8;
+    --color-toast-text: #1a1d1a;
+    --color-kind-focus: #66bb6a;
+    --color-kind-break: #64b5f6;
+    --color-kind-custom: #a3a3a3;
+    --color-ring-track: #2d322d;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-default: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+[data-kind="focus"] {
+  --kind-color: var(--color-kind-focus);
+}
+
+[data-kind="break"] {
+  --kind-color: var(--color-kind-break);
+}
+
+[data-kind="custom"] {
+  --kind-color: var(--color-kind-custom);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.stage-strip {
+  display: flex;
+  gap: 2px;
+  height: 6px;
+}
+
+.stage-strip-part {
+  min-width: 2px;
+  border-radius: 2px;
+  background-color: var(--color-kind-custom);
+
+  &[data-kind] {
+    background-color: var(--kind-color);
+  }
+}

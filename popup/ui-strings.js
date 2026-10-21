@@ -153,6 +153,23 @@ export const UI_STRINGS = Object.freeze({
     migrationFailed:
       "Couldn't move your presets from the previous version. They're still on this device; reopen the popup to try again.",
   },
+  templates: {
+    names: {
+      pomodoro: "Pomodoro",
+      "52-17": "52/17",
+      "deep-work": "Deep work",
+      study: "Study",
+      "desk-break": "Desk break",
+    },
+    stageLabels: {
+      focus: "Focus",
+      break: "Break",
+      longBreak: "Long break",
+      study: "Study",
+      work: "Work",
+      stretch: "Stretch",
+    },
+  },
 });
 
 export const formatUiString = (template, values = {}) => fillTemplate(template, values);
