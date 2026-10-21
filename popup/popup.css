@@ -252,6 +252,100 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
+.switch-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: fit-content;
+  cursor: pointer;
+}
+
+.switch {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+  background-color: var(--color-surface-muted);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: var(--transition-default);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background-color: var(--color-border-strong);
+    border-radius: 50%;
+  }
+
+  &:checked {
+    background-color: var(--color-brand);
+    border-color: var(--color-brand);
+
+    &::before {
+      left: 18px;
+      background-color: var(--color-on-brand);
+    }
+  }
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xs);
+
+  &:has(:disabled) .setting-label {
+    color: var(--color-text-muted);
+  }
+
+  & .setting-test {
+    flex: none;
+    width: auto;
+    padding-block: var(--spacing-xs);
+  }
+}
+
+.setting-label {
+  flex: none;
+  width: 60px;
+}
+
+.setting-select {
+  flex: 1;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.volume-slider {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  accent-color: var(--color-brand);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.volume-value {
+  flex: none;
+  min-width: 4ch;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
 .settings-links {
   display: flex;
   flex-direction: column;
@@ -487,11 +581,23 @@ input[type="number"]::-webkit-inner-spin-button {
   border-radius: var(--border-radius-sm);
 
   & .field-error {
-    padding-left: 14px;
+    padding-left: 15px;
   }
 }
 
-.editor-row-fields,
+.editor-row-fields {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-xs) 3px;
+
+  & .drag-handle {
+    grid-row: span 2;
+    align-self: stretch;
+  }
+}
+
+.editor-row-controls,
 .editor-group-header {
   display: flex;
   align-items: center;
@@ -501,6 +607,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .drag-handle {
   flex: none;
   display: inline-flex;
+  align-items: center;
   width: 12px;
   color: var(--color-text-muted);
   cursor: grab;
@@ -513,14 +620,11 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .kind-select {
   flex: none;
-  width: 72px;
-  padding-inline: 2px;
   font-size: var(--font-size-sm);
 }
 
 .label-input {
-  flex: 1;
-  width: 0;
+  width: 100%;
   font-size: var(--font-size-sm);
 }
 
@@ -531,11 +635,11 @@ input[type="number"]::-webkit-inner-spin-button {
   font-variant-numeric: tabular-nums;
 
   &[data-control="minutes"] {
-    width: 40px;
+    width: 46px;
   }
 
   &[data-control="seconds"] {
-    width: 30px;
+    width: 32px;
   }
 }
 
@@ -545,19 +649,18 @@ input[type="number"]::-webkit-inner-spin-button {
   color: var(--color-text-muted);
 }
 
-.move-buttons {
+.editor-item-actions {
   flex: none;
   display: flex;
-  flex-direction: column;
+  margin-left: auto;
+}
 
-  & .editor-icon-button {
-    width: 22px;
-    height: 15px;
+.move-buttons {
+  display: flex;
 
-    & .icon {
-      width: 18px;
-      height: 18px;
-    }
+  & .editor-icon-button .icon {
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -594,10 +697,6 @@ input[type="number"]::-webkit-inner-spin-button {
 .times-select {
   width: 60px;
   font-size: var(--font-size-sm);
-}
-
-.editor-group-spacer {
-  flex: 1;
 }
 
 .editor-group-add {
@@ -862,6 +961,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .run-ends {
+  min-height: 1lh;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }

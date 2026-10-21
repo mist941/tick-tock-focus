@@ -4,6 +4,7 @@ import { validateRoutine } from "../shared/routine.js";
 import {
   addRepeatGroup,
   addStage,
+  canAddRepeatGroup,
   canMove,
   countEditorRows,
   createEditorModel,
@@ -137,13 +138,38 @@ describe("adding and removing", () => {
     assert.equal(nextModel.blocks[0].stages[2].kind, "focus");
   });
 
-  test("a repeat group starts with one step and ×2", () => {
+  test("a repeat group starts with a 25-minute focus step, a 5-minute break and ×2", () => {
     const { model, addedKey, addedStageKey } = addRepeatGroup(createEditorModel(null, options), options);
     const group = model.blocks.at(-1);
     assert.equal(group.key, addedKey);
-    assert.equal(group.times, 2);
-    assert.equal(group.stages.length, 1);
     assert.equal(group.stages[0].key, addedStageKey);
+    assert.deepEqual(toRoutineBlocks(model).at(-1), {
+      type: "repeat",
+      times: 2,
+      stages: [
+        { label: "Focus", kind: "focus", durationSec: 1500 },
+        { label: "Break", kind: "break", durationSec: 300 },
+      ],
+    });
+  });
+
+  test("a repeat group can be added only while two rows are left", () => {
+    const withRows = (count) =>
+      createEditorModel(
+        {
+          name: "x",
+          blocks: Array.from({ length: count }, (_, index) => ({
+            type: "stage",
+            label: `Step ${index + 1}`,
+            kind: "custom",
+            durationSec: 60,
+          })),
+        },
+        options
+      );
+    assert.equal(canAddRepeatGroup(withRows(18)), true);
+    assert.equal(canAddRepeatGroup(withRows(19)), false);
+    assert.equal(canAddRepeatGroup(withRows(20)), false);
   });
 
   test("new keys stay unique after adding", () => {

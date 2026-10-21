@@ -106,6 +106,24 @@
             <label class="radio-option"><input type="radio" name="time_format" value="24h"><span data-ui-text="settings.hours24"></span></label>
             <label class="radio-option"><input type="radio" name="time_format" value="12h"><span data-ui-text="settings.hours12"></span></label>
           </fieldset>
+          <fieldset class="settings-group">
+            <legend data-ui-text="settings.sound"></legend>
+            <label class="switch-option"><input type="checkbox" class="switch" role="switch" id="sound_enabled"><span data-ui-text="settings.playSound"></span></label>
+            <div class="setting-row">
+              <label class="setting-label" for="sound_id" data-ui-text="settings.tone"></label>
+              <select class="input setting-select" id="sound_id"></select>
+              <button type="button" class="button button-secondary setting-test" id="sound_test"></button>
+            </div>
+            <div class="setting-row">
+              <label class="setting-label" for="sound_volume" data-ui-text="settings.volume"></label>
+              <input type="range" class="volume-slider" id="sound_volume" min="0" max="100" step="5">
+              <span class="volume-value" id="sound_volume_value" aria-hidden="true"></span>
+            </div>
+          </fieldset>
+          <fieldset class="settings-group">
+            <legend data-ui-text="settings.timeOnIcon"></legend>
+            <label class="switch-option"><input type="checkbox" class="switch" role="switch" id="show_badge"><span data-ui-text="settings.showTimeOnIcon"></span></label>
+          </fieldset>
           <p class="panel-message" id="settings_message" aria-live="polite"></p>
           <nav class="settings-links" data-ui-label="settings.linksLabel">
             <a href="https://ticktockfocus.com" target="_blank" rel="noopener noreferrer"><span data-ui-text="settings.website"></span><span class="external-mark" aria-hidden="true">↗</span><span class="visually-hidden" data-ui-text="settings.opensInNewTab"></span></a>

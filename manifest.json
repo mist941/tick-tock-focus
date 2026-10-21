@@ -23,5 +23,5 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "permissions": ["storage", "alarms", "notifications"]
+  "permissions": ["storage", "alarms", "notifications", "offscreen"]
 }

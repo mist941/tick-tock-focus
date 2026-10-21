@@ -2,6 +2,7 @@ export const STORAGE_KEYS = Object.freeze({
   SETTINGS: "settings",
   PRESET_PREFIX: "preset_",
   RUN: "run",
+  NOTIFICATION_ACTIONS: "notificationActions",
 });
 
 export function presetKey(presetId) {
