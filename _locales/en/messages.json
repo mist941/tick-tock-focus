@@ -1,0 +1,20 @@
+{
+  "languageCode": {
+    "message": "en"
+  },
+  "formatHours": {
+    "message": "{count} h"
+  },
+  "formatMinutes": {
+    "message": "{count} min"
+  },
+  "formatSeconds": {
+    "message": "{count} s"
+  },
+  "formatBeforeNoon": {
+    "message": "AM"
+  },
+  "formatAfterNoon": {
+    "message": "PM"
+  }
+}
