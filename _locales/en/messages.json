@@ -1,4 +1,13 @@
 {
+  "extensionName": {
+    "message": "TickTockFocus - Multi-Step Timer & Routines"
+  },
+  "extensionDescription": {
+    "message": "Multi-step focus timer: Pomodoro, 52/17 or your own routine. A notification at every step. No site access, no account required."
+  },
+  "actionTitle": {
+    "message": "TickTockFocus"
+  },
   "languageCode": {
     "message": "en"
   },

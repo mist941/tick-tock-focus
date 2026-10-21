@@ -6,6 +6,7 @@ import { readFileSync, readdirSync } from "node:fs";
 const ROOT_URL = new URL("../", import.meta.url);
 const SKIPPED_DIRECTORIES = new Set(["_locales", "node_modules", "tests"]);
 const BRAND_NAME = "TickTockFocus";
+const STORE_LIMITS = { name: 75, description: 132 };
 
 const english = readMessages("en");
 const englishKeys = Object.keys(english);
@@ -106,6 +107,26 @@ describe("locale files", () => {
   test("give the language code of their folder", () => {
     for (const [locale, messages] of messagesByLocale) {
       assert.equal(messages.languageCode.message, locale.replace("_", "-"));
+    }
+  });
+});
+
+describe("manifest", () => {
+  test("takes its name, description and toolbar title from the messages", () => {
+    assert.equal(manifest.name, "__MSG_extensionName__");
+    assert.equal(manifest.description, "__MSG_extensionDescription__");
+    assert.equal(manifest.action.default_title, "__MSG_actionTitle__");
+  });
+
+  test("fits the Chrome Web Store limits in every locale", () => {
+    for (const [locale, messages] of messagesByLocale) {
+      const nameLength = [...messages.extensionName.message].length;
+      const descriptionLength = [...messages.extensionDescription.message].length;
+      assert.ok(nameLength <= STORE_LIMITS.name, `${locale} name: ${nameLength}`);
+      assert.ok(
+        descriptionLength <= STORE_LIMITS.description,
+        `${locale} description: ${descriptionLength}`
+      );
     }
   });
 });

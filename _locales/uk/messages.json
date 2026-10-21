@@ -1,4 +1,13 @@
 {
+  "extensionName": {
+    "message": "TickTockFocus — таймер з етапами і рутини"
+  },
+  "extensionDescription": {
+    "message": "Таймер фокусу з етапами: Pomodoro, 52/17 або ваша рутина. Сповіщення на кожному кроці. Без доступу до сайтів і без акаунта."
+  },
+  "actionTitle": {
+    "message": "TickTockFocus"
+  },
   "languageCode": {
     "message": "uk"
   },
