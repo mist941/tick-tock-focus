@@ -25,10 +25,19 @@ export async function getRoutines() {
     .sort((first, second) => (first.createdAt || 0) - (second.createdAt || 0));
 }
 
-export async function saveRoutine(routine) {
-  const storedRoutine = { ...routine, clocks: toLegacyClocks(expandRoutine(routine)) };
-  await setItems({ [presetKey(routine.id)]: storedRoutine });
+export async function saveRoutines(routines) {
+  if (routines.length === 0) return;
+  await setItems(
+    Object.fromEntries(
+      routines.map((routine) => [
+        presetKey(routine.id),
+        { ...routine, clocks: toLegacyClocks(expandRoutine(routine)) },
+      ])
+    )
+  );
 }
+
+export const saveRoutine = (routine) => saveRoutines([routine]);
 
 export async function deleteRoutine(routineId) {
   const key = presetKey(routineId);

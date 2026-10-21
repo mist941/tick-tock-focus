@@ -293,10 +293,6 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
-.external-mark {
-  margin-left: var(--spacing-xs);
-}
-
 .settings-version {
   margin-top: var(--spacing-xl);
   color: var(--color-text-muted);

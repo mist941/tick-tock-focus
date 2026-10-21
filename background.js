@@ -47,6 +47,7 @@ const LEGACY_SEGMENT_ALARM_PREFIX = "clock_";
 const LEGACY_RUN_KEYS = ["isRunning", "endTime", "totalDuration", "presetName", "clocks"];
 const NOTIFICATION_ICON_URL = "icons/icon512.png";
 const OFFSCREEN_DOCUMENT_PATH = "offscreen/offscreen.html";
+const WELCOME_PAGE_ON_INSTALL_PATH = "welcome/welcome.html?reason=install";
 const UNINSTALL_FEEDBACK_URL = "https://ticktockfocus.com/uninstall.html";
 
 let lifecycleQueue = Promise.resolve();
@@ -391,9 +392,19 @@ async function migrateStoredPresets() {
   }
 }
 
+async function openWelcomePage() {
+  try {
+    await chrome.tabs.create({ url: chrome.runtime.getURL(WELCOME_PAGE_ON_INSTALL_PATH) });
+  } catch (error) {
+    console.error("Couldn't open the welcome page:", error);
+  }
+}
+
 chrome.runtime.onInstalled.addListener(({ reason }) => {
   queueReconcileRunState();
-  if (reason === "update") {
+  if (reason === "install") {
+    openWelcomePage();
+  } else if (reason === "update") {
     migrateStoredPresets().catch((error) =>
       console.error("Migrating presets to routines failed:", error)
     );

@@ -86,6 +86,10 @@
   --kind-color: var(--color-kind-custom);
 }
 
+.external-mark {
+  margin-left: var(--spacing-xs);
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
