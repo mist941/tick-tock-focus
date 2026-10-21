@@ -1,4 +1,4 @@
-import "./support/messages.js";
+import { withLocale } from "./support/messages.js";
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -168,5 +168,13 @@ describe("getBadgeTitle", () => {
 
   test("is the extension name without a run", () => {
     assert.equal(getBadgeTitle(null, now), "TickTockFocus");
+  });
+
+  test("speaks the language of the messages", () => {
+    withLocale("uk", () => {
+      assert.equal(getBadgeTitle(runningRun(25 * minute), now), "Pomodoro · Focus 1 з 3 · залишилось 25 хв");
+      assert.equal(getBadgeTitle(pausedRun(), now), "Pomodoro · Пауза · Focus 1 з 3");
+      assert.equal(getBadgeText(runningRun(3 * hour), now), "3г");
+    });
   });
 });

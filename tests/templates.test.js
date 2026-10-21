@@ -1,4 +1,4 @@
-import { useLocale } from "./support/messages.js";
+import { useLocale, withLocale } from "./support/messages.js";
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { formatDuration, setMessageLookup, translate } from "../shared/i18n.js";
@@ -121,6 +121,16 @@ describe("createRoutineFromTemplate", () => {
     } finally {
       useLocale("en");
     }
+  });
+
+  test("creates Ukrainian routines in Ukrainian", () => {
+    const deepWork = withLocale("uk", () => createRoutineFromTemplate("deep-work", now));
+    assert.equal(deepWork.name, "Глибока робота");
+    assert.deepEqual(describeStages(expandRoutine(deepWork)), ["Фокус focus 90", "Перерва break 20"]);
+    const pomodoro = withLocale("uk", () => createRoutineFromTemplate("pomodoro", now));
+    assert.equal(pomodoro.name, "Pomodoro");
+    assert.equal(pomodoro.blocks.at(-1).label, "Довга перерва");
+    assert.deepEqual(validateRoutine(pomodoro), []);
   });
 
   test("gives every routine a new id", () => {

@@ -1,4 +1,4 @@
-import { useLocale } from "./support/messages.js";
+import { useLocale, withLocale } from "./support/messages.js";
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -47,6 +47,7 @@ describe("translate", () => {
 describe("getLanguageCode", () => {
   test("is the language of the messages in use", () => {
     assert.equal(getLanguageCode(), "en");
+    assert.equal(withLocale("uk", getLanguageCode), "uk");
   });
 });
 
@@ -59,6 +60,11 @@ describe("formatDuration", () => {
     assert.equal(formatDuration(3725), "1 h 2 min 5 s");
     assert.equal(formatDuration(0), "0 s");
   });
+
+  test("uses the units of the language", () => {
+    assert.equal(withLocale("uk", () => formatDuration(7800)), "2 год 10 хв");
+    assert.equal(withLocale("uk", () => formatDuration(3725)), "1 год 2 хв 5 с");
+  });
 });
 
 describe("formatTime", () => {
@@ -70,5 +76,11 @@ describe("formatTime", () => {
     assert.equal(formatTime(morning, "12h"), "09:30 AM");
     assert.equal(formatTime(new Date(2026, 9, 15, 0, 1).getTime(), "12h"), "12:01 AM");
     assert.equal(formatTime(new Date(2026, 9, 15, 12, 0).getTime(), "12h"), "12:00 PM");
+  });
+
+  test("marks the half of the day in the language", () => {
+    assert.equal(withLocale("uk", () => formatTime(afternoon, "12h")), "02:05 пп");
+    assert.equal(withLocale("uk", () => formatTime(morning, "12h")), "09:30 дп");
+    assert.equal(withLocale("uk", () => formatTime(afternoon, "24h")), "14:05");
   });
 });

@@ -1,4 +1,4 @@
-import "./support/messages.js";
+import { withLocale } from "./support/messages.js";
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -186,6 +186,21 @@ describe("buildNotification", () => {
         { previousRun, nextRun, now: afternoon, timeFormat: "24h" }
       ).buttons[0].title,
       "Start Deep work"
+    );
+  });
+
+  test("speaks the language of the messages", () => {
+    const notification = withLocale("uk", () =>
+      buildNotification(
+        { type: "stageDone", stageIndex: 0 },
+        { previousRun: run(), nextRun: waitingRun(), now: afternoon, timeFormat: "24h" }
+      )
+    );
+    assert.equal(notification.title, "Етап «Focus» завершено · 1 з 3");
+    assert.equal(notification.message, "Далі: Break · 5 хв");
+    assert.deepEqual(
+      notification.buttons.map((button) => button.title),
+      ["Почати «Break»", "Зупинити"]
     );
   });
 });

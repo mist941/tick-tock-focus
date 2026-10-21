@@ -12,22 +12,22 @@
     "message": "uk"
   },
   "formatHours": {
-    "message": "{count} h"
+    "message": "{count} год"
   },
   "formatMinutes": {
-    "message": "{count} min"
+    "message": "{count} хв"
   },
   "formatSeconds": {
-    "message": "{count} s"
+    "message": "{count} с"
   },
   "formatBeforeNoon": {
-    "message": "AM"
+    "message": "дп"
   },
   "formatAfterNoon": {
-    "message": "PM"
+    "message": "пп"
   },
   "stageStepLabel": {
-    "message": "Step {position}"
+    "message": "Етап {position}"
   },
   "templateNamePomodoro": {
     "message": "Pomodoro"
@@ -36,582 +36,582 @@
     "message": "52/17"
   },
   "templateNameDeepWork": {
-    "message": "Deep work"
+    "message": "Глибока робота"
   },
   "templateNameStudy": {
-    "message": "Study"
+    "message": "Навчання"
   },
   "templateNameDeskBreak": {
-    "message": "Desk break"
+    "message": "Розминка за столом"
   },
   "templateStageFocus": {
-    "message": "Focus"
+    "message": "Фокус"
   },
   "templateStageBreak": {
-    "message": "Break"
+    "message": "Перерва"
   },
   "templateStageLongBreak": {
-    "message": "Long break"
+    "message": "Довга перерва"
   },
   "templateStageStudy": {
-    "message": "Study"
+    "message": "Навчання"
   },
   "templateStageWork": {
-    "message": "Work"
+    "message": "Робота"
   },
   "templateStageStretch": {
-    "message": "Stretch"
+    "message": "Розминка"
   },
   "notificationStageDoneTitle": {
-    "message": "{label} done · {n} of {total}"
+    "message": "Етап «{label}» завершено · {n} з {total}"
   },
   "notificationStageDoneAutoMessage": {
-    "message": "Next: {nextLabel} · {duration}, ends at {time}"
+    "message": "Далі: {nextLabel} · {duration}, завершиться о {time}"
   },
   "notificationStageDoneWaitMessage": {
-    "message": "Next: {nextLabel} · {duration}"
+    "message": "Далі: {nextLabel} · {duration}"
   },
   "notificationLateStageDoneTitle": {
-    "message": "{label} done at {time}"
+    "message": "Етап «{label}» завершився о {time}"
   },
   "notificationRoutineCompleteTitle": {
-    "message": "{routineName} complete"
+    "message": "Рутину «{routineName}» завершено"
   },
   "notificationFocusTotalMessage": {
-    "message": "{focusTotal} of focus"
+    "message": "Час фокусу: {focusTotal}"
   },
   "notificationTotalDurationMessage": {
-    "message": "{totalDuration} in total"
+    "message": "Загалом: {totalDuration}"
   },
   "notificationLateFinishTitle": {
-    "message": "{routineName} finished at {time}"
+    "message": "Рутина «{routineName}» завершилася о {time}"
   },
   "notificationCaughtUpTitle": {
-    "message": "Now: {label} · {n} of {total}"
+    "message": "Зараз: {label} · {n} з {total}"
   },
   "notificationCaughtUpMessage": {
-    "message": "{remaining} left"
+    "message": "Залишилось {remaining}"
   },
   "notificationPauseButton": {
-    "message": "Pause"
+    "message": "Пауза"
   },
   "notificationSkipButton": {
-    "message": "Skip"
+    "message": "Пропустити"
   },
   "notificationStartStageButton": {
-    "message": "Start {label}"
+    "message": "Почати «{label}»"
   },
   "notificationStopButton": {
-    "message": "Stop"
+    "message": "Зупинити"
   },
   "notificationStartAgainButton": {
-    "message": "Start again"
+    "message": "Почати знову"
   },
   "badgeHours": {
-    "message": "{count}h"
+    "message": "{count}г"
   },
   "badgeRunningTitle": {
-    "message": "{routineName} · {label} {n} of {total} · {timeLeft}"
+    "message": "{routineName} · {label} {n} з {total} · {timeLeft}"
   },
   "badgePausedTitle": {
-    "message": "{routineName} · Paused · {label} {n} of {total}"
+    "message": "{routineName} · Пауза · {label} {n} з {total}"
   },
   "badgeWaitingTitle": {
-    "message": "{routineName} · Waiting for you · Next: {label} {n} of {total}"
+    "message": "{routineName} · Чекає на вас · Далі: {label} {n} з {total}"
   },
   "badgeMinutesLeft": {
-    "message": "{count} min left"
+    "message": "залишилось {count} хв"
   },
   "badgeHoursLeft": {
-    "message": "{count} h left"
+    "message": "залишилось {count} год"
   },
   "popupNavigationSections": {
-    "message": "Sections"
+    "message": "Розділи"
   },
   "popupNavigationTimerTab": {
-    "message": "Timer"
+    "message": "Таймер"
   },
   "popupNavigationRoutinesTab": {
-    "message": "Routines"
+    "message": "Рутини"
   },
   "popupNavigationSettings": {
-    "message": "Settings"
+    "message": "Налаштування"
   },
   "popupNavigationBack": {
-    "message": "Back"
+    "message": "Назад"
   },
   "popupTimerNewRoutine": {
-    "message": "New routine"
+    "message": "Нова рутина"
   },
   "popupTimerNoRoutines": {
-    "message": "No routines yet"
+    "message": "Рутин ще немає"
   },
   "popupTimerTemplatesIntro": {
-    "message": "Start with one of these:"
+    "message": "Почніть з однієї з готових:"
   },
   "popupTimerAdd": {
-    "message": "Add"
+    "message": "Додати"
   },
   "popupTimerAddTemplate": {
-    "message": "Add {name}"
+    "message": "Додати «{name}»"
   },
   "popupTimerBuildYourOwn": {
-    "message": "or build your own"
+    "message": "або створіть власну"
   },
   "popupTimerStartRoutine": {
-    "message": "Start {name}, {duration}"
+    "message": "Почати «{name}», {duration}"
   },
   "popupTimerNoDuration": {
-    "message": "This routine has no duration."
+    "message": "Ця рутина не має тривалості."
   },
   "popupTimerShortStages": {
-    "message": "Some steps are shorter than {seconds} seconds, so their notifications may arrive late."
+    "message": "Деякі етапи коротші за {seconds} с, тому сповіщення про них можуть надходити із запізненням."
   },
   "popupTimerLoadFailed": {
-    "message": "Couldn't load your routines. Reopen the popup to try again."
+    "message": "Не вдалося завантажити рутини. Відкрийте вікно розширення ще раз, щоб спробувати знову."
   },
   "popupTimerStagePosition": {
-    "message": "{label} · {n} of {total}"
+    "message": "{label} · {n} з {total}"
   },
   "popupTimerPausedPosition": {
-    "message": "Paused · {label} {n} of {total}"
+    "message": "Пауза · {label} {n} з {total}"
   },
   "popupTimerStageDone": {
-    "message": "{label} done"
+    "message": "Етап «{label}» завершено"
   },
   "popupTimerNext": {
-    "message": "Next: {label} · {duration}"
+    "message": "Далі: {label} · {duration}"
   },
   "popupTimerLastStage": {
-    "message": "Last step"
+    "message": "Останній етап"
   },
   "popupTimerEndsAt": {
-    "message": "Ends at {time}"
+    "message": "Завершиться о {time}"
   },
   "popupTimerPause": {
-    "message": "Pause"
+    "message": "Пауза"
   },
   "popupTimerResume": {
-    "message": "Resume"
+    "message": "Продовжити"
   },
   "popupTimerStartStage": {
-    "message": "Start {label}"
+    "message": "Почати «{label}»"
   },
   "popupTimerSkip": {
-    "message": "Skip"
+    "message": "Пропустити"
   },
   "popupTimerExtend": {
-    "message": "+{minutes} min"
+    "message": "+{minutes} хв"
   },
   "popupTimerStop": {
-    "message": "Stop"
+    "message": "Зупинити"
   },
   "popupTimerUnreachable": {
-    "message": "Couldn't reach the timer. Close and reopen this popup, then try again."
+    "message": "Не вдалося зв’язатися з таймером. Закрийте й знову відкрийте це вікно, а тоді спробуйте ще раз."
   },
   "popupWhatsNewMessage": {
-    "message": "New in 1.2: named steps, repeats, pause and skip, sound and time on the icon."
+    "message": "Нове у версії 1.2: назви етапів, повтори, пауза й пропуск, звук і час на іконці."
   },
   "popupWhatsNewSeeHowItWorks": {
-    "message": "See how it works"
+    "message": "Подивитися, як це працює"
   },
   "popupWhatsNewClose": {
-    "message": "Close"
+    "message": "Закрити"
   },
   "popupRatingQuestion": {
-    "message": "Enjoying TickTockFocus? A rating helps others find it."
+    "message": "Подобається TickTockFocus? Ваша оцінка допоможе іншим його знайти."
   },
   "popupRatingRate": {
-    "message": "Rate"
+    "message": "Оцінити"
   },
   "popupRatingLater": {
-    "message": "Later"
+    "message": "Пізніше"
   },
   "popupRatingNever": {
-    "message": "Don't ask again"
+    "message": "Більше не питати"
   },
   "popupRoutinesEmpty": {
-    "message": "No routines yet"
+    "message": "Рутин ще немає"
   },
   "popupRoutinesNewRoutine": {
-    "message": "New routine"
+    "message": "Нова рутина"
   },
   "popupRoutinesSummary": {
-    "message": "{count} steps · {duration}"
+    "message": "Етапів: {count} · {duration}"
   },
   "popupRoutinesSummaryOneStep": {
-    "message": "1 step · {duration}"
+    "message": "1 етап · {duration}"
   },
   "popupRoutinesStart": {
-    "message": "Start {name}"
+    "message": "Почати «{name}»"
   },
   "popupRoutinesRunning": {
-    "message": "Running"
+    "message": "Триває"
   },
   "popupRoutinesMoreActions": {
-    "message": "More actions for {name}"
+    "message": "Дії з рутиною «{name}»"
   },
   "popupRoutinesEdit": {
-    "message": "Edit"
+    "message": "Редагувати"
   },
   "popupRoutinesDuplicate": {
-    "message": "Duplicate"
+    "message": "Дублювати"
   },
   "popupRoutinesDelete": {
-    "message": "Delete"
+    "message": "Видалити"
   },
   "popupRoutinesCopyName": {
-    "message": "Copy of {name}"
+    "message": "Копія «{name}»"
   },
   "popupRoutinesDuplicated": {
-    "message": "{name} added"
+    "message": "Додано: {name}"
   },
   "popupRoutinesDeleted": {
-    "message": "Routine deleted"
+    "message": "Рутину видалено"
   },
   "popupRoutinesUndo": {
-    "message": "Undo"
+    "message": "Відновити"
   },
   "popupRoutinesConfirmReplace": {
-    "message": "Stop {running} and start {name}?"
+    "message": "Зупинити «{running}» і почати «{name}»?"
   },
   "popupRoutinesConfirmStart": {
-    "message": "Start"
+    "message": "Почати"
   },
   "popupRoutinesConfirmCancel": {
-    "message": "Cancel"
+    "message": "Скасувати"
   },
   "popupRoutinesSaveFailed": {
-    "message": "Couldn't save the routine. Try again."
+    "message": "Не вдалося зберегти рутину. Спробуйте ще раз."
   },
   "popupRoutinesDeleteFailed": {
-    "message": "Couldn't delete the routine. Try again."
+    "message": "Не вдалося видалити рутину. Спробуйте ще раз."
   },
   "popupRoutinesMigrationFailed": {
-    "message": "Couldn't move your presets from the previous version. They're still on this device; reopen the popup to try again."
+    "message": "Не вдалося перенести ваші рутини з попередньої версії. Вони досі на цьому пристрої; відкрийте вікно ще раз, щоб спробувати знову."
   },
   "popupEditorNewHeading": {
-    "message": "New routine"
+    "message": "Нова рутина"
   },
   "popupEditorEditHeading": {
-    "message": "Edit routine"
+    "message": "Редагування рутини"
   },
   "popupEditorName": {
-    "message": "Name"
+    "message": "Назва"
   },
   "popupEditorStepsLabel": {
-    "message": "Steps"
+    "message": "Етапи"
   },
   "popupEditorRunningNote": {
-    "message": "Changes apply the next time you start it."
+    "message": "Зміни подіють, коли ви запустите її наступного разу."
   },
   "popupEditorRowLimit": {
-    "message": "This routine has {count} steps; up to {limit} are allowed. Remove steps or group them into a repeat to save."
+    "message": "Етапів у цій рутині: {count}, а можна щонайбільше {limit}. Щоб зберегти, видаліть етапи або об’єднайте їх у повтор."
   },
   "popupEditorKindFocus": {
-    "message": "Focus"
+    "message": "Фокус"
   },
   "popupEditorKindBreak": {
-    "message": "Break"
+    "message": "Перерва"
   },
   "popupEditorKindCustom": {
-    "message": "Custom"
+    "message": "Інше"
   },
   "popupEditorKindOf": {
-    "message": "Kind of step {position}"
+    "message": "Тип етапу {position}"
   },
   "popupEditorLabelOf": {
-    "message": "Name of step {position}"
+    "message": "Назва етапу {position}"
   },
   "popupEditorMinutesOf": {
-    "message": "Minutes of step {position}"
+    "message": "Хвилини етапу {position}"
   },
   "popupEditorSecondsOf": {
-    "message": "Seconds of step {position}"
+    "message": "Секунди етапу {position}"
   },
   "popupEditorMinutesUnit": {
-    "message": "min"
+    "message": "хв"
   },
   "popupEditorSecondsUnit": {
-    "message": "s"
+    "message": "с"
   },
   "popupEditorMoveStageUp": {
-    "message": "Move step {position} up"
+    "message": "Перемістити етап {position} вгору"
   },
   "popupEditorMoveStageDown": {
-    "message": "Move step {position} down"
+    "message": "Перемістити етап {position} вниз"
   },
   "popupEditorRemoveStage": {
-    "message": "Remove step {position}"
+    "message": "Видалити етап {position}"
   },
   "popupEditorRepeat": {
-    "message": "Repeat"
+    "message": "Повторити"
   },
   "popupEditorGroupName": {
-    "message": "repeat group {position}"
+    "message": "повтор {position}"
   },
   "popupEditorRepeatCountOf": {
-    "message": "Repeat count of repeat group {position}"
+    "message": "Кількість разів для повтору {position}"
   },
   "popupEditorTimesOption": {
     "message": "×{times}"
   },
   "popupEditorMoveGroupUp": {
-    "message": "Move repeat group {position} up"
+    "message": "Перемістити повтор {position} вгору"
   },
   "popupEditorMoveGroupDown": {
-    "message": "Move repeat group {position} down"
+    "message": "Перемістити повтор {position} вниз"
   },
   "popupEditorRemoveGroup": {
-    "message": "Remove repeat group {position} and its steps"
+    "message": "Видалити повтор {position} разом з етапами"
   },
   "popupEditorAddStage": {
-    "message": "Add step"
+    "message": "Додати етап"
   },
   "popupEditorAddGroup": {
-    "message": "Add repeat group"
+    "message": "Додати повтор"
   },
   "popupEditorAddStageToGroup": {
-    "message": "Add step to group"
+    "message": "Додати етап у повтор"
   },
   "popupEditorTotal": {
-    "message": "Total {duration} · {count} steps"
+    "message": "Разом {duration} · етапів: {count}"
   },
   "popupEditorTotalOneStep": {
-    "message": "Total {duration} · 1 step"
+    "message": "Разом {duration} · 1 етап"
   },
   "popupEditorStageMoved": {
-    "message": "{label} moved to position {position} of {count}."
+    "message": "Етап «{label}» переміщено на позицію {position} з {count}."
   },
   "popupEditorStageMovedInGroup": {
-    "message": "{label} moved to position {position} of {count}, in repeat group {groupPosition}."
+    "message": "Етап «{label}» переміщено на позицію {position} з {count}, у повтор {groupPosition}."
   },
   "popupEditorGroupMoved": {
-    "message": "Moved. This is now repeat group {position}."
+    "message": "Переміщено. Тепер це повтор {position}."
   },
   "popupEditorCancel": {
-    "message": "Cancel"
+    "message": "Скасувати"
   },
   "popupEditorSave": {
-    "message": "Save"
+    "message": "Зберегти"
   },
   "popupEditorDiscardQuestion": {
-    "message": "Discard your changes?"
+    "message": "Відкинути зміни?"
   },
   "popupEditorDiscard": {
-    "message": "Discard"
+    "message": "Відкинути"
   },
   "popupEditorKeepEditing": {
-    "message": "Keep editing"
+    "message": "Редагувати далі"
   },
   "popupEditorSaveFailed": {
-    "message": "Couldn't save the routine. Try again."
+    "message": "Не вдалося зберегти рутину. Спробуйте ще раз."
   },
   "popupEditorErrorInvalid": {
-    "message": "This step can't be saved. Check its values."
+    "message": "Цей етап не вдається зберегти. Перевірте його значення."
   },
   "popupEditorErrorNameMissing": {
-    "message": "Enter a name."
+    "message": "Введіть назву."
   },
   "popupEditorErrorNameTooLong": {
-    "message": "Use at most {limit} characters."
+    "message": "Максимум символів: {limit}."
   },
   "popupEditorErrorLabelMissing": {
-    "message": "Enter a name for this step."
+    "message": "Введіть назву етапу."
   },
   "popupEditorErrorLabelTooLong": {
-    "message": "Use at most {limit} characters."
+    "message": "Максимум символів: {limit}."
   },
   "popupEditorErrorKindInvalid": {
-    "message": "Choose a kind."
+    "message": "Виберіть тип."
   },
   "popupEditorErrorDurationInvalid": {
-    "message": "Enter minutes and seconds."
+    "message": "Введіть хвилини й секунди."
   },
   "popupEditorErrorDurationTooShort": {
-    "message": "Make this step at least {limit} seconds long."
+    "message": "Етап має тривати щонайменше {limit} с."
   },
   "popupEditorErrorDurationTooLong": {
-    "message": "Make this step shorter than 24 hours."
+    "message": "Етап має тривати менше ніж 24 год."
   },
   "popupEditorErrorRepeatTimesOutOfRange": {
-    "message": "Choose how many times to repeat."
+    "message": "Виберіть, скільки разів повторити."
   },
   "popupEditorErrorRepeatEmpty": {
-    "message": "Add a step to this group or remove the group."
+    "message": "Додайте етап у цей повтор або видаліть повтор."
   },
   "popupEditorErrorNestedRepeat": {
-    "message": "A repeat group can't contain another group."
+    "message": "Повтор не може містити інший повтор."
   },
   "popupEditorErrorNoStages": {
-    "message": "Add at least one step."
+    "message": "Додайте хоча б один етап."
   },
   "popupEditorErrorTooManyRows": {
-    "message": "A routine can have at most {limit} steps."
+    "message": "Максимум етапів у рутині: {limit}."
   },
   "popupEditorErrorTooManyStages": {
-    "message": "With repeats this routine has {count} steps; up to {limit} are allowed."
+    "message": "З повторами етапів у цій рутині: {count}, а можна щонайбільше {limit}."
   },
   "popupSettingsHeading": {
-    "message": "Settings"
+    "message": "Налаштування"
   },
   "popupSettingsNextStep": {
-    "message": "Next step"
+    "message": "Наступний етап"
   },
   "popupSettingsStartAutomatically": {
-    "message": "Start automatically"
+    "message": "Запускати автоматично"
   },
   "popupSettingsWaitForMe": {
-    "message": "Wait for me"
+    "message": "Чекати на мене"
   },
   "popupSettingsTimeFormat": {
-    "message": "Time format"
+    "message": "Формат часу"
   },
   "popupSettingsHours24": {
-    "message": "24-hour"
+    "message": "24-годинний"
   },
   "popupSettingsHours12": {
-    "message": "12-hour"
+    "message": "12-годинний"
   },
   "popupSettingsSound": {
-    "message": "Sound"
+    "message": "Звук"
   },
   "popupSettingsPlaySound": {
-    "message": "Play a sound when a step ends"
+    "message": "Відтворювати звук наприкінці етапу"
   },
   "popupSettingsTone": {
-    "message": "Tone"
+    "message": "Сигнал"
   },
   "popupSettingsSoundChime": {
-    "message": "Chime"
+    "message": "Передзвін"
   },
   "popupSettingsSoundBell": {
-    "message": "Bell"
+    "message": "Дзвіночок"
   },
   "popupSettingsSoundSoft": {
-    "message": "Soft"
+    "message": "М’який"
   },
   "popupSettingsVolume": {
-    "message": "Volume"
+    "message": "Гучність"
   },
   "popupSettingsVolumePercent": {
     "message": "{volume}%"
   },
   "popupSettingsTestSound": {
-    "message": "Test"
+    "message": "Прослухати"
   },
   "popupSettingsTimeOnIcon": {
-    "message": "Time on icon"
+    "message": "Час на іконці"
   },
   "popupSettingsShowTimeOnIcon": {
-    "message": "Show the time left on the toolbar icon"
+    "message": "Показувати на іконці, скільки часу залишилось"
   },
   "popupSettingsSaveFailed": {
-    "message": "Couldn't save the setting. Try again."
+    "message": "Не вдалося зберегти налаштування. Спробуйте ще раз."
   },
   "popupSettingsVersion": {
-    "message": "Version {version}"
+    "message": "Версія {version}"
   },
   "linkListLabel": {
-    "message": "TickTockFocus links"
+    "message": "Посилання TickTockFocus"
   },
   "linkHowItWorks": {
-    "message": "How it works"
+    "message": "Як це працює"
   },
   "linkWebsite": {
-    "message": "Website"
+    "message": "Сайт"
   },
   "linkSendFeedback": {
-    "message": "Send feedback"
+    "message": "Надіслати відгук"
   },
   "linkRateOnStore": {
-    "message": "Rate on Chrome Web Store"
+    "message": "Оцінити в Chrome Web Store"
   },
   "linkReportBug": {
-    "message": "Report a bug"
+    "message": "Повідомити про помилку"
   },
   "linkPrivacyPolicy": {
-    "message": "Privacy policy"
+    "message": "Політика конфіденційності"
   },
   "linkOpensInNewTab": {
-    "message": "(opens in a new tab)"
+    "message": "(відкриється в новій вкладці)"
   },
   "welcomePageTitle": {
-    "message": "Welcome to TickTockFocus"
+    "message": "Вітаємо в TickTockFocus"
   },
   "welcomeTitle": {
     "message": "TickTockFocus"
   },
   "welcomeTagline": {
-    "message": "Time any routine, step by step."
+    "message": "Будь-яка рутина, етап за етапом."
   },
   "welcomePickTitle": {
-    "message": "Pick routines to start with"
+    "message": "Виберіть рутини для початку"
   },
   "welcomeAdded": {
-    "message": "Added"
+    "message": "Додано"
   },
   "welcomeAddSelected": {
-    "message": "Add selected"
+    "message": "Додати вибрані"
   },
   "welcomeAddedToRoutines": {
-    "message": "Added to your routines"
+    "message": "Додано до ваших рутин"
   },
   "welcomeAddFailed": {
-    "message": "Couldn't add the routines. Try again."
+    "message": "Не вдалося додати рутини. Спробуйте ще раз."
   },
   "welcomePinTitle": {
-    "message": "Pin the extension"
+    "message": "Закріпіть розширення"
   },
   "welcomePinText": {
-    "message": "Click the puzzle icon in the toolbar, then the pin next to TickTockFocus."
+    "message": "Натисніть іконку пазла на панелі інструментів, а потім шпильку поруч із TickTockFocus."
   },
   "welcomeStartTitle": {
-    "message": "Start a routine"
+    "message": "Запустіть рутину"
   },
   "welcomeStartText": {
-    "message": "Click the icon and press {startButton} on a routine."
+    "message": "Натисніть іконку розширення, а потім {startButton} на картці рутини."
   },
   "welcomeStartButton": {
-    "message": "Start"
+    "message": "Почати"
   },
   "welcomeHowItWorksTitle": {
-    "message": "How it works"
+    "message": "Як це працює"
   },
   "welcomeStepsTitle": {
-    "message": "Steps, types and repeat groups"
+    "message": "Етапи, типи й повтори"
   },
   "welcomeStepsText": {
-    "message": "A routine is a list of steps that run one after another. Each step is Focus, Break or Custom, which gives it its colour, and a repeat group runs its steps {minTimes} to {maxTimes} times."
+    "message": "Рутина — це список етапів, які йдуть один за одним. Кожен етап — «Фокус», «Перерва» або «Інше», і від цього залежить його колір, а етапи в повторі йдуть від {minTimes} до {maxTimes} разів поспіль."
   },
   "welcomeControlsTitle": {
-    "message": "Pause, Skip, +5 min"
+    "message": "Пауза, Пропустити, +5 хв"
   },
   "welcomeControlsText": {
-    "message": "Pause a step and pick it up later, skip to the next one, or give the current one 5 more minutes."
+    "message": "Поставте етап на паузу й продовжте пізніше, перейдіть до наступного або додайте поточному ще 5 хв."
   },
   "welcomeNextStepTitle": {
-    "message": "Start automatically or wait for you"
+    "message": "Запускати автоматично чи чекати на вас"
   },
   "welcomeNextStepText": {
-    "message": "When a step ends, the next one starts on its own or waits until you press Start. Choose in Settings."
+    "message": "Коли етап завершується, наступний запускається сам або чекає, доки ви не натиснете «Почати». Це можна вибрати в налаштуваннях."
   },
   "welcomeAlertsTitle": {
-    "message": "Notifications, sound and the time on the icon"
+    "message": "Сповіщення, звук і час на іконці"
   },
   "welcomeAlertsText": {
-    "message": "Every step ends with a notification and a short sound, and the notification's buttons pause, skip or start the next step. The toolbar icon shows the minutes left. Settings turns the sound or the time on the icon off."
+    "message": "Кожен етап завершується сповіщенням і коротким звуком, а кнопки сповіщення ставлять етап на паузу, пропускають його або запускають наступний. Іконка на панелі інструментів показує, скільки хвилин залишилось. У налаштуваннях можна вимкнути звук або час на іконці."
   },
   "welcomeMinimumTitle": {
-    "message": "Steps are at least {seconds} seconds"
+    "message": "Етап триває щонайменше {seconds} с"
   },
   "welcomeMinimumText": {
-    "message": "Chrome won't ring an extension's alarm sooner than {seconds} seconds after it's set, so a shorter step would end late."
+    "message": "Chrome запускає будильник розширення не раніше ніж через {seconds} с після встановлення, тож коротший етап завершився б із запізненням."
   },
   "welcomePrivacyTitle": {
-    "message": "Privacy"
+    "message": "Конфіденційність"
   },
   "welcomePrivacyText": {
-    "message": "No site access, no account, no tracking. Routines and settings sync with Chrome Sync when it's on; the running timer stays on this computer."
+    "message": "Без доступу до сайтів, без акаунта, без стеження. Рутини й налаштування синхронізуються, якщо в Chrome увімкнено синхронізацію; запущений таймер залишається на цьому комп’ютері."
   }
 }
