@@ -44,11 +44,22 @@ export async function deleteRoutine(routineId) {
   await Promise.all([chrome.storage.sync.remove(key), chrome.storage.local.remove(key)]);
 }
 
-export const NOTICE_KEYS = Object.freeze([STORAGE_KEYS.WHATS_NEW_PENDING]);
+export const NOTICE_KEYS = Object.freeze([
+  STORAGE_KEYS.WHATS_NEW_PENDING,
+  STORAGE_KEYS.COMPLETED_ROUTINES,
+  STORAGE_KEYS.RATING_PROMPT,
+]);
 
 export async function getNotices() {
   const items = await chrome.storage.local.get([...NOTICE_KEYS]);
-  return { whatsNewPending: items[STORAGE_KEYS.WHATS_NEW_PENDING] ?? null };
+  return {
+    whatsNewPending: items[STORAGE_KEYS.WHATS_NEW_PENDING] ?? null,
+    completedRoutines: items[STORAGE_KEYS.COMPLETED_ROUTINES] ?? 0,
+    ratingPrompt: items[STORAGE_KEYS.RATING_PROMPT] ?? null,
+  };
 }
 
 export const dismissWhatsNew = () => chrome.storage.local.remove(STORAGE_KEYS.WHATS_NEW_PENDING);
+
+export const saveRatingPrompt = (ratingPrompt) =>
+  chrome.storage.local.set({ [STORAGE_KEYS.RATING_PROMPT]: ratingPrompt });

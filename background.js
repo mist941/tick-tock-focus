@@ -40,6 +40,7 @@ import {
 } from "./background/notifications.js";
 import { getSoundSettings } from "./shared/sounds.js";
 import { WHATS_NEW_VERSION, isOlderThanWhatsNew } from "./shared/whats-new.js";
+import { addCompletedRoutine, countsAsCompletedRoutine } from "./shared/rating-prompt.js";
 
 const STAGE_END_ALARM = "stage_end";
 const BADGE_TICK_ALARM = "badge_tick";
@@ -219,6 +220,19 @@ async function loadRun(now) {
   return run;
 }
 
+async function countCompletedRoutine() {
+  try {
+    const { [STORAGE_KEYS.COMPLETED_ROUTINES]: completedRoutines } = await chrome.storage.local.get(
+      STORAGE_KEYS.COMPLETED_ROUTINES
+    );
+    await chrome.storage.local.set({
+      [STORAGE_KEYS.COMPLETED_ROUTINES]: addCompletedRoutine(completedRoutines),
+    });
+  } catch (error) {
+    console.error("Couldn't count the completed routine:", error);
+  }
+}
+
 async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
   const now = Date.now();
   const run = await loadRun(now);
@@ -236,6 +250,7 @@ async function catchUpRun({ dueAt, announceLateFinish = true } = {}) {
   }
 
   await saveRun(plan.run);
+  if (countsAsCompletedRoutine(plan.notification)) await countCompletedRoutine();
   if (plan.notification && (announceLateFinish || plan.notification.type !== "lateFinish")) {
     await showNotification(
       buildNotification(plan.notification, {

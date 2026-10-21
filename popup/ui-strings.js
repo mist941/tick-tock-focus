@@ -162,6 +162,12 @@ export const UI_STRINGS = Object.freeze({
     seeHowItWorks: "See how it works",
     close: "Close",
   },
+  rating: {
+    question: "Enjoying TickTockFocus? A rating helps others find it.",
+    rate: "Rate",
+    later: "Later",
+    never: "Don't ask again",
+  },
   templates: {
     names: {
       pomodoro: "Pomodoro",

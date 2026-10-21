@@ -8,6 +8,7 @@ import {
   watchPopupStorage,
 } from "./popup-state.js";
 import * as PopupStorage from "./popup-storage.js";
+import { initializeRatingPromptView } from "./rating-prompt-view.js";
 import { initializeRoutineEditor, openRoutineEditor } from "./routine-editor.js";
 import { initializeRoutinesView, showRoutinesMessage } from "./routines-view.js";
 import { initializeSettingsView } from "./settings-view.js";
@@ -42,6 +43,7 @@ async function initializePopup() {
     initializeTimerView({ openRoutineEditor });
     initializeRoutinesView({ openRoutineEditor });
     initializeWhatsNewView();
+    initializeRatingPromptView();
   } catch (error) {
     console.error("Error initializing the popup:", error);
   }

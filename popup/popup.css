@@ -309,6 +309,7 @@ input[type="number"]::-webkit-inner-spin-button {
   font: inherit;
   font-weight: 600;
   color: var(--color-text);
+  text-decoration: none;
   background-color: var(--color-surface-muted);
   border: none;
   border-radius: var(--border-radius-sm);
@@ -676,10 +677,10 @@ input[type="number"]::-webkit-inner-spin-button {
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
   font-size: var(--font-size-sm);
   text-align: left;
+  text-wrap: pretty;
   background-color: var(--color-brand-tint);
   border-radius: var(--border-radius-md);
 
@@ -692,6 +693,7 @@ input[type="number"]::-webkit-inner-spin-button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
+  margin-bottom: var(--spacing-md);
   padding-right: var(--spacing-xs);
 
   &:has(.whats-new-text:empty) {
@@ -720,6 +722,18 @@ input[type="number"]::-webkit-inner-spin-button {
 
   &[hidden] {
     display: none;
+  }
+}
+
+.notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  width: 100%;
+
+  & .button {
+    flex: 1 1 auto;
+    width: auto;
   }
 }
 

@@ -8,7 +8,7 @@ const state = {
   routinesLoadFailed: false,
   settings: {},
   storedRun: null,
-  notices: { whatsNewPending: null },
+  notices: { whatsNewPending: null, completedRoutines: 0, ratingPrompt: null },
 };
 const listeners = new Set();
 

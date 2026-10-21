@@ -4,6 +4,8 @@ export const STORAGE_KEYS = Object.freeze({
   RUN: "run",
   NOTIFICATION_ACTIONS: "notificationActions",
   WHATS_NEW_PENDING: "whatsNewPending",
+  COMPLETED_ROUTINES: "completedRoutines",
+  RATING_PROMPT: "ratingPrompt",
 });
 
 export function presetKey(presetId) {
