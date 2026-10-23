@@ -980,7 +980,7 @@ input[type="number"]::-webkit-inner-spin-button {
   & .button {
     flex: 1 1 0;
     min-width: fit-content;
-    padding-inline: var(--spacing-md);
+    padding-inline: var(--spacing-sm);
   }
 }
 
