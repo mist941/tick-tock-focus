@@ -111,13 +111,13 @@
     "message": "{count}h"
   },
   "badgeRunningTitle": {
-    "message": "{routineName} · {label} {n} of {total} · {timeLeft}"
+    "message": "{routineName} · {label} · {n} of {total} · {timeLeft}"
   },
   "badgePausedTitle": {
-    "message": "{routineName} · Paused · {label} {n} of {total}"
+    "message": "{routineName} · Paused · {label} · {n} of {total}"
   },
   "badgeWaitingTitle": {
-    "message": "{routineName} · Waiting for you · Next: {label} {n} of {total}"
+    "message": "{routineName} · Waiting for you · Next: {label} · {n} of {total}"
   },
   "badgeMinutesLeft": {
     "message": "{count} min left"
@@ -174,7 +174,7 @@
     "message": "{label} · {n} of {total}"
   },
   "popupTimerPausedPosition": {
-    "message": "Paused · {label} {n} of {total}"
+    "message": "Paused · {label} · {n} of {total}"
   },
   "popupTimerStageDone": {
     "message": "{label} done"

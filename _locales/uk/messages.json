@@ -111,13 +111,13 @@
     "message": "{count}г"
   },
   "badgeRunningTitle": {
-    "message": "{routineName} · {label} {n} з {total} · {timeLeft}"
+    "message": "{routineName} · {label} · {n} з {total} · {timeLeft}"
   },
   "badgePausedTitle": {
-    "message": "{routineName} · Пауза · {label} {n} з {total}"
+    "message": "{routineName} · Пауза · {label} · {n} з {total}"
   },
   "badgeWaitingTitle": {
-    "message": "{routineName} · Чекає на вас · Далі: {label} {n} з {total}"
+    "message": "{routineName} · Чекає на вас · Далі: {label} · {n} з {total}"
   },
   "badgeMinutesLeft": {
     "message": "залишилось {count} хв"
@@ -174,7 +174,7 @@
     "message": "{label} · {n} з {total}"
   },
   "popupTimerPausedPosition": {
-    "message": "Пауза · {label} {n} з {total}"
+    "message": "Пауза · {label} · {n} з {total}"
   },
   "popupTimerStageDone": {
     "message": "Етап «{label}» завершено"

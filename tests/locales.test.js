@@ -79,6 +79,14 @@ describe("locale files", () => {
     }
   });
 
+  test("keep a separator between a stage label and its position", () => {
+    for (const [locale, messages] of messagesByLocale) {
+      for (const [key, { message }] of Object.entries(messages)) {
+        assert.doesNotMatch(message, /\{label\}\s*\{n\}/, `${locale} ${key}`);
+      }
+    }
+  });
+
   test("name every message in a way Chrome accepts, unique even ignoring case", () => {
     for (const locale of LOCALES) {
       const keys = matchAll(readMessagesFile(locale), /"(\w+)"\s*:\s*\{/g);
