@@ -111,13 +111,13 @@
     "message": "{count}г"
   },
   "badgeRunningTitle": {
-    "message": "{routineName} · {label} {n} з {total} · {timeLeft}"
+    "message": "{routineName} · {label} · {n} з {total} · {timeLeft}"
   },
   "badgePausedTitle": {
-    "message": "{routineName} · Пауза · {label} {n} з {total}"
+    "message": "{routineName} · Пауза · {label} · {n} з {total}"
   },
   "badgeWaitingTitle": {
-    "message": "{routineName} · Чекає на вас · Далі: {label} {n} з {total}"
+    "message": "{routineName} · Чекає на вас · Далі: {label} · {n} з {total}"
   },
   "badgeMinutesLeft": {
     "message": "залишилось {count} хв"
@@ -174,7 +174,7 @@
     "message": "{label} · {n} з {total}"
   },
   "popupTimerPausedPosition": {
-    "message": "Пауза · {label} {n} з {total}"
+    "message": "Пауза · {label} · {n} з {total}"
   },
   "popupTimerStageDone": {
     "message": "Етап «{label}» завершено"
@@ -582,7 +582,7 @@
     "message": "Етапи, типи й повтори"
   },
   "welcomeStepsText": {
-    "message": "Рутина — це список етапів, які йдуть один за одним. Кожен етап — «Фокус», «Перерва» або «Інше», і від цього залежить його колір, а етапи в повторі йдуть від {minTimes} до {maxTimes} разів поспіль."
+    "message": "Рутина — це список етапів, які йдуть один за одним. Кожен етап — «Фокус», «Перерва» або «Інше», і від цього залежить його колір, а повтор запускає свої етапи від {minTimes} до {maxTimes} разів поспіль."
   },
   "welcomeControlsTitle": {
     "message": "Пауза, Пропустити, +5 хв"
@@ -606,7 +606,7 @@
     "message": "Етап триває щонайменше {seconds} с"
   },
   "welcomeMinimumText": {
-    "message": "Chrome запускає будильник розширення не раніше ніж через {seconds} с після встановлення, тож коротший етап завершився б із запізненням."
+    "message": "Chrome запускає будильник розширення не раніше ніж через {seconds} с після того, як його поставлено, тож коротший етап завершився б із запізненням."
   },
   "welcomePrivacyTitle": {
     "message": "Конфіденційність"

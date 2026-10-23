@@ -205,6 +205,7 @@ a {
 }
 
 .template-card-duration {
+  margin-top: auto;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }

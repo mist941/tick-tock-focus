@@ -85,12 +85,12 @@ function createTemplateCard(template) {
   const card = createElement("label", { className: "template-card" });
   card.append(
     heading,
+    createElement("span", { className: "template-card-added", text: translate("welcomeAdded") }),
     createElement("span", {
       className: "template-card-duration",
       text: formatDuration(durationSec),
     }),
-    createStageStrip(stages),
-    createElement("span", { className: "template-card-added", text: translate("welcomeAdded") })
+    createStageStrip(stages)
   );
   const item = createElement("li");
   item.dataset.templateId = id;

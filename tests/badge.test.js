@@ -153,17 +153,17 @@ describe("getBadgeColors", () => {
 
 describe("getBadgeTitle", () => {
   test("names the routine, the stage and the time left", () => {
-    assert.equal(getBadgeTitle(runningRun(25 * minute), now), "Pomodoro · Focus 1 of 3 · 25 min left");
-    assert.equal(getBadgeTitle(runningRun(3 * hour), now), "Pomodoro · Focus 1 of 3 · 3 h left");
+    assert.equal(getBadgeTitle(runningRun(25 * minute), now), "Pomodoro · Focus · 1 of 3 · 25 min left");
+    assert.equal(getBadgeTitle(runningRun(3 * hour), now), "Pomodoro · Focus · 1 of 3 · 3 h left");
     assert.equal(
       getBadgeTitle(runningRun(30_000, { stageIndex: 2 }), now),
-      "Pomodoro · Review 3 of 3 · 1 min left"
+      "Pomodoro · Review · 3 of 3 · 1 min left"
     );
   });
 
   test("says when the timer is paused or waiting", () => {
-    assert.equal(getBadgeTitle(pausedRun(), now), "Pomodoro · Paused · Focus 1 of 3");
-    assert.equal(getBadgeTitle(awaitingRun(), now), "Pomodoro · Waiting for you · Next: Break 2 of 3");
+    assert.equal(getBadgeTitle(pausedRun(), now), "Pomodoro · Paused · Focus · 1 of 3");
+    assert.equal(getBadgeTitle(awaitingRun(), now), "Pomodoro · Waiting for you · Next: Break · 2 of 3");
   });
 
   test("is the extension name without a run", () => {
@@ -172,8 +172,8 @@ describe("getBadgeTitle", () => {
 
   test("speaks the language of the messages", () => {
     withLocale("uk", () => {
-      assert.equal(getBadgeTitle(runningRun(25 * minute), now), "Pomodoro · Focus 1 з 3 · залишилось 25 хв");
-      assert.equal(getBadgeTitle(pausedRun(), now), "Pomodoro · Пауза · Focus 1 з 3");
+      assert.equal(getBadgeTitle(runningRun(25 * minute), now), "Pomodoro · Focus · 1 з 3 · залишилось 25 хв");
+      assert.equal(getBadgeTitle(pausedRun(), now), "Pomodoro · Пауза · Focus · 1 з 3");
       assert.equal(getBadgeText(runningRun(3 * hour), now), "3г");
     });
   });
